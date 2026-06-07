@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "formlayer-peach"
+version = "1.0.0"
+description = "Peach local AI market briefing agent"
+requires-python = ">=3.9"
+dependencies = [
+  "apscheduler>=3.10.4,<4",
+  "markdown>=3.6,<4",
+  "openai>=1.40.0,<7",
+  "requests>=2.32.0,<3",
+  "yfinance>=0.2.40,<1"
+]
+
+[project.scripts]
+peach = "peach.main:main"
+
+[tool.setuptools.packages.find]
+include = ["peach*"]

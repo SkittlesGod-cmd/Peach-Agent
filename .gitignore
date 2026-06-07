@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Virtualenvs
+.venv/
+.venv-peach/
+venv/
+
+# Peach runtime and local secrets
+.peach.pid
+peach.log
+peach_config.json
+.env
+.env.*
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/

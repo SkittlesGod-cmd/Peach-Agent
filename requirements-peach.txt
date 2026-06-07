@@ -1,0 +1,5 @@
+apscheduler>=3.10.4,<4
+markdown>=3.6,<4
+openai>=1.40.0,<7
+requests>=2.32.0,<3
+yfinance>=0.2.40,<1
