@@ -21,3 +21,7 @@ peach_config.json
 .DS_Store
 .idea/
 .vscode/
+
+# Vercel local project metadata
+.vercel/
+.vercel
