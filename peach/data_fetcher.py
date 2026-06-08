@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 import logging
 from typing import Any
 from urllib.parse import quote_plus
 import xml.etree.ElementTree as ET
 
+import pandas as pd
 import requests
 import yfinance as yf
 
@@ -46,8 +47,8 @@ class AggregatedMarketData:
         return {
             "fetched_at": self.fetched_at,
             "tickers": self.tickers,
-            "metrics": [metric.__dict__ for metric in self.metrics],
-            "headlines": [headline.__dict__ for headline in self.headlines],
+            "metrics": [asdict(metric) for metric in self.metrics],
+            "headlines": [asdict(headline) for headline in self.headlines],
         }
 
 
@@ -114,7 +115,7 @@ class MarketDataFetcher:
                         ticker=ticker,
                         close=round(latest_close, 4),
                         previous_close=round(previous_close, 4) if previous_close is not None else None,
-                        volume=int(latest["Volume"]) if "Volume" in latest and not latest.isna()["Volume"] else None,
+                        volume=int(latest["Volume"]) if "Volume" in latest and pd.notna(latest["Volume"]) else None,
                         percent_change=round(percent_change, 4) if percent_change is not None else None,
                         trade_date=trade_date_value,
                     )

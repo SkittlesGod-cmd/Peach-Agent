@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Config · Peach Agent</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/"><span class="brand-mark"></span>Peach Agent</a>
+        <div class="nav-links">
+          <a href="/">Overview</a>
+          <a href="/docs">Docs</a>
+          <a href="/architecture">Architecture</a>
+          <a href="/deploy">Deploy</a>
+          <a href="/config" aria-current="page">Config</a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <section class="page-hero">
+        <div class="section">
+          <p class="eyebrow">Configuration</p>
+          <h1 class="page-title">Providers, tickers, schedule, and mail.</h1>
+          <p class="page-copy">Peach reads environment variables first, then falls back to peach_config.json in the configured Peach home directory.</p>
+        </div>
+      </section>
+      <article class="content">
+        <h2>Required Email Variables</h2>
+        <pre class="terminal"><code>export SMTP_USERNAME="you@example.com"
+export SMTP_PASSWORD="your-smtp-app-password"
+export PEACH_EMAIL_FROM="you@example.com"
+export PEACH_EMAIL_TO="you@example.com"</code></pre>
+
+        <h2>LLM Providers</h2>
+        <table class="table">
+          <thead><tr><th>Provider</th><th>Variables</th></tr></thead>
+          <tbody>
+            <tr><td>OpenAI</td><td>PEACH_LLM_PROVIDER=openai, OPENAI_API_KEY, PEACH_OPENAI_MODEL</td></tr>
+            <tr><td>Ollama</td><td>PEACH_LLM_PROVIDER=ollama, OLLAMA_URL, PEACH_OLLAMA_MODEL</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Market News</h2>
+        <p>Alpha Vantage and NewsAPI keys are optional. If neither is configured, Peach attempts Yahoo Finance RSS as a fallback headline source.</p>
+
+        <h2>Schedule</h2>
+        <pre class="terminal"><code>{
+  "timezone": "America/New_York",
+  "schedule_hour": 9,
+  "schedule_minute": 0,
+  "tickers": ["SPY", "QQQ", "AAPL", "MSFT", "NVDA"]
+}</code></pre>
+      </article>
+    </main>
+    <footer class="site-footer"><div class="footer-inner"><span>Peach Agent</span><span data-year></span></div></footer>
+    <script src="/site.js"></script>
+  </body>
+</html>

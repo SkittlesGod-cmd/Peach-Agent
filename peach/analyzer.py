@@ -52,7 +52,6 @@ class MarketAnalyzer:
     def _build_prompt(self, market_data: AggregatedMarketData) -> str:
         payload = market_data.to_prompt_payload()
         return (
-            f"{SYSTEM_INSTRUCTIONS}\n\n"
             "Raw market payload follows as JSON:\n"
             f"{json.dumps(payload, indent=2, sort_keys=True)}"
         )
@@ -81,11 +80,12 @@ class MarketAnalyzer:
         return content.strip()
 
     def _analyze_with_ollama(self, prompt: str) -> str:
+        full_prompt = f"{SYSTEM_INSTRUCTIONS}\n\n{prompt}"
         response = self.session.post(
             f"{self.config.ollama_url}/api/generate",
             json={
                 "model": self.config.ollama_model,
-                "prompt": prompt,
+                "prompt": full_prompt,
                 "stream": False,
                 "options": {"temperature": 0.2},
             },

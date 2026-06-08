@@ -8,7 +8,8 @@ opens.
 ## Install
 
 ```bash
-cd /Users/svanik/Documents/FormLayer
+git clone https://github.com/SkittlesGod-cmd/Peach-Agent.git
+cd Peach-Agent
 python3 -m venv .venv-peach
 source .venv-peach/bin/activate
 pip install -r requirements-peach.txt

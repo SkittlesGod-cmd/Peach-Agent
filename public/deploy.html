@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deploy · Peach Agent</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/"><span class="brand-mark"></span>Peach Agent</a>
+        <div class="nav-links">
+          <a href="/">Overview</a>
+          <a href="/docs">Docs</a>
+          <a href="/architecture">Architecture</a>
+          <a href="/deploy" aria-current="page">Deploy</a>
+          <a href="/config">Config</a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <section class="page-hero">
+        <div class="section">
+          <p class="eyebrow">Deployment</p>
+          <h1 class="page-title">Host the site on Vercel. Run the daemon somewhere always-on.</h1>
+          <p class="page-copy">This static website deploys cleanly on Vercel. The market briefing scheduler is a persistent Python process and needs a host that stays awake.</p>
+        </div>
+      </section>
+      <article class="content">
+        <h2>Good Hosts for the Daemon</h2>
+        <div class="doc-grid">
+          <div class="doc-card"><h3>Cloud VM</h3><p>A small Ubuntu VPS is the simplest reliable path for 24/7 execution.</p></div>
+          <div class="doc-card"><h3>Home server</h3><p>A machine that stays powered and networked can run Peach locally.</p></div>
+          <div class="doc-card"><h3>Container host</h3><p>Run Peach in Docker with environment-backed secrets and restart policies.</p></div>
+          <div class="doc-card"><h3>launchd/systemd</h3><p>Use your OS supervisor to restart Peach after host reboots.</p></div>
+        </div>
+
+        <h2>One-Line Install</h2>
+        <p>Works on Linux and macOS. Requires Python 3.9+ and git.</p>
+        <pre class="terminal"><code>curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</code></pre>
+
+        <h2>Production Setup (VPS / server)</h2>
+        <pre class="terminal"><code>curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
+
+# Set credentials
+export SMTP_USERNAME="you@example.com"
+export SMTP_PASSWORD="your-app-password"
+export PEACH_EMAIL_FROM="you@example.com"
+export PEACH_EMAIL_TO="you@example.com"
+export PEACH_LLM_PROVIDER="openai"
+export OPENAI_API_KEY="sk-..."
+
+peach start
+peach status</code></pre>
+
+        <div class="callout">
+          <p>Vercel serverless functions are request-driven. They are not a replacement for a continuously running background scheduler.</p>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer"><div class="footer-inner"><span>Peach Agent</span><span data-year></span></div></footer>
+    <script src="/site.js"></script>
+  </body>
+</html>

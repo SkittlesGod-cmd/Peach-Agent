@@ -3,7 +3,7 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "formlayer-peach"
+name = "peach-agent"
 version = "1.0.0"
 description = "Peach local AI market briefing agent"
 requires-python = ">=3.9"

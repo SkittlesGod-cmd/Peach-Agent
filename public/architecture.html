@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture · Peach Agent</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/"><span class="brand-mark"></span>Peach Agent</a>
+        <div class="nav-links">
+          <a href="/">Overview</a>
+          <a href="/docs">Docs</a>
+          <a href="/architecture" aria-current="page">Architecture</a>
+          <a href="/deploy">Deploy</a>
+          <a href="/config">Config</a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <section class="page-hero">
+        <div class="section">
+          <p class="eyebrow">System map</p>
+          <h1 class="page-title">Small modules, clear responsibilities.</h1>
+          <p class="page-copy">Peach is split into files that match the operational pipeline, which makes it easier to test, replace providers, and deploy outside a laptop.</p>
+        </div>
+      </section>
+      <article class="content">
+        <h2>Core Modules</h2>
+        <table class="table">
+          <thead><tr><th>Module</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td>main.py</td><td>Argparse command controller for start, status, and stop.</td></tr>
+            <tr><td>daemon.py</td><td>Persistent scheduler and guarded execution loop.</td></tr>
+            <tr><td>data_fetcher.py</td><td>Market metrics and headline aggregation.</td></tr>
+            <tr><td>analyzer.py</td><td>OpenAI/Ollama prompt construction and fallback analysis.</td></tr>
+            <tr><td>notifier.py</td><td>Markdown email formatting and SMTP delivery.</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Failure Handling</h2>
+        <p>Each network-sensitive stage is wrapped with explicit exception handling and logging. A failed fetcher or provider can degrade the report, but it should not terminate the daemon.</p>
+
+        <h2>Runtime Files</h2>
+        <ul>
+          <li>.peach.pid tracks the detached process.</li>
+          <li>peach.log stores rotating operational logs.</li>
+          <li>peach_config.json stores local non-committed configuration.</li>
+        </ul>
+      </article>
+    </main>
+    <footer class="site-footer"><div class="footer-inner"><span>Peach Agent</span><span data-year></span></div></footer>
+    <script src="/site.js"></script>
+  </body>
+</html>
