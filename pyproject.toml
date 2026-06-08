@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "peach-agent"
 version = "1.0.0"
-description = "Peach local AI market briefing agent"
+description = "Peach — pre-market intelligence agent"
 requires-python = ">=3.9"
 dependencies = [
   "apscheduler>=3.10.4,<4",

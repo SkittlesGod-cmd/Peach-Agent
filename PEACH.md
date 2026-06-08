@@ -1,6 +1,6 @@
 # Peach
 
-Peach is a local pre-market AI briefing agent. It starts from the terminal, runs
+Peach is a pre-market intelligence agent. It starts from the terminal, runs
 as a detached background daemon, gathers market data and headlines, generates a
 Markdown briefing with OpenAI or Ollama, and emails the report before the market
 opens.

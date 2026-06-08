@@ -17,8 +17,8 @@ success() { printf '%s %s\n' "$(green '✓')" "$1"; }
 die()     { printf '\n%s %s\n\n' "$(red 'error:')" "$1" >&2; exit 1; }
 
 echo
-printf '%s\n' "$(bold '🍑  Peach Agent Installer')"
-printf '%s\n' "Pre-market AI briefing daemon"
+printf '%s\n' "$(bold 'Peach Installer')"
+printf '%s\n' "Pre-market intelligence agent"
 echo
 
 # ── Requirements ────────────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ success "peach command installed."
 # ── Done ─────────────────────────────────────────────────────────────────────
 
 echo
-printf '%s\n' "$(green '✓  Peach Agent installed!')"
+printf '%s\n' "$(green '✓  Peach installed!')"
 echo
 printf '  %-12s %s\n' "Config:"  "$INSTALL_DIR/peach_config.json"
 printf '  %-12s %s\n' "Logs:"    "$INSTALL_DIR/peach.log"

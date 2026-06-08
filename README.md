@@ -1,6 +1,6 @@
-# Peach Agent
+# Peach
 
-Peach is a local AI pre-market briefing agent. It runs as a terminal-activated
+Peach is a pre-market intelligence agent. It runs as a terminal-activated
 background daemon, gathers market data and headlines, generates a Markdown
 briefing with OpenAI or Ollama, and emails the report before market open.
 
@@ -53,4 +53,4 @@ Vercel hosts this repository's project page, but Vercel does not run persistent
 background daemons. To run Peach when your laptop is off, install it on an
 always-on host such as a VPS, cloud VM, home server, or container.
 
-See [PEACH.md](./PEACH.md) for full configuration reference.
+See [PEACH.md](./PEACH.md) for the full configuration reference.

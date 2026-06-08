@@ -1,4 +1,4 @@
-"""Peach local AI market briefing agent."""
+"""Peach — pre-market intelligence agent."""
 
 __all__ = ["__version__"]
 
