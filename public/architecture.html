@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Architecture · Peach</title>
+  <meta name="description" content="How Peach is built — modules, the agentic loop, failure handling model, and runtime file layout." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
@@ -15,71 +16,182 @@
     <a class="brand" href="/">Peach</a>
     <div class="nav-links">
       <a href="/">Overview</a>
-      <a href="/docs">Docs</a>
-      <a href="/architecture" aria-current="page">Architecture</a>
+      <a href="/install">Install</a>
+      <a href="/telegram">Telegram</a>
       <a href="/deploy">Deploy</a>
       <a href="/config">Config</a>
+      <a href="/architecture" aria-current="page">Architecture</a>
     </div>
   </nav>
 
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
   <div class="page-hero">
     <div class="wrap">
       <p class="section-eyebrow">Architecture</p>
-      <h1 class="page-title">Small modules,<br>clear responsibilities.</h1>
-      <p class="page-sub">Peach is split into files that map directly to the operational pipeline — easier to test, replace a provider, or move to a new host.</p>
+      <h1 class="page-title">Small modules,<br>clear contracts.</h1>
+      <p class="page-sub">Peach is split into files that map directly to the operational pipeline. Every module does one thing. The agent loop composes them.</p>
     </div>
   </div>
 
   <div class="wrap">
-    <article class="doc-content">
+    <div class="doc-wide">
 
-      <h2>Core Modules</h2>
+      <!-- Agentic loop -->
+      <h2>The agentic loop</h2>
+      <p>The core idea: the LLM doesn't just fill in a template. It reasons, decides what data it needs, calls tools, reads the results, and continues until it has a complete answer.</p>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">Perception   →   Reason   →   Tool call   →   Re-reason   →   Output
+     ↑                                                              ↓
+     └──────────────────── Feedback loop ──────────────────────────┘
+
+Tools available:
+  get_quote         current price, change, volume
+  get_portfolio     positions with live P&amp;L
+  get_pre_market    pre-market price and % change
+  get_news          recent headlines for a ticker
+  add_alert         set a price threshold alert</pre>
+      </div>
+      <p>Each conversation or briefing run allows up to 8 tool iterations. If the agent needs pre-market data for three tickers and portfolio context, it calls four tools in sequence before writing the briefing. If the LLM loop fails entirely, <code>MarketAnalyzer</code> is used as a deterministic fallback.</p>
+
+      <!-- Core modules -->
+      <h2>Core modules</h2>
       <table class="data-table">
         <thead>
           <tr><th>Module</th><th>Responsibility</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>main.py</code></td><td>Argparse CLI controller for <code>start</code>, <code>status</code>, and <code>stop</code>. Manages the PID file and spawns the daemon as a detached subprocess.</td></tr>
-          <tr><td><code>daemon.py</code></td><td>Persistent APScheduler loop. Handles SIGTERM/SIGINT for clean shutdown. Runs the pipeline as a guarded job with a 1-hour misfire grace window.</td></tr>
-          <tr><td><code>data_fetcher.py</code></td><td>Market metrics via yfinance (close, previous close, volume, % change). Headlines via Alpha Vantage, NewsAPI, or Yahoo Finance RSS in fallback order.</td></tr>
-          <tr><td><code>analyzer.py</code></td><td>Builds the analyst prompt and dispatches to OpenAI or Ollama. Falls back to a deterministic template report if the LLM provider is unreachable.</td></tr>
-          <tr><td><code>notifier.py</code></td><td>Formats the Markdown report as a multipart email (plain + HTML) and delivers via SMTP with STARTTLS. Falls back to a basic HTML renderer if the <code>markdown</code> package is missing.</td></tr>
-          <tr><td><code>config.py</code></td><td>Loads configuration from environment variables and <code>peach_config.json</code>. Env vars take precedence. Provides a frozen <code>PeachConfig</code> dataclass.</td></tr>
-          <tr><td><code>logging_setup.py</code></td><td>Configures a rotating file handler (5 MB × 5 backups). Optionally mirrors to stdout when the CLI is run with <code>--verbose</code>.</td></tr>
+          <tr>
+            <td><code>main.py</code></td>
+            <td>CLI controller for <code>start</code>, <code>status</code>, <code>stop</code>. Manages the PID file and spawns the daemon as a detached subprocess.</td>
+          </tr>
+          <tr>
+            <td><code>daemon.py</code></td>
+            <td>Persistent APScheduler loop. Owns the morning briefing job, the 5-minute alert checker, and the Telegram bot thread. Handles SIGTERM/SIGINT for clean shutdown.</td>
+          </tr>
+          <tr>
+            <td><code>agent.py</code></td>
+            <td>Agentic reasoning loop. Sends messages to the LLM, executes tool calls, feeds results back, and repeats up to 8 times per run. Falls back to <code>MarketAnalyzer</code> on error.</td>
+          </tr>
+          <tr>
+            <td><code>tools.py</code></td>
+            <td>Tool schema definitions (OpenAI function-calling format) and <code>ToolExecutor</code> — the dispatcher that runs each tool and returns a string result.</td>
+          </tr>
+          <tr>
+            <td><code>data_fetcher.py</code></td>
+            <td>Batch market data collection. Fetches previous-session closes, pre-market prices, volumes, and headlines for the configured watchlist. Used by both the daemon and the agent.</td>
+          </tr>
+          <tr>
+            <td><code>analyzer.py</code></td>
+            <td>One-shot LLM analysis fallback. Used when the agentic loop is unavailable or for providers that don't support tool use. Supports peach proxy, OpenRouter, OpenAI, and Ollama.</td>
+          </tr>
+          <tr>
+            <td><code>portfolio.py</code></td>
+            <td>SQLite-backed position and alert ledger. Positions are averaged on re-add. Alerts are checked every 5 minutes; each fires once and is marked done.</td>
+          </tr>
+          <tr>
+            <td><code>memory.py</code></td>
+            <td>SQLite key-value store for persistent agent context — Telegram chat ID, user preferences, and any facts the agent should remember across sessions.</td>
+          </tr>
+          <tr>
+            <td><code>telegram_bot.py</code></td>
+            <td>Telegram bot interface. Runs in a daemon thread with its own asyncio loop. Handles slash commands and free-text chat, routing to <code>PeachAgent</code> for tool-backed responses.</td>
+          </tr>
+          <tr>
+            <td><code>notifier.py</code></td>
+            <td>Formats the briefing as a multipart email (plain + HTML) and delivers via SMTP with STARTTLS. Falls back to writing <code>briefing.md</code> when no email is configured.</td>
+          </tr>
+          <tr>
+            <td><code>config.py</code></td>
+            <td>Loads configuration from env vars and <code>peach_config.json</code>. Returns a frozen <code>PeachConfig</code> dataclass. Env vars always win.</td>
+          </tr>
         </tbody>
       </table>
 
-      <h2>Failure Handling Model</h2>
-      <p>Every network-sensitive stage is wrapped in explicit exception handling. The hierarchy is:</p>
-      <ul>
-        <li>A failed headline fetcher logs a warning and moves on — the remaining fetchers are still attempted.</li>
-        <li>A failed market metric for one ticker appends a null-filled record — the rest of the tickers still run.</li>
-        <li>A failed LLM call triggers the deterministic fallback briefing — the email is still sent.</li>
-        <li>A failed email send logs the exception — the daemon stays alive for the next scheduled run.</li>
-      </ul>
-      <p>No single failure terminates the daemon process. All failures are logged to <code>peach.log</code> with full tracebacks.</p>
+      <!-- Failure model -->
+      <h2>Failure handling model</h2>
+      <p>Every network-sensitive stage is individually guarded. Failures degrade the output gracefully — they never terminate the daemon:</p>
+      <ol class="pipeline" style="margin-top: 32px;">
+        <li class="pipeline-step">
+          <span class="step-num">1</span>
+          <div class="step-text">
+            <h3>Individual headline fetchers</h3>
+            <p>If Alpha Vantage fails, Peach tries NewsAPI. If that fails, it falls back to Yahoo Finance RSS. The briefing always has headlines.</p>
+          </div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-num">2</span>
+          <div class="step-text">
+            <h3>Individual ticker fetches</h3>
+            <p>If yfinance returns no data for one ticker, a null-filled <code>StockMetric</code> is appended. The remaining tickers still run. Null fields are reported explicitly in the briefing.</p>
+          </div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-num">3</span>
+          <div class="step-text">
+            <h3>Agentic loop failure</h3>
+            <p>If the tool loop raises an exception, <code>PeachAgent.run_briefing</code> catches it and calls <code>MarketAnalyzer</code> as a one-shot fallback. The briefing is still delivered.</p>
+          </div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-num">4</span>
+          <div class="step-text">
+            <h3>LLM provider unreachable</h3>
+            <p>If the LLM API call fails, <code>MarketAnalyzer</code> generates a deterministic data-first briefing from raw metrics. The email is sent; the report is marked as a fallback.</p>
+          </div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-num">5</span>
+          <div class="step-text">
+            <h3>Email delivery failure</h3>
+            <p>If SMTP raises, the exception is logged with a full traceback. The daemon stays alive. The next scheduled run will attempt delivery again.</p>
+          </div>
+        </li>
+      </ol>
 
-      <h2>Runtime Files</h2>
+      <!-- Runtime files -->
+      <h2>Runtime files</h2>
       <table class="data-table">
         <thead>
           <tr><th>File</th><th>Purpose</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>.peach.pid</code></td><td>Tracks the detached daemon PID. Written by the CLI on spawn; cleaned up on graceful shutdown.</td></tr>
-          <tr><td><code>peach.log</code></td><td>Rotating operational log. All pipeline events, warnings, and exceptions are written here.</td></tr>
-          <tr><td><code>peach_config.json</code></td><td>Local non-committed configuration. Overlaid by environment variables at startup.</td></tr>
+          <tr><td><code>.peach.pid</code></td><td>Daemon PID. Written on spawn, cleaned up on graceful shutdown.</td></tr>
+          <tr><td><code>peach.log</code></td><td>Rotating operational log — all pipeline events, warnings, exceptions (5 MB × 5 backups).</td></tr>
+          <tr><td><code>peach_config.json</code></td><td>Local non-committed configuration. Env vars overlay it at startup.</td></tr>
+          <tr><td><code>briefing.md</code></td><td>Latest briefing output when no email is configured.</td></tr>
+          <tr><td><code>portfolio.db</code></td><td>SQLite — positions table, alerts table, trade log. WAL mode for concurrent access.</td></tr>
+          <tr><td><code>memory.db</code></td><td>SQLite key-value — Telegram chat ID, user preferences, agent context.</td></tr>
         </tbody>
       </table>
 
-      <h2>Provider Contracts</h2>
-      <p>Swapping an LLM provider requires only changing <code>PEACH_LLM_PROVIDER</code>. The analyzer dispatches to the appropriate client inside <code>MarketAnalyzer.analyze()</code> — nothing else in the pipeline changes. The same pattern applies to news sources: the fetcher tries each source in order and stops when it has enough headlines.</p>
+      <!-- Proxy architecture -->
+      <h2>LLM proxy architecture</h2>
+      <p>The default provider is a Vercel serverless function (<code>api/analyze.js</code>) that forwards requests to OpenRouter. The real API key lives only in Vercel's encrypted environment variables — it is never in git, never on the user's machine.</p>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">User's machine                  Vercel                  OpenRouter
+┌─────────────────┐            ┌────────────┐           ┌──────────┐
+│ PeachAgent      │  POST      │ /api/      │  POST +   │ LLM API  │
+│ _call_llm()     │ ─────────► │ analyze.js │  Bearer   │          │
+│ (no API key)    │            │            │ ─────────►│          │
+└─────────────────┘            └────────────┘           └──────────┘
+                                  Key lives here only</pre>
+      </div>
+      <p>This means a user can install Peach and get a working LLM-backed briefing with zero configuration — no API accounts, no keys to manage.</p>
 
-    </article>
+    </div>
   </div>
 
   <footer class="site-footer">
     <div class="footer-inner">
       <span class="footer-brand">Peach</span>
+      <span style="display:flex;gap:24px;">
+        <a href="/install">Install</a>
+        <a href="/telegram">Telegram</a>
+        <a href="/config">Config</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </span>
       <span><span data-year></span></span>
     </div>
   </footer>

@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Config · Peach</title>
+  <meta name="description" content="Every Peach configuration option — environment variables, JSON keys, LLM providers, schedule, email, and Telegram." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
@@ -15,102 +16,230 @@
     <a class="brand" href="/">Peach</a>
     <div class="nav-links">
       <a href="/">Overview</a>
-      <a href="/docs">Docs</a>
-      <a href="/architecture">Architecture</a>
+      <a href="/install">Install</a>
+      <a href="/telegram">Telegram</a>
       <a href="/deploy">Deploy</a>
       <a href="/config" aria-current="page">Config</a>
+      <a href="/architecture">Architecture</a>
     </div>
   </nav>
 
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
   <div class="page-hero">
     <div class="wrap">
       <p class="section-eyebrow">Configuration</p>
-      <h1 class="page-title">Providers, tickers,<br>schedule, and mail.</h1>
-      <p class="page-sub">Peach reads environment variables first, then falls back to <code>peach_config.json</code> in the Peach home directory. Every key below has a corresponding env var.</p>
+      <h1 class="page-title">Every option,<br>explained.</h1>
+      <p class="page-sub">Peach reads environment variables first, then falls back to <code>peach_config.json</code> in the Peach home directory. Every key below has a matching env var.</p>
     </div>
   </div>
 
   <div class="wrap">
-    <article class="doc-content">
+    <div class="doc-wide">
 
-      <h2>Email (Required)</h2>
+      <!-- Minimal config -->
+      <h2>Minimal working config</h2>
+      <p>With zero config, Peach works immediately — the LLM is pre-configured via the proxy and briefings land in <code>~/briefing.md</code>. Add only what you need:</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">export SMTP_USERNAME="you@example.com"
-export SMTP_PASSWORD="your-app-password"
-export PEACH_EMAIL_FROM="you@example.com"
-export PEACH_EMAIL_TO="you@example.com"
-
-<span class="dim"># Optional overrides:</span>
-export SMTP_HOST="smtp.gmail.com"   <span class="dim"># default</span>
-export SMTP_PORT="587"              <span class="dim"># default</span>
-export PEACH_EMAIL_SUBJECT_PREFIX="Peach Market Briefing"</pre>
+        <pre class="term-body"><span class="dim"># ~/.local/share/peach-agent/peach_config.json</span>
+{
+  "tickers":    ["SPY", "QQQ", "AAPL", "MSFT", "NVDA", "TSLA"],
+  "telegram_bot_token": "YOUR_BOT_TOKEN"
+}</pre>
       </div>
 
-      <h2>LLM Providers</h2>
+      <!-- How config is loaded -->
+      <div class="callout">
+        <p>Environment variables always win. <code>PEACH_SCHEDULE_HOUR=8</code> overrides <code>"schedule_hour": 9</code> in the JSON. This makes it easy to use config files for defaults and env vars for host-specific overrides.</p>
+      </div>
+
+      <!-- Telegram -->
+      <h2>Telegram</h2>
       <table class="data-table">
         <thead>
-          <tr><th>Provider</th><th>Environment Variables</th><th>Default</th></tr>
+          <tr><th>Key</th><th>Env var</th><th>Description</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td>OpenAI</td>
-            <td><code>PEACH_LLM_PROVIDER=openai</code><br><code>OPENAI_API_KEY</code><br><code>PEACH_OPENAI_MODEL</code></td>
+            <td><code>telegram_bot_token</code></td>
+            <td><code>TELEGRAM_BOT_TOKEN</code></td>
+            <td>Token from @BotFather. Required to enable the Telegram bot. See the <a href="/telegram">Telegram guide</a>.</td>
+          </tr>
+          <tr>
+            <td><code>telegram_chat_id</code></td>
+            <td><code>TELEGRAM_CHAT_ID</code></td>
+            <td>Your Telegram chat ID for proactive notifications (alerts, briefing summaries). Auto-saved when you message the bot, or retrieve with <code>/mychatid</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- LLM providers -->
+      <h2>LLM providers</h2>
+      <p>The default provider is <code>peach</code> — a hosted proxy with a pre-configured OpenRouter key. No API key required. Switch providers if you want more control or a different model.</p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Provider</th><th>Key / Env var</th><th>Default model</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>peach</code> (default)</td>
+            <td>None — pre-configured</td>
+            <td><code>anthropic/claude-3-5-haiku</code></td>
+          </tr>
+          <tr>
+            <td><code>openrouter</code></td>
+            <td><code>OPENROUTER_API_KEY</code><br><code>PEACH_OPENROUTER_MODEL</code></td>
+            <td><code>anthropic/claude-3-5-haiku</code></td>
+          </tr>
+          <tr>
+            <td><code>openai</code></td>
+            <td><code>OPENAI_API_KEY</code><br><code>PEACH_OPENAI_MODEL</code></td>
             <td><code>gpt-4o-mini</code></td>
           </tr>
           <tr>
-            <td>Ollama</td>
-            <td><code>PEACH_LLM_PROVIDER=ollama</code><br><code>OLLAMA_URL</code><br><code>PEACH_OLLAMA_MODEL</code></td>
+            <td><code>ollama</code></td>
+            <td><code>OLLAMA_URL</code><br><code>PEACH_OLLAMA_MODEL</code></td>
             <td><code>llama3.1</code> at <code>127.0.0.1:11434</code></td>
           </tr>
         </tbody>
       </table>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body"><span class="dim"># Switch to OpenRouter with your own key and a smarter model:</span>
+{
+  "llm_provider":      "openrouter",
+  "openrouter_model":  "anthropic/claude-opus-4"
+}
+<span class="dim"># Set your key as an env var (never in the JSON file):</span>
+export OPENROUTER_API_KEY=sk-or-...</pre>
+      </div>
 
-      <h2>Market News Sources</h2>
-      <p>News providers are tried in order. Peach moves to the next source when the previous one returns no usable headlines or is unconfigured.</p>
+      <!-- Schedule -->
+      <h2>Schedule &amp; tickers</h2>
       <table class="data-table">
         <thead>
-          <tr><th>Source</th><th>Env Variable</th><th>Notes</th></tr>
+          <tr><th>Key</th><th>Env var</th><th>Default</th><th>Description</th></tr>
         </thead>
         <tbody>
-          <tr><td>Alpha Vantage</td><td><code>ALPHA_VANTAGE_API_KEY</code></td><td>Ticker-matched news sentiment feed. Best quality.</td></tr>
-          <tr><td>NewsAPI</td><td><code>NEWS_API_KEY</code></td><td>General financial news. Used if Alpha Vantage is unconfigured or fails.</td></tr>
-          <tr><td>Yahoo Finance RSS</td><td>None required</td><td>Automatic fallback. No API key needed.</td></tr>
+          <tr>
+            <td><code>tickers</code></td>
+            <td><code>PEACH_TICKERS</code> (CSV)</td>
+            <td>SPY, QQQ, DIA, IWM…</td>
+            <td>Watchlist for the briefing. Any valid Yahoo Finance ticker.</td>
+          </tr>
+          <tr>
+            <td><code>timezone</code></td>
+            <td><code>PEACH_TIMEZONE</code></td>
+            <td><code>America/New_York</code></td>
+            <td>IANA timezone for the scheduler. The schedule hour is interpreted in this timezone.</td>
+          </tr>
+          <tr>
+            <td><code>schedule_hour</code></td>
+            <td><code>PEACH_SCHEDULE_HOUR</code></td>
+            <td><code>9</code></td>
+            <td>Hour to run the briefing (24h, in the configured timezone).</td>
+          </tr>
+          <tr>
+            <td><code>schedule_minute</code></td>
+            <td><code>PEACH_SCHEDULE_MINUTE</code></td>
+            <td><code>0</code></td>
+            <td>Minute offset within the hour.</td>
+          </tr>
+          <tr>
+            <td><code>headline_limit</code></td>
+            <td><code>PEACH_HEADLINE_LIMIT</code></td>
+            <td><code>10</code></td>
+            <td>Maximum headlines to include in the market payload.</td>
+          </tr>
+          <tr>
+            <td><code>run_on_start</code></td>
+            <td><code>PEACH_RUN_ON_START</code></td>
+            <td><code>false</code></td>
+            <td>Run a briefing immediately on daemon start, before the first scheduled run.</td>
+          </tr>
         </tbody>
       </table>
 
-      <h2>Schedule and Tickers</h2>
+      <!-- Email -->
+      <h2>Email delivery <span class="tag">Optional</span></h2>
+      <p>If all six email fields are present, Peach delivers via SMTP. Otherwise, the briefing is written to <code>briefing.md</code> in the Peach home directory.</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
         <pre class="term-body">{
-  "timezone": "America/New_York",
-  "schedule_hour": 9,
-  "schedule_minute": 0,
-  "tickers": ["SPY", "QQQ", "DIA", "IWM", "AAPL", "MSFT", "NVDA", "TSLA"],
-  "headline_limit": 10,
-  "run_on_start": false
+  "smtp_host":             "smtp.gmail.com",
+  "smtp_port":             587,
+  "smtp_username":         "you@gmail.com",
+  "smtp_password":         "your-app-password",
+  "email_from":            "you@gmail.com",
+  "email_to":              "you@gmail.com",
+  "email_subject_prefix":  "Peach Market Briefing"
 }</pre>
       </div>
 
-      <div class="callout">
-        <p>All <code>peach_config.json</code> keys have environment variable equivalents. For example, <code>schedule_hour</code> maps to <code>PEACH_SCHEDULE_HOUR</code>. Env vars always win.</p>
-      </div>
+      <!-- News sources -->
+      <h2>News sources <span class="tag">Optional</span></h2>
+      <p>News providers are tried in order until enough headlines are collected. Yahoo Finance RSS is always the final fallback and requires no key.</p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Source</th><th>Env var</th><th>Quality</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Alpha Vantage</td>
+            <td><code>ALPHA_VANTAGE_API_KEY</code></td>
+            <td>Best — ticker-matched sentiment feed with summaries.</td>
+          </tr>
+          <tr>
+            <td>NewsAPI</td>
+            <td><code>NEWS_API_KEY</code></td>
+            <td>Good — general financial news, sorted by recency.</td>
+          </tr>
+          <tr>
+            <td>Yahoo Finance RSS</td>
+            <td>Not required</td>
+            <td>Automatic fallback. Always available, no key needed.</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <h2>Peach Home</h2>
-      <p>By default, Peach uses the current directory as its home. Pin it with <code>PEACH_HOME</code> or the <code>--home</code> flag:</p>
+      <!-- Peach home -->
+      <h2>Peach home directory</h2>
+      <p>All runtime files live in the Peach home directory. The default is <code>~/.local/share/peach-agent/</code> (set by the install script). Override with:</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">peach --home /opt/peach start
-peach --home /opt/peach status
-peach --home /opt/peach stop</pre>
-      </div>
+        <pre class="term-body"><span class="dim"># Via env var (persistent):</span>
+export PEACH_HOME=/opt/peach
 
-    </article>
+<span class="dim"># Via flag (per-command):</span>
+peach --home /opt/peach start
+peach --home /opt/peach status</pre>
+      </div>
+      <table class="data-table" style="margin-top:16px;">
+        <thead>
+          <tr><th>File</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>peach_config.json</code></td><td>Local configuration. Never committed to git.</td></tr>
+          <tr><td><code>peach.log</code></td><td>Rotating operational log (5 MB × 5 backups).</td></tr>
+          <tr><td><code>.peach.pid</code></td><td>PID file tracking the running daemon.</td></tr>
+          <tr><td><code>briefing.md</code></td><td>Latest briefing, written when email is not configured.</td></tr>
+          <tr><td><code>portfolio.db</code></td><td>SQLite database of positions and price alerts.</td></tr>
+          <tr><td><code>memory.db</code></td><td>SQLite key-value store for agent memory and chat ID.</td></tr>
+        </tbody>
+      </table>
+
+    </div>
   </div>
 
   <footer class="site-footer">
     <div class="footer-inner">
       <span class="footer-brand">Peach</span>
+      <span style="display:flex;gap:24px;">
+        <a href="/install">Install</a>
+        <a href="/telegram">Telegram</a>
+        <a href="/deploy">Deploy</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </span>
       <span><span data-year></span></span>
     </div>
   </footer>

@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Docs · Peach</title>
+  <meta name="description" content="Peach documentation — install guide, Telegram bot setup, deployment, config reference, and architecture." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
@@ -15,84 +16,72 @@
     <a class="brand" href="/">Peach</a>
     <div class="nav-links">
       <a href="/">Overview</a>
-      <a href="/docs" aria-current="page">Docs</a>
-      <a href="/architecture">Architecture</a>
+      <a href="/install">Install</a>
+      <a href="/telegram">Telegram</a>
       <a href="/deploy">Deploy</a>
       <a href="/config">Config</a>
+      <a href="/architecture">Architecture</a>
     </div>
   </nav>
 
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
   <div class="page-hero">
     <div class="wrap">
       <p class="section-eyebrow">Documentation</p>
-      <h1 class="page-title">Install and run<br>the agent.</h1>
-      <p class="page-sub">The project is a Python package with a console command. Install it, configure credentials, and let the daemon handle the weekday briefing run.</p>
+      <h1 class="page-title">Everything<br>you need.</h1>
+      <p class="page-sub">Install guide, Telegram bot setup, deployment options, config reference, and an architecture deep-dive.</p>
+      <div class="page-actions">
+        <a class="btn btn-dark" href="/install">Start with the install guide →</a>
+      </div>
     </div>
   </div>
 
   <div class="wrap">
-    <article class="doc-content">
-
-      <h2>Install</h2>
-      <p>Two commands. No API keys to set, no config to edit. The LLM is pre-configured.</p>
-      <div class="term">
-        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body"><span class="dim"># 1. Install (requires Python 3.9+ and git)</span>
-curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
-
-<span class="dim"># 2. Start the agent</span>
-peach start</pre>
+    <div class="section">
+      <div class="card-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <a class="card" href="/install">
+          <span class="card-eyebrow">Start here</span>
+          <h3>Install &amp; setup</h3>
+          <p>Step-by-step tutorial from zero to a running agent. Two commands. Under two minutes.</p>
+        </a>
+        <a class="card" href="/telegram">
+          <span class="card-eyebrow">New</span>
+          <h3>Telegram bot</h3>
+          <p>Live quotes, price alerts, portfolio P&amp;L, and on-demand briefings from anywhere.</p>
+        </a>
+        <a class="card" href="/deploy">
+          <span class="card-eyebrow">Deployment</span>
+          <h3>Always-on hosting</h3>
+          <p>VPS, Docker, home server, Raspberry Pi — systemd and launchd config included.</p>
+        </a>
+        <a class="card" href="/config">
+          <span class="card-eyebrow">Reference</span>
+          <h3>Configuration</h3>
+          <p>Every key and env var, with defaults. LLM providers, schedule, email, Telegram.</p>
+        </a>
+        <a class="card" href="/architecture">
+          <span class="card-eyebrow">Deep dive</span>
+          <h3>Architecture</h3>
+          <p>Module breakdown, agentic loop diagram, failure handling model, runtime files.</p>
+        </a>
+        <a class="card" href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">
+          <span class="card-eyebrow">Open Source</span>
+          <h3>GitHub</h3>
+          <p>Browse the source, open an issue, or extend it for your own use case.</p>
+        </a>
       </div>
-
-      <div class="callout">
-        <p>No email configured? No problem. Peach writes the briefing to <code>~/.local/share/peach-agent/briefing.md</code> automatically until you add SMTP settings.</p>
-      </div>
-
-      <h2>Commands</h2>
-      <div class="term">
-        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">peach start     <span class="dim"># start the background daemon</span>
-peach status    <span class="dim"># check if it's running and where logs are</span>
-peach stop      <span class="dim"># stop and clean up</span></pre>
-      </div>
-
-      <p>Run a briefing immediately instead of waiting for 09:00 ET:</p>
-      <div class="term">
-        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">PEACH_RUN_ON_START=true peach start</pre>
-      </div>
-
-      <h2>Adding Email Delivery (optional)</h2>
-      <p>Edit <code>~/.local/share/peach-agent/peach_config.json</code> and add your SMTP credentials:</p>
-      <div class="term">
-        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">{
-  "smtp_username": "you@gmail.com",
-  "smtp_password": "your-app-password",
-  "email_from":    "you@gmail.com",
-  "email_to":      "you@gmail.com"
-}</pre>
-      </div>
-
-      <h2>What Peach Sends</h2>
-      <ul>
-        <li>Macro tape overview derived from the supplied market payload.</li>
-        <li>Unusual price and volume standouts from the configured ticker list.</li>
-        <li>Headline-backed market sentiment notes.</li>
-        <li>A 2–3 ticker lookout list with technical justifications from observed metrics.</li>
-        <li>Risk notes and explicit uncertainty when APIs or LLM providers are unavailable.</li>
-      </ul>
-
-      <div class="callout">
-        <p>If the LLM provider is unreachable, Peach generates a deterministic briefing from raw metrics. A provider outage will never crash the daemon.</p>
-      </div>
-
-    </article>
+    </div>
   </div>
 
   <footer class="site-footer">
     <div class="footer-inner">
       <span class="footer-brand">Peach</span>
+      <span style="display:flex;gap:24px;">
+        <a href="/install">Install</a>
+        <a href="/telegram">Telegram</a>
+        <a href="/deploy">Deploy</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </span>
       <span><span data-year></span></span>
     </div>
   </footer>

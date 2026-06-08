@@ -557,6 +557,249 @@ a { color: inherit; text-decoration: none; }
 
 .data-table tr:last-child td { border-bottom: none; }
 
+/* ── Inline code ───────────────────────────────────────────────────────────── */
+
+code {
+  font-family: "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.855em;
+  background: var(--bg-warm);
+  border: 1px solid var(--line-mid);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--ink);
+}
+
+.term code,
+pre code { background: transparent; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+/* ── Tag / badge ───────────────────────────────────────────────────────────── */
+
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 100px;
+  border: 1px solid var(--line-mid);
+  color: var(--ink-3);
+  vertical-align: middle;
+}
+
+.tag-new {
+  background: var(--peach-pale);
+  border-color: var(--peach-mid);
+  color: var(--peach);
+}
+
+/* ── Tutorial steps ────────────────────────────────────────────────────────── */
+
+.tutorial-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tutorial-step {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  padding: 48px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.tutorial-step:first-child { border-top: 1px solid var(--line); }
+
+.tutorial-step > .step-num {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--peach);
+  text-transform: uppercase;
+  padding-top: 5px;
+}
+
+.step-body > h3 {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+}
+
+.step-body > p {
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: var(--ink-2);
+  margin: 0 0 20px;
+  max-width: 560px;
+}
+
+.step-body > p:last-child { margin-bottom: 0; }
+
+.step-body > .term {
+  max-width: 680px;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.step-body > .term:last-child { margin-bottom: 0; }
+
+.step-body > .callout { max-width: 560px; margin-top: 0; }
+
+/* ── Option rows (deployment choices) ─────────────────────────────────────── */
+
+.option-rows { margin: 0; padding: 0; list-style: none; }
+
+.option-row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 48px;
+  padding: 36px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+
+.option-row:first-child { border-top: 1px solid var(--line); }
+
+.option-left h3 {
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 6px;
+}
+
+.option-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.option-right p {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  margin: 0 0 16px;
+  max-width: 560px;
+}
+
+.option-right p:last-child { margin-bottom: 0; }
+
+.option-right .term { max-width: 640px; margin-bottom: 0; }
+
+/* ── Command reference table ───────────────────────────────────────────────── */
+
+.cmd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 28px 0;
+}
+
+.cmd-table tr { border-bottom: 1px solid var(--line); }
+.cmd-table tr:first-child { border-top: 1px solid var(--line); }
+
+.cmd-table td {
+  padding: 16px 0;
+  vertical-align: top;
+}
+
+.cmd-table td:first-child {
+  width: 220px;
+  padding-right: 24px;
+}
+
+.cmd-table td:first-child code {
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.cmd-table td:last-child {
+  color: var(--ink-2);
+  line-height: 1.65;
+}
+
+/* ── Page hero variants ────────────────────────────────────────────────────── */
+
+.page-hero { padding: 148px 0 88px; border-bottom: 1px solid var(--line); }
+
+.page-title {
+  font-size: clamp(48px, 7.5vw, 92px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.038em;
+  margin: 0 0 22px;
+}
+
+.page-sub {
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--ink-2);
+  max-width: 500px;
+  margin: 0 0 32px;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Wide content ──────────────────────────────────────────────────────────── */
+
+.doc-wide {
+  max-width: 840px;
+  padding: 88px 0 112px;
+}
+
+.doc-wide h2 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 64px 0 16px;
+}
+
+.doc-wide h2:first-child { margin-top: 0; }
+
+.doc-wide p {
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink-2);
+  margin: 0 0 16px;
+}
+
+.doc-wide ul, .doc-wide ol {
+  margin: 0 0 16px;
+  padding-left: 20px;
+}
+
+.doc-wide li {
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+
+.doc-wide .term { margin: 28px 0; }
+.doc-wide .callout { margin: 28px 0; }
+
+/* ── Divider band ──────────────────────────────────────────────────────────── */
+
+.divider-band {
+  background: var(--bg-warm);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 80px 0;
+}
+
 /* ── Responsive ────────────────────────────────────────────────────────────── */
 
 @media (max-width: 860px) {
@@ -578,8 +821,13 @@ a { color: inherit; text-decoration: none; }
   .site-footer { padding: 28px 24px; }
   .footer-inner { flex-direction: column; gap: 6px; align-items: flex-start; }
 
-  .page-hero { padding: 110px 0 60px; }
+  .page-hero { padding: 120px 0 72px; }
   .doc-content { padding: 60px 0 80px; }
+  .doc-wide { padding: 64px 0 88px; }
+
+  .tutorial-step { grid-template-columns: 52px 1fr; }
+  .option-row { grid-template-columns: 1fr; gap: 14px; }
+  .cmd-table td:first-child { width: 160px; }
 }
 
 @media (max-width: 560px) {
@@ -591,5 +839,6 @@ a { color: inherit; text-decoration: none; }
   .hero-sub { font-size: 15px; }
 
   .pipeline-step { grid-template-columns: 52px 1fr; }
-  .step-num { font-size: 32px; }
+
+  .page-title { font-size: clamp(40px, 12vw, 72px); }
 }

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install · Peach</title>
+  <meta name="description" content="Install and run Peach in under two minutes. Step-by-step guide for macOS and Linux." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" aria-label="Main">
+    <a class="brand" href="/">Peach</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/install" aria-current="page">Install</a>
+      <a href="/telegram">Telegram</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+      <a href="/architecture">Architecture</a>
+    </div>
+  </nav>
+
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
+  <div class="page-hero">
+    <div class="wrap">
+      <p class="section-eyebrow">Install</p>
+      <h1 class="page-title">Up and running<br>in two minutes.</h1>
+      <p class="page-sub">One install command, one start command. No API keys, no config files, no accounts to create. Briefings land automatically every weekday at 09:00 ET.</p>
+      <div class="page-actions">
+        <a class="btn btn-dark" href="/telegram">Connect Telegram →</a>
+        <a class="btn btn-outline" href="/config">Config reference</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tutorial ───────────────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="doc-wide">
+
+      <ol class="tutorial-steps">
+
+        <li class="tutorial-step">
+          <span class="step-num">01</span>
+          <div class="step-body">
+            <h3>Check requirements</h3>
+            <p>Peach requires Python 3.9 or later and git. Both come pre-installed on modern macOS. On Linux, install them with your package manager.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># Verify versions</span>
+python3 --version   <span class="dim"># need 3.9 or later</span>
+git --version</pre>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">02</span>
+          <div class="step-body">
+            <h3>Install Peach</h3>
+            <p>The install script clones the repository, creates a virtual environment, installs dependencies, and puts the <code>peach</code> command in <code>~/.local/bin</code>. It takes about 30 seconds.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</pre>
+            </div>
+            <div class="callout">
+              <p>The script installs to <code>~/.local/share/peach-agent/</code>. Nothing goes in <code>/usr/local</code> or anywhere system-wide. Uninstalling is just deleting that directory.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">03</span>
+          <div class="step-body">
+            <h3>Start the agent</h3>
+            <p>This launches Peach as a detached background daemon. It schedules the morning briefing, starts the price-alert checker, and — if configured — starts the Telegram bot.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body">peach start</pre>
+            </div>
+            <p>Check that it's running:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body">peach status</pre>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">04</span>
+          <div class="step-body">
+            <h3>Read your first briefing</h3>
+            <p>Until email or Telegram is configured, briefings are written to a Markdown file after each 09:00 ET run. You can also trigger one immediately:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># Run a briefing right now instead of waiting for 09:00</span>
+peach stop
+PEACH_RUN_ON_START=true peach start
+
+<span class="dim"># Read the output</span>
+cat ~/.local/share/peach-agent/briefing.md</pre>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">05</span>
+          <div class="step-body">
+            <h3>Connect Telegram <span class="tag tag-new">Recommended</span></h3>
+            <p>The Telegram bot gives you live quotes, portfolio tracking, price alerts, and on-demand briefings from anywhere. Setup takes about two minutes.</p>
+            <a class="btn btn-dark" href="/telegram" style="display:inline-flex;margin-top:4px;">Telegram setup guide →</a>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">06</span>
+          <div class="step-body">
+            <h3>Add email delivery <span class="tag">Optional</span></h3>
+            <p>Edit <code>~/.local/share/peach-agent/peach_config.json</code> and add your SMTP credentials. Gmail with an App Password works well.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body">{
+  "smtp_username": "you@gmail.com",
+  "smtp_password": "your-app-password",
+  "email_from":    "you@gmail.com",
+  "email_to":      "you@gmail.com"
+}</pre>
+            </div>
+            <p>Restart to apply:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body">peach stop && peach start</pre>
+            </div>
+            <div class="callout">
+              <p>Gmail requires an App Password, not your account password. Generate one at <strong>Google Account → Security → 2-Step Verification → App passwords</strong>.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">07</span>
+          <div class="step-body">
+            <h3>Customise your watchlist <span class="tag">Optional</span></h3>
+            <p>The default watchlist is SPY, QQQ, DIA, IWM, AAPL, MSFT, NVDA, TSLA. Replace it with tickers you actually follow:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body">{
+  "tickers": ["SPY", "QQQ", "AAPL", "MSFT", "GOOGL", "META", "AMZN"]
+}</pre>
+            </div>
+          </div>
+        </li>
+
+      </ol>
+
+      <!-- Commands reference -->
+      <h2>CLI reference</h2>
+      <table class="cmd-table">
+        <tr>
+          <td><code>peach start</code></td>
+          <td>Start the background daemon. Returns immediately — the daemon keeps running.</td>
+        </tr>
+        <tr>
+          <td><code>peach status</code></td>
+          <td>Show whether the daemon is running, the PID, and where logs are written.</td>
+        </tr>
+        <tr>
+          <td><code>peach stop</code></td>
+          <td>Stop the daemon gracefully. Cleans up the PID file.</td>
+        </tr>
+        <tr>
+          <td><code>PEACH_RUN_ON_START=true<br>peach start</code></td>
+          <td>Run a briefing immediately on startup instead of waiting for the scheduled time.</td>
+        </tr>
+        <tr>
+          <td><code>peach --home /path start</code></td>
+          <td>Use a custom directory for config, PID, and log files. Useful for multiple instances.</td>
+        </tr>
+      </table>
+
+      <!-- What's in the briefing -->
+      <h2>What the briefing contains</h2>
+      <p>Every morning briefing includes five sections, generated by the LLM from the market data payload:</p>
+      <ul>
+        <li><strong>Macro Tape</strong> — index levels and overnight moves across the configured watchlist</li>
+        <li><strong>Portfolio Check</strong> — open positions benchmarked against current prices (if configured)</li>
+        <li><strong>Standouts</strong> — unusual price and volume moves from the watchlist</li>
+        <li><strong>Lookout List</strong> — 2–3 tickers worth watching that session, with data-backed reasons</li>
+        <li><strong>Risk Notes</strong> — explicit uncertainty, data gaps, and what could go wrong</li>
+      </ul>
+      <p>If the LLM is unreachable, Peach produces a deterministic data-first fallback and marks it clearly so you know the difference.</p>
+
+    </div>
+  </div>
+
+  <!-- ── Next steps ─────────────────────────────────────────────────────────── -->
+  <div class="divider-band">
+    <div class="wrap">
+      <p class="section-eyebrow">Next</p>
+      <h2 class="section-title" style="max-width:480px;margin-bottom:40px;">Make it useful everywhere.</h2>
+      <div class="card-grid">
+        <a class="card" href="/telegram">
+          <span class="card-eyebrow">New</span>
+          <h3>Telegram bot</h3>
+          <p>Live quotes, price alerts, and on-demand briefings from your phone.</p>
+        </a>
+        <a class="card" href="/deploy">
+          <span class="card-eyebrow">Deployment</span>
+          <h3>Always-on hosting</h3>
+          <p>Run Peach on a VPS or home server so briefings arrive even when your laptop is off.</p>
+        </a>
+        <a class="card" href="/config">
+          <span class="card-eyebrow">Reference</span>
+          <h3>Configuration guide</h3>
+          <p>All config keys, environment variables, and LLM provider options.</p>
+        </a>
+        <a class="card" href="/architecture">
+          <span class="card-eyebrow">Architecture</span>
+          <h3>How it works</h3>
+          <p>The module structure, agentic loop, and failure handling model.</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">Peach</span>
+      <span style="display:flex;gap:24px;">
+        <a href="/telegram">Telegram</a>
+        <a href="/deploy">Deploy</a>
+        <a href="/config">Config</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </span>
+      <span><span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
+</html>

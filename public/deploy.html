@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Deploy · Peach</title>
+  <meta name="description" content="Host Peach on a VPS, home server, Docker container, or Raspberry Pi. Always-on deployment options explained." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
@@ -15,70 +16,201 @@
     <a class="brand" href="/">Peach</a>
     <div class="nav-links">
       <a href="/">Overview</a>
-      <a href="/docs">Docs</a>
-      <a href="/architecture">Architecture</a>
+      <a href="/install">Install</a>
+      <a href="/telegram">Telegram</a>
       <a href="/deploy" aria-current="page">Deploy</a>
       <a href="/config">Config</a>
+      <a href="/architecture">Architecture</a>
     </div>
   </nav>
 
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
   <div class="page-hero">
     <div class="wrap">
       <p class="section-eyebrow">Deployment</p>
-      <h1 class="page-title">Host the site on Vercel.<br>Run the daemon somewhere always-on.</h1>
-      <p class="page-sub">This static site deploys to Vercel in one click. The briefing scheduler is a persistent Python process and needs a host that stays awake.</p>
+      <h1 class="page-title">Run it anywhere<br>you want.</h1>
+      <p class="page-sub">Peach runs on any machine that stays on. A $4/month VPS, a home server, a Docker container, or a Raspberry Pi — the install command is the same everywhere.</p>
     </div>
   </div>
 
+  <!-- ── Why always-on ─────────────────────────────────────────────────────── -->
   <div class="wrap">
-    <article class="doc-content">
+    <div class="doc-wide">
 
-      <h2>Two Commands on Any Host</h2>
-      <p>Works on Linux and macOS. Requires Python 3.9+ and git. No API keys to set.</p>
+      <div class="callout" style="margin-top:0;">
+        <p>Vercel (which hosts this site) runs serverless functions on request — it cannot run a persistent background scheduler. The briefing daemon needs a process that stays alive between 09:00 ET each weekday. Use any of the options below.</p>
+      </div>
+
+      <!-- Install command -->
+      <h2>The same two commands, everywhere</h2>
+      <p>Peach installs identically on any Linux or macOS host. SSH in and run:</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
         <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
 peach start</pre>
       </div>
 
-      <h2>Good Hosts for the Daemon</h2>
-      <table class="data-table">
-        <thead>
-          <tr><th>Host</th><th>Notes</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Cloud VM (DigitalOcean, Linode, EC2)</td><td>Simplest reliable path. A $4–6/month Ubuntu VPS is more than enough.</td></tr>
-          <tr><td>Home server</td><td>Any machine that stays powered and networked. Use systemd or launchd to restart on reboot.</td></tr>
-          <tr><td>Docker container</td><td>Run with <code>--restart unless-stopped</code> and pass credentials via <code>--env-file</code>.</td></tr>
-          <tr><td>Raspberry Pi</td><td>Works well for a dedicated, always-on local host with minimal power draw.</td></tr>
-        </tbody>
-      </table>
+      <!-- Host options -->
+      <h2>Choose a host</h2>
+      <ul class="option-rows">
 
-      <h2>Production Setup</h2>
+        <li class="option-row">
+          <div class="option-left">
+            <h3>Cloud VM</h3>
+            <span class="option-badge">Simplest</span>
+          </div>
+          <div class="option-right">
+            <p>DigitalOcean, Linode (Akamai), Vultr, or AWS EC2. A $4–6/month Ubuntu instance is more than sufficient. You get SSH access, full control, and a static IP for the Telegram webhook if you need it.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># On a fresh Ubuntu 22.04 VPS:</span>
+sudo apt update && sudo apt install -y python3 python3-pip git
+curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
+peach start</pre>
+            </div>
+          </div>
+        </li>
+
+        <li class="option-row">
+          <div class="option-left">
+            <h3>Docker</h3>
+            <span class="option-badge">Portable</span>
+          </div>
+          <div class="option-right">
+            <p>Run Peach inside a container with <code>--restart unless-stopped</code> so it comes back after a host reboot. Pass config via <code>--env-file</code>.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># Build from the repo</span>
+git clone https://github.com/SkittlesGod-cmd/Peach-Agent.git
+cd Peach-Agent
+
+<span class="dim"># Create a .env file with your credentials</span>
+cat > peach.env &lt;&lt;EOF
+TELEGRAM_BOT_TOKEN=your_token
+SMTP_USERNAME=you@gmail.com
+SMTP_PASSWORD=your-app-password
+PEACH_EMAIL_FROM=you@gmail.com
+PEACH_EMAIL_TO=you@gmail.com
+EOF
+
+<span class="dim"># Run with Docker</span>
+docker run -d \
+  --name peach \
+  --restart unless-stopped \
+  --env-file peach.env \
+  -v peach-data:/root/.local/share/peach-agent \
+  python:3.11-slim \
+  bash -c "pip install -e /app[all] && peach start --foreground"</pre>
+            </div>
+          </div>
+        </li>
+
+        <li class="option-row">
+          <div class="option-left">
+            <h3>Home server</h3>
+            <span class="option-badge">No recurring cost</span>
+          </div>
+          <div class="option-right">
+            <p>Any always-on Mac or Linux machine at home works. Install Peach, then use systemd (Linux) or launchd (macOS) to start it on boot and restart it on failure.</p>
+          </div>
+        </li>
+
+        <li class="option-row">
+          <div class="option-left">
+            <h3>Raspberry Pi</h3>
+            <span class="option-badge">Low power</span>
+          </div>
+          <div class="option-right">
+            <p>A Pi 3 or later running Raspberry Pi OS works great. Minimal power draw, completely silent, and it can double as a local Ollama server if you want local LLM analysis.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># Install Python 3.9+ if needed</span>
+sudo apt install python3.11 python3.11-venv git
+curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
+peach start</pre>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- systemd -->
+      <h2>Survive reboots with systemd (Linux)</h2>
+      <p>Create a systemd service so Peach restarts automatically if the machine reboots or crashes:</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body"><span class="dim"># Install and start — that's it</span>
-curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
-peach start
+        <pre class="term-body"><span class="dim"># Create the unit file</span>
+sudo tee /etc/systemd/system/peach.service &lt;&lt;EOF
+[Unit]
+Description=Peach pre-market intelligence agent
+After=network-online.target
+Wants=network-online.target
 
-<span class="dim"># Optional: add email delivery</span>
-<span class="dim"># Edit ~/.local/share/peach-agent/peach_config.json</span></pre>
+[Service]
+Type=simple
+User=$USER
+ExecStart=$HOME/.local/bin/peach start --foreground
+Restart=on-failure
+RestartSec=30
+Environment=PEACH_HOME=$HOME/.local/share/peach-agent
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+<span class="dim"># Enable and start</span>
+sudo systemctl daemon-reload
+sudo systemctl enable peach
+sudo systemctl start peach
+sudo systemctl status peach</pre>
+      </div>
+
+      <!-- launchd -->
+      <h2>Survive reboots with launchd (macOS)</h2>
+      <p>On macOS, use a launchd plist in <code>~/Library/LaunchAgents/</code>:</p>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body"><span class="dim"># Create the plist</span>
+cat > ~/Library/LaunchAgents/com.peach.agent.plist &lt;&lt;EOF
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;
+  &lt;string&gt;com.peach.agent&lt;/string&gt;
+  &lt;key&gt;ProgramArguments&lt;/key&gt;
+  &lt;array&gt;
+    &lt;string&gt;$HOME/.local/bin/peach&lt;/string&gt;
+    &lt;string&gt;start&lt;/string&gt;
+    &lt;string&gt;--foreground&lt;/string&gt;
+  &lt;/array&gt;
+  &lt;key&gt;RunAtLoad&lt;/key&gt;
+  &lt;true/&gt;
+  &lt;key&gt;KeepAlive&lt;/key&gt;
+  &lt;true/&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
+EOF
+
+<span class="dim"># Load it</span>
+launchctl load ~/Library/LaunchAgents/com.peach.agent.plist</pre>
       </div>
 
       <div class="callout">
-        <p>Vercel runs serverless functions triggered by HTTP requests. It is not a substitute for a continuously running background scheduler. The daemon needs a persistent process on an always-on host.</p>
+        <p>Running in a different timezone? Set <code>PEACH_TIMEZONE</code> to your host's timezone (e.g. <code>Europe/London</code>) and keep <code>schedule_hour: 9</code> — Peach will convert to local time correctly.</p>
       </div>
 
-      <h2>Keeping It Running After Reboots</h2>
-      <p>On Linux with systemd, create a unit file that starts Peach on boot and restarts it on failure. The <code>peach</code> command installed by the script works directly as the <code>ExecStart</code> target.</p>
-      <p>On macOS, use a launchd plist in <code>~/Library/LaunchAgents/</code> to achieve the same effect.</p>
-
-    </article>
+    </div>
   </div>
 
   <footer class="site-footer">
     <div class="footer-inner">
       <span class="footer-brand">Peach</span>
+      <span style="display:flex;gap:24px;">
+        <a href="/install">Install</a>
+        <a href="/telegram">Telegram</a>
+        <a href="/config">Config</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </span>
       <span><span data-year></span></span>
     </div>
   </footer>
