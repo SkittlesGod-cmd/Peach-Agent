@@ -1,57 +1,89 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Architecture · Peach Agent</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <nav class="nav" aria-label="Main navigation">
-        <a class="brand" href="/"><span class="brand-mark"></span>Peach Agent</a>
-        <div class="nav-links">
-          <a href="/">Overview</a>
-          <a href="/docs">Docs</a>
-          <a href="/architecture" aria-current="page">Architecture</a>
-          <a href="/deploy">Deploy</a>
-          <a href="/config">Config</a>
-        </div>
-      </nav>
-    </header>
-    <main>
-      <section class="page-hero">
-        <div class="section">
-          <p class="eyebrow">System map</p>
-          <h1 class="page-title">Small modules, clear responsibilities.</h1>
-          <p class="page-copy">Peach is split into files that match the operational pipeline, which makes it easier to test, replace providers, and deploy outside a laptop.</p>
-        </div>
-      </section>
-      <article class="content">
-        <h2>Core Modules</h2>
-        <table class="table">
-          <thead><tr><th>Module</th><th>Responsibility</th></tr></thead>
-          <tbody>
-            <tr><td>main.py</td><td>Argparse command controller for start, status, and stop.</td></tr>
-            <tr><td>daemon.py</td><td>Persistent scheduler and guarded execution loop.</td></tr>
-            <tr><td>data_fetcher.py</td><td>Market metrics and headline aggregation.</td></tr>
-            <tr><td>analyzer.py</td><td>OpenAI/Ollama prompt construction and fallback analysis.</td></tr>
-            <tr><td>notifier.py</td><td>Markdown email formatting and SMTP delivery.</td></tr>
-          </tbody>
-        </table>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Architecture · Peach Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
 
-        <h2>Failure Handling</h2>
-        <p>Each network-sensitive stage is wrapped with explicit exception handling and logging. A failed fetcher or provider can degrade the report, but it should not terminate the daemon.</p>
+  <nav class="nav scrolled" aria-label="Main">
+    <a class="brand" href="/">Peach Agent</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/docs">Docs</a>
+      <a href="/architecture" aria-current="page">Architecture</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+    </div>
+  </nav>
 
-        <h2>Runtime Files</h2>
-        <ul>
-          <li>.peach.pid tracks the detached process.</li>
-          <li>peach.log stores rotating operational logs.</li>
-          <li>peach_config.json stores local non-committed configuration.</li>
-        </ul>
-      </article>
-    </main>
-    <footer class="site-footer"><div class="footer-inner"><span>Peach Agent</span><span data-year></span></div></footer>
-    <script src="/site.js"></script>
-  </body>
+  <div class="page-hero">
+    <div class="wrap">
+      <p class="section-eyebrow">Architecture</p>
+      <h1 class="page-title">Small modules,<br>clear responsibilities.</h1>
+      <p class="page-sub">Peach is split into files that map directly to the operational pipeline — easier to test, replace a provider, or move to a new host.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <article class="doc-content">
+
+      <h2>Core Modules</h2>
+      <table class="data-table">
+        <thead>
+          <tr><th>Module</th><th>Responsibility</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>main.py</code></td><td>Argparse CLI controller for <code>start</code>, <code>status</code>, and <code>stop</code>. Manages the PID file and spawns the daemon as a detached subprocess.</td></tr>
+          <tr><td><code>daemon.py</code></td><td>Persistent APScheduler loop. Handles SIGTERM/SIGINT for clean shutdown. Runs the pipeline as a guarded job with a 1-hour misfire grace window.</td></tr>
+          <tr><td><code>data_fetcher.py</code></td><td>Market metrics via yfinance (close, previous close, volume, % change). Headlines via Alpha Vantage, NewsAPI, or Yahoo Finance RSS in fallback order.</td></tr>
+          <tr><td><code>analyzer.py</code></td><td>Builds the analyst prompt and dispatches to OpenAI or Ollama. Falls back to a deterministic template report if the LLM provider is unreachable.</td></tr>
+          <tr><td><code>notifier.py</code></td><td>Formats the Markdown report as a multipart email (plain + HTML) and delivers via SMTP with STARTTLS. Falls back to a basic HTML renderer if the <code>markdown</code> package is missing.</td></tr>
+          <tr><td><code>config.py</code></td><td>Loads configuration from environment variables and <code>peach_config.json</code>. Env vars take precedence. Provides a frozen <code>PeachConfig</code> dataclass.</td></tr>
+          <tr><td><code>logging_setup.py</code></td><td>Configures a rotating file handler (5 MB × 5 backups). Optionally mirrors to stdout when the CLI is run with <code>--verbose</code>.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Failure Handling Model</h2>
+      <p>Every network-sensitive stage is wrapped in explicit exception handling. The hierarchy is:</p>
+      <ul>
+        <li>A failed headline fetcher logs a warning and moves on — the remaining fetchers are still attempted.</li>
+        <li>A failed market metric for one ticker appends a null-filled record — the rest of the tickers still run.</li>
+        <li>A failed LLM call triggers the deterministic fallback briefing — the email is still sent.</li>
+        <li>A failed email send logs the exception — the daemon stays alive for the next scheduled run.</li>
+      </ul>
+      <p>No single failure terminates the daemon process. All failures are logged to <code>peach.log</code> with full tracebacks.</p>
+
+      <h2>Runtime Files</h2>
+      <table class="data-table">
+        <thead>
+          <tr><th>File</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>.peach.pid</code></td><td>Tracks the detached daemon PID. Written by the CLI on spawn; cleaned up on graceful shutdown.</td></tr>
+          <tr><td><code>peach.log</code></td><td>Rotating operational log. All pipeline events, warnings, and exceptions are written here.</td></tr>
+          <tr><td><code>peach_config.json</code></td><td>Local non-committed configuration. Overlaid by environment variables at startup.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Provider Contracts</h2>
+      <p>Swapping an LLM provider requires only changing <code>PEACH_LLM_PROVIDER</code>. The analyzer dispatches to the appropriate client inside <code>MarketAnalyzer.analyze()</code> — nothing else in the pipeline changes. The same pattern applies to news sources: the fetcher tries each source in order and stops when it has enough headlines.</p>
+
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">Peach Agent</span>
+      <span><span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
 </html>

@@ -1,89 +1,117 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Docs · Peach Agent</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <nav class="nav" aria-label="Main navigation">
-        <a class="brand" href="/"><span class="brand-mark"></span>Peach Agent</a>
-        <div class="nav-links">
-          <a href="/">Overview</a>
-          <a href="/docs" aria-current="page">Docs</a>
-          <a href="/architecture">Architecture</a>
-          <a href="/deploy">Deploy</a>
-          <a href="/config">Config</a>
-        </div>
-      </nav>
-    </header>
-    <main>
-      <section class="page-hero">
-        <div class="section">
-          <p class="eyebrow">Documentation</p>
-          <h1 class="page-title">Install Peach and make it useful.</h1>
-          <p class="page-copy">The project is a Python package with a console command. Install it, add credentials, then let the daemon handle the weekday briefing run.</p>
-        </div>
-      </section>
-      <article class="content">
-        <h2>Quick Install</h2>
-        <p>Run this on any machine with Python 3.9+ and git. The script clones the repo, creates a virtual environment, installs the <code>peach</code> command, and copies the example config.</p>
-        <pre class="terminal"><code>curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</code></pre>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Docs · Peach Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
 
-        <h2>Configure Credentials</h2>
-        <p>Peach reads environment variables first. Set these before starting:</p>
-        <pre class="terminal"><code># Email delivery (required)
+  <nav class="nav scrolled" aria-label="Main">
+    <a class="brand" href="/">Peach Agent</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/docs" aria-current="page">Docs</a>
+      <a href="/architecture">Architecture</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="wrap">
+      <p class="section-eyebrow">Documentation</p>
+      <h1 class="page-title">Install and run<br>Peach Agent.</h1>
+      <p class="page-sub">The project is a Python package with a console command. Install it, configure credentials, and let the daemon handle the weekday briefing run.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <article class="doc-content">
+
+      <h2>Quick Install</h2>
+      <p>Run this on any machine with Python 3.9+ and git. The script clones the repository, creates a virtual environment, installs dependencies, and drops a <code>peach</code> command in <code>~/.local/bin</code>.</p>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</pre>
+      </div>
+
+      <h2>Configure Credentials</h2>
+      <p>Peach reads environment variables first, then falls back to <code>peach_config.json</code>. Set these before starting:</p>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body"><span class="dim"># Email delivery (required)</span>
 export SMTP_USERNAME="you@example.com"
 export SMTP_PASSWORD="your-app-password"
 export PEACH_EMAIL_FROM="you@example.com"
 export PEACH_EMAIL_TO="you@example.com"
 
-# LLM provider — OpenAI:
+<span class="dim"># LLM provider — OpenAI:</span>
 export PEACH_LLM_PROVIDER="openai"
 export OPENAI_API_KEY="sk-..."
 
-# — or Ollama (local, no API key needed):
+<span class="dim"># — or Ollama (local, no API key needed):</span>
 export PEACH_LLM_PROVIDER="ollama"
-export OLLAMA_URL="http://127.0.0.1:11434"</code></pre>
+export OLLAMA_URL="http://127.0.0.1:11434"</pre>
+      </div>
 
-        <div class="callout">
-          <p>Credentials can also be set in <code>peach_config.json</code> in the install directory (<code>~/.local/share/peach-agent/</code>). Environment variables always take precedence.</p>
-        </div>
+      <div class="callout">
+        <p>Credentials can also live in <code>peach_config.json</code> inside the install directory (<code>~/.local/share/peach-agent/</code>). Environment variables always take precedence.</p>
+      </div>
 
-        <h2>Run</h2>
-        <pre class="terminal"><code>peach start     # start the background daemon
-peach status    # check if it's running
-peach stop      # stop and clean up the PID file</code></pre>
+      <h2>Run</h2>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">peach start     <span class="dim"># start the background daemon</span>
+peach status    <span class="dim"># check if it's running and where logs are</span>
+peach stop      <span class="dim"># stop the process and clean up the PID file</span></pre>
+      </div>
 
-        <p>To trigger a briefing immediately (without waiting for 9:00 AM):</p>
-        <pre class="terminal"><code>PEACH_RUN_ON_START=true peach start</code></pre>
+      <p>To trigger a briefing immediately without waiting for 09:00 ET:</p>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">PEACH_RUN_ON_START=true peach start</pre>
+      </div>
 
-        <h2>Manual Install (from source)</h2>
-        <pre class="terminal"><code>git clone https://github.com/SkittlesGod-cmd/Peach-Agent.git
+      <h2>Manual Install (from source)</h2>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">git clone https://github.com/SkittlesGod-cmd/Peach-Agent.git
 cd Peach-Agent
 python3 -m venv .venv-peach
 source .venv-peach/bin/activate
 pip install -r requirements-peach.txt
 pip install .
-cp peach_config.example.json peach_config.json</code></pre>
+cp peach_config.example.json peach_config.json</pre>
+      </div>
 
-        <h2>What Peach Sends</h2>
-        <ul>
-          <li>Macro tape overview from the supplied market payload.</li>
-          <li>Unusual price and volume standouts from the configured ticker list.</li>
-          <li>Headline-backed sentiment notes.</li>
-          <li>A 2-3 ticker lookout list with technical justifications.</li>
-          <li>Risk notes and uncertainty when APIs or LLM providers are unavailable.</li>
-        </ul>
+      <h2>What Peach Sends</h2>
+      <ul>
+        <li>Macro tape overview derived from the supplied market payload.</li>
+        <li>Unusual price and volume standouts from the configured ticker list.</li>
+        <li>Headline-backed market sentiment notes.</li>
+        <li>A 2–3 ticker lookout list with technical justifications from observed metrics.</li>
+        <li>Risk notes and explicit uncertainty when APIs or LLM providers are unavailable.</li>
+      </ul>
 
-        <div class="callout">
-          <p>Peach has a deterministic fallback briefing if the LLM provider is down, so a provider outage does not crash the daemon.</p>
-        </div>
-      </article>
-    </main>
-    <footer class="site-footer"><div class="footer-inner"><span>Peach Agent</span><span data-year></span></div></footer>
-    <script src="/site.js"></script>
-  </body>
+      <div class="callout">
+        <p>If the LLM provider is unreachable, Peach generates a deterministic briefing from raw metrics. A provider outage will never crash the daemon.</p>
+      </div>
+
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">Peach Agent</span>
+      <span><span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
 </html>

@@ -1,121 +1,191 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Peach Agent</title>
-    <meta name="description" content="Peach Agent is an AI pre-market briefing daemon for local and always-on hosts." />
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <nav class="nav" aria-label="Main navigation">
-        <a class="brand" href="/"><span class="brand-mark"></span>Peach Agent</a>
-        <div class="nav-links">
-          <a href="/" aria-current="page">Overview</a>
-          <a href="/docs">Docs</a>
-          <a href="/architecture">Architecture</a>
-          <a href="/deploy">Deploy</a>
-          <a href="/config">Config</a>
-        </div>
-      </nav>
-    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Peach Agent</title>
+  <meta name="description" content="A quiet background daemon that gathers market data, runs LLM analysis, and delivers a pre-market briefing to your inbox." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
 
-    <main>
-      <section class="hero">
-        <div class="hero-media" aria-hidden="true">
-          <img src="/assets/sunset-console.png" alt="" />
-        </div>
-        <div class="hero-inner">
-          <p class="eyebrow">Pre-market intelligence daemon</p>
-          <h1>Wake up to a sharper market briefing.</h1>
-          <p class="hero-copy">
-            Peach gathers ticker metrics, market-moving headlines, and LLM analysis into a concise Markdown email before the trading day starts.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="/docs">Start building</a>
-            <a class="button secondary" href="/deploy">Deployment paths</a>
-          </div>
-        </div>
-        <div class="hero-strip">
-          <div class="strip-inner">
-            <div class="metric"><strong>09:00 ET</strong><span>weekday briefing schedule</span></div>
-            <div class="metric"><strong>3 commands</strong><span>start, status, stop</span></div>
-            <div class="metric"><strong>OpenAI/Ollama</strong><span>cloud or local analysis</span></div>
-            <div class="metric"><strong>SMTP</strong><span>direct inbox delivery</span></div>
-          </div>
-        </div>
-      </section>
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="/">Peach Agent</a>
+    <div class="nav-links">
+      <a href="/" aria-current="page">Overview</a>
+      <a href="/docs">Docs</a>
+      <a href="/architecture">Architecture</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+    </div>
+  </nav>
 
-      <section class="section">
-        <div class="section-header">
-          <h2>Built for quiet, repeatable market prep.</h2>
-          <p class="section-lede">Peach is a modular Python agent with a CLI controller, daemon scheduler, data aggregation, analysis, and email notification pipeline.</p>
+  <!-- ── Hero ───────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <p class="hero-eyebrow">Pre-market intelligence</p>
+    <h1 class="hero-name">Peach<br><em>Agent.</em></h1>
+    <p class="hero-sub">A quiet background daemon that gathers market data, runs LLM analysis, and delivers a briefing to your inbox before the opening bell.</p>
+    <div class="hero-actions">
+      <a class="btn btn-dark" href="/docs">Get started</a>
+      <a class="btn btn-outline" href="/deploy">Deployment guide</a>
+    </div>
+    <span class="hero-scroll">Scroll to explore</span>
+  </section>
+
+  <!-- ── Stats ──────────────────────────────────────────────────────────── -->
+  <div class="stat-strip">
+    <div class="stat-cell">
+      <span class="stat-value">09:00</span>
+      <span class="stat-label">ET weekday briefing</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-value">3</span>
+      <span class="stat-label">commands — start, status, stop</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-value">OpenAI<br>Ollama</span>
+      <span class="stat-label">cloud or local analysis</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-value">SMTP</span>
+      <span class="stat-label">direct inbox delivery</span>
+    </div>
+  </div>
+
+  <!-- ── Features ───────────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="section">
+      <div class="split">
+        <div>
+          <p class="section-eyebrow">What it does</p>
+          <h2 class="section-title">Quiet, repeatable market prep.</h2>
+          <p class="section-body">Peach is a modular Python agent — a CLI controller, daemon scheduler, data aggregation layer, LLM analysis engine, and email delivery pipeline in a single package.</p>
         </div>
-        <div class="feature-grid">
-          <article class="feature">
+        <ul class="feature-rows">
+          <li class="feature-row">
             <h3>Detached CLI control</h3>
-            <p>Launch Peach from a terminal, keep it running in the background, and stop it cleanly through a PID-backed controller.</p>
-          </article>
-          <article class="feature">
+            <p>Launch from a terminal, keep running in the background, stop cleanly. A PID file tracks the process across sessions.</p>
+          </li>
+          <li class="feature-row">
             <h3>Market data pipeline</h3>
-            <p>Fetch previous-session closes, volumes, percentage changes, and recent headlines for your configured watchlist.</p>
-          </article>
-          <article class="feature">
-            <h3>LLM-ready briefing</h3>
-            <p>Send a structured prompt to OpenAI or Ollama and receive a Markdown report with macro tape, standouts, sentiment, and a lookout list.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section compact">
-        <div class="section-header">
-          <h2>The loop</h2>
-          <p class="section-lede">A small set of composable modules keeps Peach easy to audit, run, and move to a real always-on host.</p>
-        </div>
-        <div class="pipeline">
-          <div class="step"><small>01</small><h3>Schedule</h3><p>APScheduler triggers the weekday briefing window.</p></div>
-          <div class="step"><small>02</small><h3>Fetch</h3><p>Market metrics and headlines are collected with guarded network calls.</p></div>
-          <div class="step"><small>03</small><h3>Analyze</h3><p>The raw payload is shaped into a focused analyst prompt.</p></div>
-          <div class="step"><small>04</small><h3>Notify</h3><p>The Markdown report is delivered through secure SMTP settings.</p></div>
-          <div class="step"><small>05</small><h3>Log</h3><p>Local logs preserve failures without crashing the daemon.</p></div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-header">
-          <h2>One line to install.</h2>
-          <p class="section-lede">Install Peach on any machine with Python 3.9+ and git. The script clones the repo, sets up a virtual environment, and drops a <code>peach</code> command on your PATH.</p>
-        </div>
-        <pre class="terminal"><code class="one-liner">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</code></pre>
-        <div class="install-note">
-          <p>Then export your credentials and start the daemon:</p>
-          <pre class="terminal"><code>export SMTP_USERNAME="you@example.com"
-export SMTP_PASSWORD="your-app-password"
-export PEACH_EMAIL_FROM="you@example.com"
-export PEACH_EMAIL_TO="you@example.com"
-export PEACH_LLM_PROVIDER="openai"
-export OPENAI_API_KEY="sk-..."
-
-peach start
-peach status</code></pre>
-        </div>
-      </section>
-
-      <section class="section compact">
-        <div class="doc-grid">
-          <a class="doc-card" href="/docs"><h3>Read the setup docs</h3><p>Install locally, configure providers, and run the CLI.</p></a>
-          <a class="doc-card" href="/deploy"><h3>Choose a host</h3><p>Understand why Vercel hosts the site while the daemon needs an always-on runtime.</p></a>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="footer-inner">
-        <span>Peach Agent</span>
-        <span>Sunset briefing system · <span data-year></span></span>
+            <p>Previous-session closes, volumes, and percentage changes for your configured watchlist via Yahoo Finance. Headlines from Alpha Vantage, NewsAPI, or RSS fallback.</p>
+          </li>
+          <li class="feature-row">
+            <h3>LLM-backed briefing</h3>
+            <p>A structured prompt is sent to OpenAI or a local Ollama model. The result is a Markdown report with macro tape, standouts, sentiment, and a lookout list.</p>
+          </li>
+          <li class="feature-row">
+            <h3>Deterministic fallback</h3>
+            <p>If the LLM provider is unreachable, Peach generates a data-first briefing from raw metrics so the daemon never crashes silently.</p>
+          </li>
+        </ul>
       </div>
-    </footer>
-    <script src="/site.js"></script>
-  </body>
+    </div>
+  </div>
+
+  <!-- ── Pipeline ───────────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="section">
+      <p class="section-eyebrow">The loop</p>
+      <h2 class="section-title">Five composable steps.</h2>
+      <ol class="pipeline" style="margin-top: 48px;">
+        <li class="pipeline-step">
+          <span class="step-num">01</span>
+          <div class="step-text">
+            <h3>Schedule</h3>
+            <p>APScheduler fires the pipeline at 09:00 ET on weekdays. The schedule, timezone, and tickers are configurable per deployment.</p>
+          </div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-num">02</span>
+          <div class="step-text">
+            <h3>Fetch</h3>
+            <p>Market metrics and headlines are collected with guarded network calls. Individual fetcher failures are logged without stopping the run.</p>
+          </div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-num">03</span>
+          <div class="step-text">
+            <h3>Analyze</h3>
+            <p>The payload is shaped into a focused analyst prompt and sent to your chosen LLM. Instructions are scoped to the data provided — no hallucinated prices.</p>
+          </div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-num">04</span>
+          <div class="step-text">
+            <h3>Notify</h3>
+            <p>The Markdown report is formatted as a multipart email and delivered via SMTP. HTML and plaintext parts are both included.</p>
+          </div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-num">05</span>
+          <div class="step-text">
+            <h3>Log</h3>
+            <p>Rotating file logs capture every run. Failures degrade the briefing gracefully — they never terminate the daemon process.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ── Install ────────────────────────────────────────────────────────── -->
+  <section class="install-band">
+    <div class="wrap">
+      <p class="section-eyebrow">Install</p>
+      <h2 class="section-title">One command.</h2>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</pre>
+      </div>
+      <p style="margin: 28px 0 36px; font-size: 14px; color: rgba(255,255,255,0.45); font-weight: 300;">Requires Python 3.9+ and git. Installs to ~/.local/share/peach-agent and drops a peach command on your PATH.</p>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body"><span class="dim"># Set credentials, then:</span>
+peach start
+peach status
+peach stop</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quick links ────────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="section">
+      <div class="card-grid">
+        <a class="card" href="/docs">
+          <span class="card-eyebrow">Documentation</span>
+          <h3>Setup guide</h3>
+          <p>Install locally, configure providers, manage credentials, and run the CLI.</p>
+        </a>
+        <a class="card" href="/deploy">
+          <span class="card-eyebrow">Deployment</span>
+          <h3>Choose a host</h3>
+          <p>Why the daemon needs an always-on runtime, and how to deploy it there.</p>
+        </a>
+        <a class="card" href="/architecture">
+          <span class="card-eyebrow">Architecture</span>
+          <h3>How it's built</h3>
+          <p>Module responsibilities, the failure handling model, and runtime file layout.</p>
+        </a>
+        <a class="card" href="/config">
+          <span class="card-eyebrow">Configuration</span>
+          <h3>All options</h3>
+          <p>Every environment variable and peach_config.json key, with defaults.</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">Peach Agent</span>
+      <span><span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
 </html>
