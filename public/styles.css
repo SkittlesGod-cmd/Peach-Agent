@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
 /* ── Tokens ────────────────────────────────────────────────────────────────── */
 
@@ -20,7 +20,7 @@
   --term-dim:    rgba(245, 221, 200, 0.34);
   --radius:      6px;
 
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, ui-sans-serif, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "DM Sans", ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.6;
   background: var(--bg);
@@ -60,10 +60,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 .brand {
-  font-family: 'Cormorant', serif;
-  font-size: 19px;
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   color: var(--ink);
 }
 
@@ -111,18 +110,12 @@ a { color: inherit; text-decoration: none; }
 }
 
 .hero-name {
-  font-family: 'Cormorant', serif;
-  font-size: clamp(80px, 16vw, 200px);
-  font-weight: 300;
-  line-height: 0.88;
-  letter-spacing: -0.02em;
+  font-size: clamp(72px, 14vw, 180px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
   color: var(--ink);
   margin: 0 0 44px;
-}
-
-.hero-name em {
-  font-style: italic;
-  color: var(--peach);
 }
 
 .hero-sub {
@@ -203,9 +196,9 @@ a { color: inherit; text-decoration: none; }
 
 .stat-value {
   display: block;
-  font-family: 'Cormorant', serif;
-  font-size: 34px;
-  font-weight: 400;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   line-height: 1;
   margin-bottom: 5px;
 }
@@ -241,11 +234,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 .section-title {
-  font-family: 'Cormorant', serif;
-  font-size: clamp(38px, 5vw, 62px);
-  font-weight: 300;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  font-size: clamp(36px, 4.5vw, 58px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   margin: 0 0 18px;
 }
 
@@ -318,12 +310,13 @@ a { color: inherit; text-decoration: none; }
 }
 
 .step-num {
-  font-family: 'Cormorant', serif;
-  font-size: 44px;
-  font-weight: 300;
-  color: var(--peach-mid);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--peach);
   line-height: 1;
-  padding-top: 6px;
+  padding-top: 14px;
+  text-transform: uppercase;
 }
 
 .step-text h3 {
@@ -424,9 +417,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 .card h3 {
-  font-family: 'Cormorant', serif;
-  font-size: 24px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   line-height: 1.2;
   margin: 0;
 }
@@ -456,10 +449,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 .footer-brand {
-  font-family: 'Cormorant', serif;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   color: var(--ink);
-  letter-spacing: 0.01em;
 }
 
 /* ── Inner page hero ───────────────────────────────────────────────────────── */
@@ -470,11 +463,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 .page-title {
-  font-family: 'Cormorant', serif;
-  font-size: clamp(44px, 7vw, 80px);
-  font-weight: 300;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 700;
   line-height: 1.05;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.035em;
   margin: 0 0 18px;
 }
 
@@ -495,9 +487,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 .doc-content h2 {
-  font-family: 'Cormorant', serif;
-  font-size: 30px;
-  font-weight: 400;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   line-height: 1.2;
   margin: 56px 0 14px;
 }
