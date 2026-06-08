@@ -68,6 +68,8 @@ class PeachConfig:
     openrouter_model: str = "anthropic/claude-3-haiku"
     ollama_url: str = "http://127.0.0.1:11434"
     ollama_model: str = "llama3.1"
+    telegram_bot_token: str | None = None
+    telegram_chat_id: str | None = None
     alpha_vantage_api_key: str | None = None
     news_api_key: str | None = None
     smtp_host: str = "smtp.gmail.com"
@@ -88,6 +90,14 @@ class PeachConfig:
             and self.email_from
             and self.email_to
         )
+
+    @property
+    def portfolio_db(self) -> Path:
+        return self.home / "portfolio.db"
+
+    @property
+    def memory_db(self) -> Path:
+        return self.home / "memory.db"
 
 
 def load_config(home: str | None = None) -> PeachConfig:
@@ -128,6 +138,8 @@ def load_config(home: str | None = None) -> PeachConfig:
         openrouter_model=os.getenv("PEACH_OPENROUTER_MODEL", str(data.get("openrouter_model", "anthropic/claude-3-haiku"))),
         ollama_url=os.getenv("OLLAMA_URL", str(data.get("ollama_url", "http://127.0.0.1:11434"))).rstrip("/"),
         ollama_model=os.getenv("PEACH_OLLAMA_MODEL", str(data.get("ollama_model", "llama3.1"))),
+        telegram_bot_token=os.getenv("TELEGRAM_BOT_TOKEN", data.get("telegram_bot_token")),
+        telegram_chat_id=os.getenv("TELEGRAM_CHAT_ID", data.get("telegram_chat_id")),
         alpha_vantage_api_key=os.getenv("ALPHA_VANTAGE_API_KEY", data.get("alpha_vantage_api_key")),
         news_api_key=os.getenv("NEWS_API_KEY", data.get("news_api_key")),
         smtp_host=os.getenv("SMTP_HOST", str(data.get("smtp_host", "smtp.gmail.com"))),

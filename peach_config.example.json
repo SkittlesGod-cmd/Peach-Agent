@@ -6,7 +6,9 @@
   "run_on_start": false,
   "headline_limit": 10,
   "llm_provider": "peach",
-  "openrouter_model": "anthropic/claude-3-haiku",
+  "openrouter_model": "anthropic/claude-3-5-haiku",
+  "telegram_bot_token": "",
+  "telegram_chat_id": "",
   "smtp_host": "smtp.gmail.com",
   "smtp_port": 587,
   "email_subject_prefix": "Peach Market Briefing"

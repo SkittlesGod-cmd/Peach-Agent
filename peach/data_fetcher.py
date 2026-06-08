@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 import logging
 from typing import Any
 from urllib.parse import quote_plus
@@ -24,6 +24,8 @@ class StockMetric:
     volume: int | None
     percent_change: float | None
     trade_date: str | None
+    pre_market_price: float | None = None
+    pre_market_change_pct: float | None = None
     source: str = "yfinance"
 
 
@@ -70,7 +72,7 @@ class MarketDataFetcher:
         metrics = self.fetch_previous_day_metrics(self.config.tickers)
         headlines = self.fetch_headlines(self.config.tickers, self.config.headline_limit)
         return AggregatedMarketData(
-            fetched_at=datetime.now(UTC).isoformat(),
+            fetched_at=datetime.now(timezone.utc).isoformat(),
             tickers=self.config.tickers,
             metrics=metrics,
             headlines=headlines,
@@ -80,7 +82,8 @@ class MarketDataFetcher:
         metrics: list[StockMetric] = []
         for ticker in tickers:
             try:
-                history = yf.Ticker(ticker).history(period="10d", interval="1d", auto_adjust=False)
+                t = yf.Ticker(ticker)
+                history = t.history(period="10d", interval="1d", auto_adjust=False)
                 if history.empty:
                     self.logger.warning("No yfinance history returned for %s", ticker)
                     metrics.append(
@@ -110,6 +113,19 @@ class MarketDataFetcher:
                 else:
                     trade_date_value = str(trade_date)
 
+                pre_market_price: float | None = None
+                pre_market_change_pct: float | None = None
+                try:
+                    info = t.info
+                    pre_market_price = info.get("preMarketPrice")
+                    raw_pct = info.get("preMarketChangePercent")
+                    if raw_pct is not None:
+                        pre_market_change_pct = round(float(raw_pct) * 100, 4)
+                    if pre_market_price is not None:
+                        pre_market_price = round(float(pre_market_price), 4)
+                except Exception:
+                    pass
+
                 metrics.append(
                     StockMetric(
                         ticker=ticker,
@@ -118,6 +134,8 @@ class MarketDataFetcher:
                         volume=int(latest["Volume"]) if "Volume" in latest and pd.notna(latest["Volume"]) else None,
                         percent_change=round(percent_change, 4) if percent_change is not None else None,
                         trade_date=trade_date_value,
+                        pre_market_price=pre_market_price,
+                        pre_market_change_pct=pre_market_change_pct,
                     )
                 )
             except Exception as exc:
