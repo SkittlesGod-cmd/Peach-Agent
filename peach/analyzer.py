@@ -40,6 +40,10 @@ class MarketAnalyzer:
         prompt = self._build_prompt(market_data)
 
         try:
+            if self.config.llm_provider == "peach":
+                return self._analyze_with_peach_proxy(prompt)
+            if self.config.llm_provider == "openrouter":
+                return self._analyze_with_openrouter(prompt)
             if self.config.llm_provider == "openai":
                 return self._analyze_with_openai(prompt)
             if self.config.llm_provider == "ollama":
@@ -55,6 +59,55 @@ class MarketAnalyzer:
             "Raw market payload follows as JSON:\n"
             f"{json.dumps(payload, indent=2, sort_keys=True)}"
         )
+
+    def _analyze_with_peach_proxy(self, prompt: str) -> str:
+        response = self.session.post(
+            self.config.proxy_url,
+            json={
+                "model": self.config.openrouter_model,
+                "temperature": 0.2,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_INSTRUCTIONS},
+                    {"role": "user", "content": prompt},
+                ],
+            },
+            timeout=120,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        content = (
+            payload.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content")
+        )
+        if not content:
+            raise RuntimeError("Peach proxy returned an empty analysis.")
+        return str(content).strip()
+
+    def _analyze_with_openrouter(self, prompt: str) -> str:
+        if not self.config.openrouter_api_key:
+            raise RuntimeError("OPENROUTER_API_KEY is required when PEACH_LLM_PROVIDER=openrouter.")
+        try:
+            from openai import OpenAI
+        except ImportError as exc:
+            raise RuntimeError("Install the openai package to use OpenRouter analysis.") from exc
+
+        client = OpenAI(
+            api_key=self.config.openrouter_api_key,
+            base_url="https://openrouter.ai/api/v1",
+        )
+        response = client.chat.completions.create(
+            model=self.config.openrouter_model,
+            temperature=0.2,
+            messages=[
+                {"role": "system", "content": SYSTEM_INSTRUCTIONS},
+                {"role": "user", "content": prompt},
+            ],
+        )
+        content = response.choices[0].message.content
+        if not content:
+            raise RuntimeError("OpenRouter returned an empty analysis.")
+        return content.strip()
 
     def _analyze_with_openai(self, prompt: str) -> str:
         if not self.config.openai_api_key:

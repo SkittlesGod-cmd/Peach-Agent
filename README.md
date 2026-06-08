@@ -6,45 +6,36 @@ briefing with OpenAI or Ollama, and emails the report before market open.
 
 ## Install
 
+Two commands. No API keys to set — the LLM is pre-configured via OpenRouter.
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
-```
-
-Requires Python 3.9+ and git. Installs to `~/.local/share/peach-agent/` and
-drops a `peach` command in `~/.local/bin/`.
-
-## Configure
-
-```bash
-export SMTP_USERNAME="you@example.com"
-export SMTP_PASSWORD="your-app-password"
-export PEACH_EMAIL_FROM="you@example.com"
-export PEACH_EMAIL_TO="you@example.com"
-export PEACH_LLM_PROVIDER="openai"   # or "ollama"
-export OPENAI_API_KEY="sk-..."
-```
-
-## Run
-
-```bash
 peach start
-peach status
-peach stop
 ```
 
-Peach schedules its briefing at 9:00 AM America/New_York, Monday through Friday.
-To run immediately: `PEACH_RUN_ON_START=true peach start`
+Requires Python 3.9+ and git. Briefings run at 09:00 ET Monday–Friday.
+If no email is configured, the briefing is written to `~/.local/share/peach-agent/briefing.md`.
 
-## Manual Install (from source)
+## Add Email (optional)
+
+Edit `~/.local/share/peach-agent/peach_config.json`:
+
+```json
+{
+  "smtp_username": "you@gmail.com",
+  "smtp_password": "your-app-password",
+  "email_from": "you@gmail.com",
+  "email_to": "you@gmail.com"
+}
+```
+
+## Commands
 
 ```bash
-git clone https://github.com/SkittlesGod-cmd/Peach-Agent.git
-cd Peach-Agent
-python3 -m venv .venv-peach
-source .venv-peach/bin/activate
-pip install -r requirements-peach.txt
-pip install .
-cp peach_config.example.json peach_config.json
+peach start                          # start the background daemon
+peach status                         # check if it's running
+peach stop                           # stop and clean up
+PEACH_RUN_ON_START=true peach start  # run a briefing immediately
 ```
 
 ## Deployment Note

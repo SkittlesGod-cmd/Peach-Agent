@@ -33,60 +33,45 @@
   <div class="wrap">
     <article class="doc-content">
 
-      <h2>Quick Install</h2>
-      <p>Run this on any machine with Python 3.9+ and git. The script clones the repository, creates a virtual environment, installs dependencies, and drops a <code>peach</code> command in <code>~/.local/bin</code>.</p>
+      <h2>Install</h2>
+      <p>Two commands. No API keys to set, no config to edit. The LLM is pre-configured.</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</pre>
-      </div>
+        <pre class="term-body"><span class="dim"># 1. Install (requires Python 3.9+ and git)</span>
+curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
 
-      <h2>Configure Credentials</h2>
-      <p>Peach reads environment variables first, then falls back to <code>peach_config.json</code>. Set these before starting:</p>
-      <div class="term">
-        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body"><span class="dim"># Email delivery (required)</span>
-export SMTP_USERNAME="you@example.com"
-export SMTP_PASSWORD="your-app-password"
-export PEACH_EMAIL_FROM="you@example.com"
-export PEACH_EMAIL_TO="you@example.com"
-
-<span class="dim"># LLM provider — OpenAI:</span>
-export PEACH_LLM_PROVIDER="openai"
-export OPENAI_API_KEY="sk-..."
-
-<span class="dim"># — or Ollama (local, no API key needed):</span>
-export PEACH_LLM_PROVIDER="ollama"
-export OLLAMA_URL="http://127.0.0.1:11434"</pre>
+<span class="dim"># 2. Start the agent</span>
+peach start</pre>
       </div>
 
       <div class="callout">
-        <p>Credentials can also live in <code>peach_config.json</code> inside the install directory (<code>~/.local/share/peach-agent/</code>). Environment variables always take precedence.</p>
+        <p>No email configured? No problem. Peach writes the briefing to <code>~/.local/share/peach-agent/briefing.md</code> automatically until you add SMTP settings.</p>
       </div>
 
-      <h2>Run</h2>
+      <h2>Commands</h2>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
         <pre class="term-body">peach start     <span class="dim"># start the background daemon</span>
 peach status    <span class="dim"># check if it's running and where logs are</span>
-peach stop      <span class="dim"># stop the process and clean up the PID file</span></pre>
+peach stop      <span class="dim"># stop and clean up</span></pre>
       </div>
 
-      <p>To trigger a briefing immediately without waiting for 09:00 ET:</p>
+      <p>Run a briefing immediately instead of waiting for 09:00 ET:</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
         <pre class="term-body">PEACH_RUN_ON_START=true peach start</pre>
       </div>
 
-      <h2>Manual Install (from source)</h2>
+      <h2>Adding Email Delivery (optional)</h2>
+      <p>Edit <code>~/.local/share/peach-agent/peach_config.json</code> and add your SMTP credentials:</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">git clone https://github.com/SkittlesGod-cmd/Peach-Agent.git
-cd Peach-Agent
-python3 -m venv .venv-peach
-source .venv-peach/bin/activate
-pip install -r requirements-peach.txt
-pip install .
-cp peach_config.example.json peach_config.json</pre>
+        <pre class="term-body">{
+  "smtp_username": "you@gmail.com",
+  "smtp_password": "your-app-password",
+  "email_from":    "you@gmail.com",
+  "email_to":      "you@gmail.com"
+}</pre>
       </div>
 
       <h2>What Peach Sends</h2>

@@ -33,11 +33,12 @@
   <div class="wrap">
     <article class="doc-content">
 
-      <h2>One-Line Install</h2>
-      <p>Works on Linux and macOS. Requires Python 3.9+ and git.</p>
+      <h2>Two Commands on Any Host</h2>
+      <p>Works on Linux and macOS. Requires Python 3.9+ and git. No API keys to set.</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</pre>
+        <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
+peach start</pre>
       </div>
 
       <h2>Good Hosts for the Daemon</h2>
@@ -56,20 +57,12 @@
       <h2>Production Setup</h2>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body"><span class="dim"># 1. Install Peach</span>
+        <pre class="term-body"><span class="dim"># Install and start — that's it</span>
 curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
-
-<span class="dim"># 2. Set credentials (or edit ~/.local/share/peach-agent/peach_config.json)</span>
-export SMTP_USERNAME="you@example.com"
-export SMTP_PASSWORD="your-app-password"
-export PEACH_EMAIL_FROM="you@example.com"
-export PEACH_EMAIL_TO="you@example.com"
-export PEACH_LLM_PROVIDER="openai"
-export OPENAI_API_KEY="sk-..."
-
-<span class="dim"># 3. Start</span>
 peach start
-peach status</pre>
+
+<span class="dim"># Optional: add email delivery</span>
+<span class="dim"># Edit ~/.local/share/peach-agent/peach_config.json</span></pre>
       </div>
 
       <div class="callout">

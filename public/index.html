@@ -135,19 +135,16 @@
   <section class="install-band">
     <div class="wrap">
       <p class="section-eyebrow">Install</p>
-      <h2 class="section-title">One command.</h2>
+      <h2 class="section-title">Two commands.<br>Nothing else.</h2>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</pre>
+        <pre class="term-body"><span class="dim"># 1. Install</span>
+curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
+
+<span class="dim"># 2. Start</span>
+peach start</pre>
       </div>
-      <p style="margin: 28px 0 36px; font-size: 14px; color: rgba(255,255,255,0.45); font-weight: 300;">Requires Python 3.9+ and git. Installs to ~/.local/share/peach-agent and drops a peach command on your PATH.</p>
-      <div class="term">
-        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body"><span class="dim"># Set credentials, then:</span>
-peach start
-peach status
-peach stop</pre>
-      </div>
+      <p style="margin: 28px 0 0; font-size: 13.5px; color: rgba(255,255,255,0.38); font-weight: 300;">No API keys to set. No config files to edit. Briefings land in ~/briefing.md until you add email.</p>
     </div>
   </section>
 

@@ -5,10 +5,8 @@
   "schedule_minute": 0,
   "run_on_start": false,
   "headline_limit": 10,
-  "llm_provider": "ollama",
-  "ollama_url": "http://127.0.0.1:11434",
-  "ollama_model": "llama3.1",
-  "openai_model": "gpt-4o-mini",
+  "llm_provider": "peach",
+  "openrouter_model": "anthropic/claude-3-haiku",
   "smtp_host": "smtp.gmail.com",
   "smtp_port": 587,
   "email_subject_prefix": "Peach Market Briefing"

@@ -19,10 +19,8 @@ class EmailNotifier:
 
     def send(self, markdown_report: str) -> None:
         if not self.config.has_email_settings:
-            raise RuntimeError(
-                "Email settings are incomplete. Configure SMTP_USERNAME, SMTP_PASSWORD, "
-                "PEACH_EMAIL_FROM, and PEACH_EMAIL_TO."
-            )
+            self._save_briefing(markdown_report)
+            return
 
         subject = f"{self.config.email_subject_prefix} - {datetime.now().strftime('%Y-%m-%d')}"
         message = MIMEMultipart("alternative")
@@ -46,6 +44,11 @@ class EmailNotifier:
         except OSError as exc:
             self.logger.exception("Network error while sending email: %s", exc)
             raise
+
+    def _save_briefing(self, markdown_report: str) -> None:
+        path = self.config.home / "briefing.md"
+        path.write_text(markdown_report, encoding="utf-8")
+        self.logger.info("No email configured — briefing saved to %s", path)
 
     @staticmethod
     def _markdown_to_html(markdown_report: str) -> str:
