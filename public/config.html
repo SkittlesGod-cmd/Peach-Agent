@@ -53,6 +53,40 @@
         <p>Environment variables always win. <code>PEACH_SCHEDULE_HOUR=8</code> overrides <code>"schedule_hour": 9</code> in the JSON. This makes it easy to use config files for defaults and env vars for host-specific overrides.</p>
       </div>
 
+      <!-- Alpaca -->
+      <h2>Alpaca brokerage <span class="tag tag-new">New</span></h2>
+      <p>Connect your Alpaca account to give the agent access to your real (or paper) portfolio: live positions, account equity, buying power, and intraday P&L. Defaults to paper trading — set <code>alpaca_paper</code> to <code>false</code> to switch to a live account.</p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Key</th><th>Env var</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>alpaca_api_key</code></td>
+            <td><code>ALPACA_API_KEY</code></td>
+            <td>Alpaca API key ID. Get one at alpaca.markets → Paper Trading → API Keys.</td>
+          </tr>
+          <tr>
+            <td><code>alpaca_secret_key</code></td>
+            <td><code>ALPACA_SECRET_KEY</code></td>
+            <td>Alpaca secret key. Treat like a password — never commit to git.</td>
+          </tr>
+          <tr>
+            <td><code>alpaca_paper</code></td>
+            <td><code>ALPACA_PAPER</code></td>
+            <td>Use paper trading endpoint (<code>true</code>) or live (<code>false</code>). Default: <code>true</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">{
+  "alpaca_api_key":    "PK...",
+  "alpaca_secret_key": "...",
+  "alpaca_paper":      true
+}</pre>
+      </div>
+
       <!-- Telegram -->
       <h2>Telegram</h2>
       <table class="data-table">

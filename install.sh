@@ -69,6 +69,8 @@ _setup_email=""
 _setup_email_pw=""
 _setup_email_to=""
 _setup_tickers=""
+_setup_alpaca_key=""
+_setup_alpaca_secret=""
 
 if [ -e /dev/tty ]; then
     printf '\n'
@@ -119,15 +121,35 @@ if [ -e /dev/tty ]; then
     _setup_tickers="${_setup_tickers%"${_setup_tickers##*[![:space:]]}"}"
 
     printf '\n'
+    # ── Alpaca ────────────────────────────────────────────────────────────────
+    printf '\n'
+    printf '  %s  %s\n' "$(peach 'Alpaca brokerage')" "$(dim 'optional — defaults to paper trading')"
+    printf '  %s\n' "$(dim 'alpaca.markets → Paper Trading → API Keys')"
+    printf '  API key:    '
+    read -r _setup_alpaca_key </dev/tty || true
+    _setup_alpaca_key="${_setup_alpaca_key#"${_setup_alpaca_key%%[![:space:]]*}"}"
+    _setup_alpaca_key="${_setup_alpaca_key%"${_setup_alpaca_key##*[![:space:]]}"}"
+
+    if [ -n "$_setup_alpaca_key" ]; then
+        printf '  API secret: '
+        stty -echo 2>/dev/tty || true
+        read -r _setup_alpaca_secret </dev/tty || true
+        stty echo 2>/dev/tty || true
+        printf '\n'
+    fi
+
+    printf '\n'
     printf '  %s\n' "$(bold '─────────────────────────────────────────────')"
 
     # ── Write answers into peach_config.json ──────────────────────────────────
-    if [ -n "$_setup_telegram" ] || [ -n "$_setup_email" ] || [ -n "$_setup_tickers" ]; then
+    if [ -n "$_setup_telegram" ] || [ -n "$_setup_email" ] || [ -n "$_setup_tickers" ] || [ -n "$_setup_alpaca_key" ]; then
         _PEACH_TELEGRAM="$_setup_telegram" \
         _PEACH_EMAIL="$_setup_email" \
         _PEACH_EMAIL_PW="$_setup_email_pw" \
         _PEACH_EMAIL_TO="$_setup_email_to" \
         _PEACH_TICKERS="$_setup_tickers" \
+        _PEACH_ALPACA_KEY="$_setup_alpaca_key" \
+        _PEACH_ALPACA_SECRET="$_setup_alpaca_secret" \
         "$VENV/bin/python3" - "$INSTALL_DIR/peach_config.json" <<'PYWRITE'
 import sys, json, os
 
@@ -135,11 +157,13 @@ path = sys.argv[1]
 with open(path) as f:
     cfg = json.load(f)
 
-tok    = os.environ.get("_PEACH_TELEGRAM", "").strip()
-mail   = os.environ.get("_PEACH_EMAIL",    "").strip()
-pw     = os.environ.get("_PEACH_EMAIL_PW", "").strip()
-to     = os.environ.get("_PEACH_EMAIL_TO", "").strip()
-ticks  = os.environ.get("_PEACH_TICKERS",  "").strip()
+tok            = os.environ.get("_PEACH_TELEGRAM",      "").strip()
+mail           = os.environ.get("_PEACH_EMAIL",         "").strip()
+pw             = os.environ.get("_PEACH_EMAIL_PW",      "").strip()
+to             = os.environ.get("_PEACH_EMAIL_TO",      "").strip()
+ticks          = os.environ.get("_PEACH_TICKERS",       "").strip()
+alpaca_key     = os.environ.get("_PEACH_ALPACA_KEY",    "").strip()
+alpaca_secret  = os.environ.get("_PEACH_ALPACA_SECRET", "").strip()
 
 if tok:
     cfg["telegram_bot_token"] = tok
@@ -154,6 +178,11 @@ if ticks:
     parsed = [t.strip().upper() for t in ticks.split(",") if t.strip()]
     if parsed:
         cfg["tickers"] = parsed
+
+if alpaca_key and alpaca_secret:
+    cfg["alpaca_api_key"]    = alpaca_key
+    cfg["alpaca_secret_key"] = alpaca_secret
+    cfg["alpaca_paper"]      = True  # paper by default — change to false for live
 
 with open(path, "w") as f:
     json.dump(cfg, f, indent=2)
@@ -179,6 +208,12 @@ PYWRITE
         ok "Custom watchlist saved"
     else
         skip "Using default watchlist (SPY, QQQ, DIA, IWM, AAPL, MSFT, NVDA, TSLA)"
+    fi
+
+    if [ -n "$_setup_alpaca_key" ]; then
+        ok "Alpaca brokerage connected (paper trading — set alpaca_paper: false in config for live)"
+    else
+        skip "Alpaca skipped — add alpaca_api_key / alpaca_secret_key to config later"
     fi
 
 else

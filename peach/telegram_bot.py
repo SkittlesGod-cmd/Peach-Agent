@@ -97,6 +97,8 @@ class PeachBot:
         app.add_handler(CommandHandler("alert",     self._cmd_alert))
         app.add_handler(CommandHandler("alerts",    self._cmd_alerts))
         app.add_handler(CommandHandler("mychatid",  self._cmd_mychatid))
+        app.add_handler(CommandHandler("account",   self._cmd_account))
+        app.add_handler(CommandHandler("broker",    self._cmd_broker))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_message))
 
         await app.initialize()
@@ -112,12 +114,14 @@ class PeachBot:
         await update.message.reply_text(
             "Peach is running.\n\n"
             "/briefing — run a briefing now\n"
-            "/portfolio — view your positions\n"
+            "/portfolio — tracked positions & P&L\n"
             "/add AAPL 10 150.00 — add a position\n"
             "/remove AAPL — remove a position\n"
             "/quote AAPL — live quote\n"
             "/alert AAPL above 200 — price alert\n"
             "/alerts — list active alerts\n"
+            "/account — Alpaca account summary\n"
+            "/broker — Alpaca live positions\n"
             "/mychatid — show your chat ID\n\n"
             "Or just type anything to ask the agent."
         )
@@ -210,6 +214,17 @@ class PeachBot:
             await update.message.reply_text(result)
         except ValueError as exc:
             await update.message.reply_text(f"Error: {exc}")
+
+    async def _cmd_account(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        self._save_chat_id(update)
+        result = self.agent.executor.execute("get_broker_account", {})
+        await update.message.reply_text(result)
+
+    async def _cmd_broker(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        self._save_chat_id(update)
+        result = self.agent.executor.execute("get_broker_positions", {})
+        for chunk in _split(result):
+            await update.message.reply_text(chunk)
 
     async def _cmd_alerts(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         alerts = self.portfolio.get_active_alerts()

@@ -9,6 +9,9 @@
   "openrouter_model": "anthropic/claude-3-5-haiku",
   "telegram_bot_token": "",
   "telegram_chat_id": "",
+  "alpaca_api_key": "",
+  "alpaca_secret_key": "",
+  "alpaca_paper": true,
   "smtp_host": "smtp.gmail.com",
   "smtp_port": 587,
   "email_subject_prefix": "Peach Market Briefing"
