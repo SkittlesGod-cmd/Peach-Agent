@@ -35,8 +35,8 @@
       <h1 class="page-title">Simulate before<br>you commit.</h1>
       <p class="page-sub">Log hypothetical long and short positions with entry price and thesis. Peach tracks unrealised P&L against live prices and records performance when you close — no real money required.</p>
       <div class="page-actions">
-        <a class="btn btn-dark" href="/install">Get started</a>
-        <a class="btn btn-outline" href="/architecture">How it's built</a>
+        <a class="btn btn-dark" href="/install">Get started →</a>
+        <a class="btn btn-outline" href="/config">Connect Discord</a>
       </div>
     </div>
   </div>
@@ -220,6 +220,35 @@
       <p class="install-note">Trades are stored in SQLite and survive daemon restarts. Closed trades are kept permanently so you can review your full track record.</p>
     </div>
   </section>
+
+  <div class="divider-band">
+    <div class="wrap">
+      <p class="section-eyebrow">Keep going</p>
+      <h2 class="section-title" style="max-width:520px;margin-bottom:40px;">Deploy it. Configure it. Ship it.</h2>
+      <div class="card-grid">
+        <a class="card" href="/config">
+          <span class="card-eyebrow">Required</span>
+          <h3>Connect Discord</h3>
+          <p>Add your Discord bot token and channel ID to start getting <code>!trade</code> commands and push notifications.</p>
+        </a>
+        <a class="card" href="/deploy">
+          <span class="card-eyebrow">Deployment</span>
+          <h3>Always-on hosting</h3>
+          <p>Run Peach on a VPS or home server so trades and alerts work even when your laptop is off.</p>
+        </a>
+        <a class="card" href="/install">
+          <span class="card-eyebrow">Start here</span>
+          <h3>Install guide</h3>
+          <p>Two commands from zero to a running agent. No accounts or API keys required.</p>
+        </a>
+        <a class="card" href="/architecture">
+          <span class="card-eyebrow">Deep dive</span>
+          <h3>Architecture</h3>
+          <p>How <code>portfolio.db</code>, the tool-use loop, and the Discord bot fit together.</p>
+        </a>
+      </div>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div class="footer-inner">

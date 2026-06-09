@@ -34,6 +34,10 @@
       <p class="section-eyebrow">Deployment</p>
       <h1 class="page-title">Run it anywhere<br>you want.</h1>
       <p class="page-sub">Peach runs on any machine that stays on. A $4/month VPS, a home server, a Docker container, or a Raspberry Pi — the install command is the same everywhere.</p>
+      <div class="page-actions">
+        <a class="btn btn-dark" href="/install">Install guide →</a>
+        <a class="btn btn-outline" href="/config">Config reference</a>
+      </div>
     </div>
   </div>
 
@@ -203,6 +207,35 @@ launchctl load ~/Library/LaunchAgents/com.peach.agent.plist</pre>
         <p>Running in a different timezone? Set <code>PEACH_TIMEZONE</code> to your host's timezone (e.g. <code>Europe/London</code>) and keep <code>schedule_hour: 9</code> — Peach will convert to local time correctly.</p>
       </div>
 
+    </div>
+  </div>
+
+  <div class="divider-band">
+    <div class="wrap">
+      <p class="section-eyebrow">Next</p>
+      <h2 class="section-title" style="max-width:520px;margin-bottom:40px;">Configure it, then use it everywhere.</h2>
+      <div class="card-grid">
+        <a class="card" href="/config">
+          <span class="card-eyebrow">Reference</span>
+          <h3>Configuration guide</h3>
+          <p>Every environment variable, LLM provider, schedule option, and email setting explained.</p>
+        </a>
+        <a class="card" href="/architecture">
+          <span class="card-eyebrow">Deep dive</span>
+          <h3>Architecture</h3>
+          <p>Module responsibilities, the agentic loop, and how failures degrade gracefully.</p>
+        </a>
+        <a class="card" href="/paper-trades">
+          <span class="card-eyebrow">New</span>
+          <h3>Paper Trading</h3>
+          <p>Log hypothetical positions and track live P&amp;L from Discord once you're deployed.</p>
+        </a>
+        <a class="card" href="/install">
+          <span class="card-eyebrow">Start here</span>
+          <h3>Install guide</h3>
+          <p>One command. Under two minutes. No accounts or API keys required.</p>
+        </a>
+      </div>
     </div>
   </div>
 
