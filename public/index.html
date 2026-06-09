@@ -42,20 +42,20 @@
 
   <!-- ── Stats ─────────────────────────────────────────────────────────────── -->
   <div class="stat-strip">
-    <div class="stat-cell">
+    <div class="stat-cell" data-reveal data-delay="0">
       <span class="stat-value">09:00</span>
       <span class="stat-label">ET weekday briefing</span>
     </div>
-    <div class="stat-cell">
-      <span class="stat-value">9 tools</span>
+    <div class="stat-cell" data-reveal data-delay="80">
+      <span class="stat-value" data-count="9" data-suffix=" tools">9 tools</span>
       <span class="stat-label">quotes, technicals, web search</span>
     </div>
-    <div class="stat-cell">
+    <div class="stat-cell" data-reveal data-delay="160">
       <span class="stat-value">PDF + charts</span>
       <span class="stat-label">candlestick, P&amp;L, correlation</span>
     </div>
-    <div class="stat-cell">
-      <span class="stat-value">0 keys</span>
+    <div class="stat-cell" data-reveal data-delay="240">
+      <span class="stat-value" data-count="0" data-suffix=" keys">0 keys</span>
       <span class="stat-label">pre-configured LLM proxy</span>
     </div>
   </div>
@@ -63,7 +63,7 @@
   <!-- ── What it does ──────────────────────────────────────────────────────── -->
   <section class="hp-section">
     <div class="wrap">
-      <div class="hp-intro">
+      <div class="hp-intro" data-reveal>
         <div>
           <p class="section-eyebrow">What it does</p>
           <h2 class="section-title">Quiet, repeatable<br>market prep.</h2>
@@ -71,7 +71,7 @@
         <p class="hp-intro-body">Peach is a modular Python agent — a scheduler, data fetcher, LLM analysis engine, Telegram bot, and delivery pipeline in a single package. Runs in the background. Needs no babysitting.</p>
       </div>
 
-      <ul class="feature-grid">
+      <ul class="feature-grid" data-stagger>
         <li class="feature-item">
           <span class="feature-num">01</span>
           <h3>Morning briefing</h3>
@@ -106,15 +106,30 @@
     </div>
   </section>
 
+  <!-- ── Charts showcase ───────────────────────────────────────────────────── -->
+  <section class="hp-section">
+    <div class="wrap">
+      <div class="hp-loop-head" data-reveal>
+        <p class="section-eyebrow">Visual output</p>
+        <h2 class="section-title">Charts, delivered<br>every morning.</h2>
+        <p class="section-body">Candlestick charts, portfolio P&amp;L, and correlation heatmaps — generated automatically and pushed to Telegram and Discord alongside every briefing.</p>
+      </div>
+      <div class="charts-duo" data-reveal>
+        <div class="chart-card" id="pc-portfolio"></div>
+        <div class="chart-card" id="pc-heat"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── The agent loop ────────────────────────────────────────────────────── -->
   <section class="hp-section hp-alt">
     <div class="wrap">
-      <div class="hp-loop-head">
+      <div class="hp-loop-head" data-reveal>
         <p class="section-eyebrow">The agent loop</p>
         <h2 class="section-title">Reason. Call.<br>Re-reason.</h2>
         <p class="section-body">Peach doesn't just fill in a template. It runs a tool-use loop — calling tools for live data, reading the results, and continuing to reason until the answer is complete.</p>
       </div>
-      <ol class="loop-grid">
+      <ol class="loop-grid" data-stagger>
         <li class="loop-item">
           <span class="loop-num">01</span>
           <div>
@@ -165,8 +180,8 @@
   <section class="install-band">
     <div class="wrap">
       <p class="section-eyebrow">Install</p>
-      <h2 class="install-heading">Two commands.<br>Nothing else.</h2>
-      <div class="install-term">
+      <h2 class="install-heading" data-reveal>Two commands.<br>Nothing else.</h2>
+      <div class="install-term" data-reveal>
         <div class="term">
           <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
           <pre class="term-body"><span class="dim"># 1. Install</span>
@@ -176,15 +191,15 @@ curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/in
 peach start</pre>
         </div>
       </div>
-      <p class="install-note">No API keys to set. No config files to edit. Briefings land in ~/briefing.md until you add email or Telegram.</p>
+      <p class="install-note" data-reveal>No API keys to set. No config files to edit. Briefings land in ~/briefing.md until you add email or Telegram.</p>
     </div>
   </section>
 
   <!-- ── Explore ────────────────────────────────────────────────────────────── -->
   <section class="hp-section">
     <div class="wrap">
-      <p class="section-eyebrow" style="margin-bottom:52px;">Explore</p>
-      <div class="explore-grid">
+      <p class="section-eyebrow" style="margin-bottom:52px;" data-reveal>Explore</p>
+      <div class="explore-grid" data-stagger>
         <a class="explore-card" href="/install">
           <span class="explore-label">Tutorial</span>
           <h3>Install &amp; setup</h3>

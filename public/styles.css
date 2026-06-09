@@ -897,6 +897,144 @@ pre code { background: transparent; border: none; padding: 0; color: inherit; fo
   padding: 80px 0;
 }
 
+/* ── Scroll reveal ─────────────────────────────────────────────────────────── */
+
+[data-reveal], .stagger-child {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+[data-reveal].is-visible, .stagger-child.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Chart cards ───────────────────────────────────────────────────────────── */
+
+.charts-duo {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 14px;
+  align-items: start;
+}
+
+.chart-card {
+  background: var(--term-bg);
+  border-radius: 12px;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.chart-meta {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245, 221, 200, 0.35);
+  margin-bottom: 6px;
+}
+
+.chart-value {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--term-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-badge {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 100px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.chart-badge--up { background: rgba(74,222,128,0.12); color: #4ade80; }
+.chart-badge--dn { background: rgba(248,113,113,0.12); color: #f87171; }
+
+.chart-svg { display: block; width: 100%; overflow: visible; }
+
+.chart-tickers {
+  display: flex;
+  gap: 6px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.chart-ticker {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(245, 221, 200, 0.28);
+  padding: 3px 7px;
+  border: 1px solid rgba(245, 221, 200, 0.08);
+  border-radius: 4px;
+}
+
+/* ── Correlation heatmap ───────────────────────────────────────────────────── */
+
+.hm-wrap { display: flex; flex-direction: column; gap: 5px; }
+
+.hm-col-labels {
+  display: grid;
+  gap: 3px;
+  padding-left: 28px;
+}
+
+.hm-col-labels span, .hm-row-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgba(245, 221, 200, 0.32);
+  text-align: center;
+}
+
+.hm-row {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.hm-row-label {
+  width: 25px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 3px;
+}
+
+.hm-cell {
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  transition: transform 0.15s;
+  cursor: default;
+}
+
+.hm-cell:hover { transform: scale(1.12); z-index: 1; position: relative; }
+
+/* ── Candlestick bars ──────────────────────────────────────────────────────── */
+
+.cs-bar-up   { fill: #4ade80; }
+.cs-bar-dn   { fill: #f87171; }
+.cs-wick-up  { stroke: #4ade80; }
+.cs-wick-dn  { stroke: #f87171; }
+
 /* ── Homepage sections ─────────────────────────────────────────────────────── */
 
 .hp-section {
@@ -1112,6 +1250,7 @@ pre code { background: transparent; border: none; padding: 0; color: inherit; fo
   .feature-item:nth-child(even) { border-left: 1px solid var(--line); }
 
   .loop-grid { grid-template-columns: 1fr; }
+  .charts-duo { grid-template-columns: 1fr; }
 
   .install-band { padding: 80px 0; }
   .install-heading { margin-bottom: 40px; }
