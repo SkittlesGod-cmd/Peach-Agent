@@ -18,8 +18,9 @@ class EmailNotifier:
         self.logger = logger or logging.getLogger("peach")
 
     def send(self, markdown_report: str) -> None:
+        # Always persist locally — email is a bonus delivery, not the only copy
+        self._save_briefing(markdown_report)
         if not self.config.has_email_settings:
-            self._save_briefing(markdown_report)
             return
 
         subject = f"{self.config.email_subject_prefix} - {datetime.now().strftime('%Y-%m-%d')}"

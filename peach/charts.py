@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.colors as mcolors
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 import pandas as pd
@@ -188,6 +189,81 @@ class ChartGenerator:
             at.set_color(_BG)
 
         ax.set_title("Portfolio · Sector Allocation", color=_TEXT, fontsize=13, pad=16)
+        fig.tight_layout()
+        return _to_png(fig)
+
+    # ── Portfolio value over time ──────────────────────────────────────────────
+
+    def portfolio_history_chart(self, snapshots: list[dict]) -> bytes:
+        if len(snapshots) < 2:
+            raise ValueError("Need at least 2 snapshots for history chart")
+
+        dates = pd.to_datetime([s["snapshot_date"] for s in snapshots])
+        values = [s["total_value"] for s in snapshots]
+        costs  = [s["total_cost"]  for s in snapshots]
+
+        fig, ax = _dark_fig(figsize=(12, 5))
+        ax.plot(dates, values, color=_PEACH, linewidth=2, label="Market Value", zorder=3)
+        ax.plot(dates, costs,  color=_MUTED, linewidth=1.2, linestyle="--", label="Cost Basis")
+
+        # Shade profit/loss zone
+        vals_arr = pd.Series(values, index=dates)
+        cost_arr = pd.Series(costs,  index=dates)
+        ax.fill_between(dates, values, costs,
+                        where=[v >= c for v, c in zip(values, costs)],
+                        alpha=0.15, color=_GREEN, label="_nolegend_")
+        ax.fill_between(dates, values, costs,
+                        where=[v < c for v, c in zip(values, costs)],
+                        alpha=0.15, color=_RED, label="_nolegend_")
+
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"${x:,.0f}"))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+        ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=mdates.MO, interval=2))
+        plt.setp(ax.xaxis.get_majorticklabels(), rotation=30, ha="right")
+
+        legend = ax.legend(facecolor=_SURFACE, edgecolor="none", labelcolor=_TEXT, fontsize=9)
+        ax.set_title("Portfolio Value  ·  Historical", color=_TEXT, fontsize=13, pad=12)
+        fig.tight_layout()
+        return _to_png(fig)
+
+    # ── Multi-ticker comparison ────────────────────────────────────────────────
+
+    def comparison_chart(self, tickers: list[str], period: str = "3mo") -> bytes:
+        if not tickers:
+            raise ValueError("No tickers")
+
+        raw = yf.download(tickers if len(tickers) > 1 else tickers[0],
+                          period=period, interval="1d", auto_adjust=True, progress=False)
+        if raw.empty:
+            raise ValueError("No data")
+
+        if isinstance(raw.columns, pd.MultiIndex):
+            close = raw["Close"]
+        else:
+            close = raw[["Close"]] if "Close" in raw.columns else raw
+
+        if isinstance(close, pd.Series):
+            close = close.to_frame(name=tickers[0])
+
+        close = close.dropna(how="all")
+        # Normalize: cumulative return from start
+        norm = (close / close.iloc[0] - 1) * 100
+
+        fig, ax = _dark_fig(figsize=(12, 6))
+        for i, col in enumerate(norm.columns):
+            color = _PALETTE[i % len(_PALETTE)]
+            ax.plot(norm.index, norm[col], color=color, linewidth=2, label=col)
+
+        ax.axhline(0, color=_MUTED, linewidth=0.8, linestyle="--")
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:+.1f}%"))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+        ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=mdates.MO, interval=2))
+        plt.setp(ax.xaxis.get_majorticklabels(), rotation=30, ha="right")
+
+        legend = ax.legend(facecolor=_SURFACE, edgecolor="none", labelcolor=_TEXT, fontsize=9)
+        tickers_str = "  ·  ".join(norm.columns.tolist())
+        ax.set_title(f"Return Comparison  ·  {period}\n{tickers_str}",
+                     color=_TEXT, fontsize=11, pad=12)
         fig.tight_layout()
         return _to_png(fig)
 

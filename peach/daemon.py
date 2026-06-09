@@ -169,6 +169,23 @@ def check_alerts(
         logger.exception("Alert checker crashed: %s", exc)
 
 
+def record_portfolio_snapshot(
+    config: PeachConfig,
+    logger: logging.Logger,
+    portfolio: object,
+) -> None:
+    """Daily 4 PM job: snapshot current portfolio value to SQLite."""
+    from .portfolio import PortfolioLedger
+    if not isinstance(portfolio, PortfolioLedger):
+        return
+    try:
+        result = portfolio.record_snapshot()
+        if result:
+            logger.info("Portfolio snapshot: %s", result)
+    except Exception as exc:
+        logger.warning("Portfolio snapshot failed: %s", exc)
+
+
 def run_correlation_report(
     config: PeachConfig,
     logger: logging.Logger,
@@ -304,6 +321,15 @@ def main(argv: list[str] | None = None) -> int:
                             minute="*/5", timezone=tz),
         args=[config, logger, portfolio, bot, discord_bot, memory],
         id="peach-alert-checker",
+        replace_existing=True, max_instances=1, coalesce=True,
+    )
+
+    # Daily 4 PM portfolio snapshot
+    scheduler.add_job(
+        record_portfolio_snapshot,
+        trigger=CronTrigger(day_of_week="mon-fri", hour=16, minute=5, timezone=tz),
+        args=[config, logger, portfolio],
+        id="peach-portfolio-snapshot",
         replace_existing=True, max_instances=1, coalesce=True,
     )
 

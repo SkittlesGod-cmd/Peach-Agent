@@ -73,6 +73,34 @@
         </tbody>
       </table>
 
+      <!-- Discord -->
+      <h2>Discord <span class="tag">Optional</span></h2>
+      <p>Enable the Discord bot to get briefings, charts, and alerts pushed to a channel — and to use <code>!peach</code>, <code>!chart</code>, <code>!technicals</code>, and all other commands from Discord.</p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Key</th><th>Env var</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>discord_token</code></td>
+            <td><code>DISCORD_TOKEN</code></td>
+            <td>Bot token from the Discord Developer Portal. Required to enable the Discord bot.</td>
+          </tr>
+          <tr>
+            <td><code>discord_channel_id</code></td>
+            <td><code>DISCORD_CHANNEL_ID</code></td>
+            <td>Channel ID for proactive pushes — morning briefings, PDF, charts, and drawdown alerts. The bot must have permission to send messages and files in this channel.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="term">
+        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+        <pre class="term-body">{
+  "discord_token":      "YOUR_BOT_TOKEN",
+  "discord_channel_id": "1234567890123456789"
+}</pre>
+      </div>
+
       <!-- LLM providers -->
       <h2>LLM providers</h2>
       <p>The default provider is <code>peach</code> — a hosted proxy with a pre-configured OpenRouter key. No API key required. Switch providers if you want more control or a different model.</p>
@@ -157,6 +185,12 @@ export OPENROUTER_API_KEY=sk-or-...</pre>
             <td><code>false</code></td>
             <td>Run a briefing immediately on daemon start, before the first scheduled run.</td>
           </tr>
+          <tr>
+            <td><code>drawdown_alert_pct</code></td>
+            <td><code>PEACH_DRAWDOWN_PCT</code></td>
+            <td><code>0.05</code></td>
+            <td>Drawdown threshold for position alerts. A notification fires when any position falls this percentage below its cost basis. Rate-limited to once per 24 hours per ticker.</td>
+          </tr>
         </tbody>
       </table>
 
@@ -223,8 +257,9 @@ peach --home /opt/peach status</pre>
           <tr><td><code>peach.log</code></td><td>Rotating operational log (5 MB × 5 backups).</td></tr>
           <tr><td><code>.peach.pid</code></td><td>PID file tracking the running daemon.</td></tr>
           <tr><td><code>briefing.md</code></td><td>Latest briefing, written when email is not configured.</td></tr>
-          <tr><td><code>portfolio.db</code></td><td>SQLite database of positions and price alerts.</td></tr>
-          <tr><td><code>memory.db</code></td><td>SQLite key-value store for agent memory and chat ID.</td></tr>
+          <tr><td><code>portfolio.db</code></td><td>SQLite — positions, alerts, paper trades, and daily portfolio snapshots.</td></tr>
+          <tr><td><code>memory.db</code></td><td>SQLite key-value store for agent memory, chat ID, and drawdown rate limits.</td></tr>
+          <tr><td><code>morning_brief.pdf</code></td><td>Most recent PDF morning brief — overwritten each run and delivered to Telegram/Discord.</td></tr>
         </tbody>
       </table>
 

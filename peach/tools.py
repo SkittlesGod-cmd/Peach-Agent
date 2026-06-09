@@ -9,6 +9,7 @@ from typing import Any
 import pandas as pd
 import yfinance as yf
 
+from . import cache as _cache
 from .config import PeachConfig
 from .data_fetcher import _calc_rsi
 from .portfolio import PortfolioLedger
@@ -175,7 +176,7 @@ class ToolExecutor:
 
     def _get_quote(self, ticker: str) -> str:
         ticker = ticker.upper()
-        info = yf.Ticker(ticker).info
+        info = _cache.ticker_info(ticker)
         price = info.get("currentPrice") or info.get("regularMarketPrice")
         prev = info.get("previousClose") or info.get("regularMarketPreviousClose")
         volume = info.get("volume") or info.get("regularMarketVolume")
@@ -196,7 +197,7 @@ class ToolExecutor:
             return "Portfolio is empty. Use /add TICKER SHARES COST to add positions."
         lines = ["Portfolio:"]
         for pos in positions:
-            info = yf.Ticker(pos.ticker).info
+            info = _cache.ticker_info(pos.ticker)
             current = info.get("currentPrice") or info.get("regularMarketPrice")
             if current:
                 pnl = (current - pos.cost_basis) * pos.shares
@@ -213,7 +214,7 @@ class ToolExecutor:
 
     def _get_pre_market(self, ticker: str) -> str:
         ticker = ticker.upper()
-        info = yf.Ticker(ticker).info
+        info = _cache.ticker_info(ticker)
         pre_price = info.get("preMarketPrice")
         pre_change = info.get("preMarketChangePercent")
         if not pre_price:
@@ -241,7 +242,7 @@ class ToolExecutor:
 
     def _get_technicals(self, ticker: str) -> str:
         ticker = ticker.upper()
-        history = yf.Ticker(ticker).history(period="3mo", interval="1d", auto_adjust=False)
+        history = _cache.ticker_history(ticker, period="3mo")
         if history.empty:
             return f"No data for {ticker}."
         closes = history["Close"].astype(float)
@@ -251,7 +252,7 @@ class ToolExecutor:
         sma20 = float(closes.rolling(20).mean().iloc[-1]) if len(closes) >= 20 else None
         sma50 = float(closes.rolling(50).mean().iloc[-1]) if len(closes) >= 50 else None
 
-        info = yf.Ticker(ticker).info
+        info = _cache.ticker_info(ticker)
         high52 = info.get("fiftyTwoWeekHigh")
         low52 = info.get("fiftyTwoWeekLow")
 
@@ -281,7 +282,7 @@ class ToolExecutor:
         upcoming = []
         for ticker in self.config.tickers:
             try:
-                info = yf.Ticker(ticker).info
+                info = _cache.ticker_info(ticker)
                 ts = info.get("earningsTimestamp")
                 if ts:
                     ed = datetime.fromtimestamp(int(ts)).date()

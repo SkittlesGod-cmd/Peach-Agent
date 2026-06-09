@@ -45,14 +45,18 @@
      ↑                                                              ↓
      └──────────────────── Feedback loop ──────────────────────────┘
 
-Tools available:
-  get_quote         current price, change, volume
-  get_portfolio     positions with live P&amp;L
-  get_pre_market    pre-market price and % change
-  get_news          recent headlines for a ticker
-  add_alert         set a price threshold alert</pre>
+Tools available (9 total):
+  get_quote              current price, change, volume
+  get_portfolio          positions with live P&amp;L
+  get_pre_market         pre-market price and % change
+  get_news               recent headlines for a ticker
+  get_technicals         RSI(14), SMA20/50, 52-week H/L
+  get_earnings_calendar  watchlist tickers reporting in next 7 days
+  get_correlation        30-day return correlation matrix
+  search_web             real-time DuckDuckGo search
+  add_alert              set a price threshold alert</pre>
       </div>
-      <p>Each conversation or briefing run allows up to 8 tool iterations. If the agent needs pre-market data for three tickers and portfolio context, it calls four tools in sequence before writing the briefing. If the LLM loop fails entirely, <code>MarketAnalyzer</code> is used as a deterministic fallback.</p>
+      <p>Each conversation or briefing run allows up to 8 tool iterations. If the agent needs pre-market data for three tickers and portfolio context, it calls four tools in sequence before writing the briefing. The LLM is retried up to 3 times with exponential backoff before falling back to <code>MarketAnalyzer</code>.</p>
 
       <!-- Core modules -->
       <h2>Core modules</h2>
@@ -63,11 +67,11 @@ Tools available:
         <tbody>
           <tr>
             <td><code>main.py</code></td>
-            <td>CLI controller for <code>start</code>, <code>status</code>, <code>stop</code>. Manages the PID file and spawns the daemon as a detached subprocess.</td>
+            <td>CLI controller for <code>start</code>, <code>status</code>, <code>stop</code>, <code>run</code>, <code>logs</code>, <code>upgrade</code>, <code>doctor</code>. Manages the PID file and spawns the daemon as a detached subprocess.</td>
           </tr>
           <tr>
             <td><code>daemon.py</code></td>
-            <td>Persistent APScheduler loop. Owns the morning briefing job, the 5-minute alert checker, and the Telegram bot thread. Handles SIGTERM/SIGINT for clean shutdown.</td>
+            <td>Persistent APScheduler loop with four jobs: morning briefing (weekdays 09:00), alert checker (every 5 min, 09:00–16:00), portfolio snapshot (weekdays 16:05), and correlation report (Mondays 09:35). Handles SIGTERM/SIGINT for clean shutdown.</td>
           </tr>
           <tr>
             <td><code>agent.py</code></td>
@@ -95,11 +99,27 @@ Tools available:
           </tr>
           <tr>
             <td><code>telegram_bot.py</code></td>
-            <td>Telegram bot interface. Runs in a daemon thread with its own asyncio loop. Handles slash commands and free-text chat, routing to <code>PeachAgent</code> for tool-backed responses.</td>
+            <td>Telegram bot interface. Runs in a daemon thread with its own asyncio loop. Handles 17 slash commands (including <code>/chart</code>, <code>/pdf</code>, <code>/history</code>, <code>/trade</code>) and free-text chat routing to <code>PeachAgent</code>.</td>
+          </tr>
+          <tr>
+            <td><code>discord_bot.py</code></td>
+            <td>Discord bot interface. Runs in a daemon thread with its own asyncio loop. Mirrors Telegram commands with a <code>!</code> prefix (<code>!briefing</code>, <code>!chart</code>, <code>!peach</code>, etc.) and pushes morning briefs and alerts to the configured channel.</td>
+          </tr>
+          <tr>
+            <td><code>charts.py</code></td>
+            <td>Chart generation via mplfinance and matplotlib. Produces OHLCV candlestick charts, portfolio P&amp;L bars, sector allocation pie, correlation heatmap, portfolio history line, and multi-ticker comparison overlay. Returns PNG bytes for Telegram/Discord delivery or PDF embedding.</td>
+          </tr>
+          <tr>
+            <td><code>report.py</code></td>
+            <td>PDF morning brief generator using fpdf2. Sections: macro snapshot (VIX/10Y/DXY), portfolio positions table, embedded chart images, and full LLM analysis text. Returns PDF bytes.</td>
+          </tr>
+          <tr>
+            <td><code>cache.py</code></td>
+            <td>Thread-safe TTL cache for yfinance responses. Prevents repeated API hits during the tool-use loop. TTL: 60 s for ticker info, 300 s for historical data.</td>
           </tr>
           <tr>
             <td><code>notifier.py</code></td>
-            <td>Formats the briefing as a multipart email (plain + HTML) and delivers via SMTP with STARTTLS. Falls back to writing <code>briefing.md</code> when no email is configured.</td>
+            <td>Formats the briefing as a multipart email (plain + HTML) and delivers via SMTP with STARTTLS. Always writes <code>briefing.md</code> regardless of delivery success.</td>
           </tr>
           <tr>
             <td><code>config.py</code></td>
@@ -160,8 +180,9 @@ Tools available:
           <tr><td><code>peach.log</code></td><td>Rotating operational log — all pipeline events, warnings, exceptions (5 MB × 5 backups).</td></tr>
           <tr><td><code>peach_config.json</code></td><td>Local non-committed configuration. Env vars overlay it at startup.</td></tr>
           <tr><td><code>briefing.md</code></td><td>Latest briefing output when no email is configured.</td></tr>
-          <tr><td><code>portfolio.db</code></td><td>SQLite — positions table, alerts table, trade log. WAL mode for concurrent access.</td></tr>
-          <tr><td><code>memory.db</code></td><td>SQLite key-value — Telegram chat ID, user preferences, agent context.</td></tr>
+          <tr><td><code>portfolio.db</code></td><td>SQLite — positions, alerts, paper trades, and daily portfolio snapshots. WAL mode for concurrent access.</td></tr>
+          <tr><td><code>memory.db</code></td><td>SQLite key-value — Telegram chat ID, user preferences, last briefing summary, recent movers, drawdown alert rate limits.</td></tr>
+          <tr><td><code>morning_brief.pdf</code></td><td>Most recent PDF morning brief — overwritten each run. Also delivered to Telegram and Discord.</td></tr>
         </tbody>
       </table>
 

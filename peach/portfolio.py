@@ -93,6 +93,13 @@ class PortfolioLedger:
                     traded_at   TEXT NOT NULL,
                     note        TEXT DEFAULT ''
                 );
+                CREATE TABLE IF NOT EXISTS portfolio_snapshots (
+                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                    snapshot_date TEXT NOT NULL UNIQUE,
+                    total_value   REAL NOT NULL,
+                    total_cost    REAL NOT NULL,
+                    pnl           REAL NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS paper_trades (
                     id          INTEGER PRIMARY KEY AUTOINCREMENT,
                     ticker      TEXT NOT NULL,
@@ -218,6 +225,47 @@ class PortfolioLedger:
         with self._connect() as conn:
             rows = conn.execute(query).fetchall()
             return [PaperTrade(**dict(r)) for r in rows]
+
+    # ── Portfolio snapshots ───────────────────────────────────────────────────
+
+    def record_snapshot(self) -> str | None:
+        """Fetch live prices and save today's portfolio value. Returns summary or None if empty."""
+        import yfinance as yf
+        positions = self.get_all_positions()
+        if not positions:
+            return None
+        total_value = 0.0
+        total_cost = 0.0
+        for pos in positions:
+            try:
+                info = yf.Ticker(pos.ticker).info
+                current = info.get("currentPrice") or info.get("regularMarketPrice") or pos.cost_basis
+                total_value += float(current) * pos.shares
+            except Exception:
+                total_value += pos.cost_basis * pos.shares
+            total_cost += pos.cost_basis * pos.shares
+        pnl = total_value - total_cost
+        today = datetime.now().date().isoformat()
+        with self._connect() as conn:
+            conn.execute(
+                """INSERT INTO portfolio_snapshots (snapshot_date, total_value, total_cost, pnl)
+                   VALUES (?, ?, ?, ?)
+                   ON CONFLICT(snapshot_date) DO UPDATE SET
+                       total_value = excluded.total_value,
+                       total_cost  = excluded.total_cost,
+                       pnl         = excluded.pnl""",
+                (today, round(total_value, 2), round(total_cost, 2), round(pnl, 2)),
+            )
+        return f"Snapshot {today}: value=${total_value:,.0f}  cost=${total_cost:,.0f}  P&L=${pnl:+,.0f}"
+
+    def get_snapshots(self, days: int = 90) -> list[dict]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT snapshot_date, total_value, total_cost, pnl FROM portfolio_snapshots "
+                "ORDER BY snapshot_date DESC LIMIT ?",
+                (days,),
+            ).fetchall()
+        return [dict(r) for r in reversed(rows)]
 
     # ── Drawdown check ────────────────────────────────────────────────────────
 

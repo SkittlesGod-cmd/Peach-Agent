@@ -136,44 +136,76 @@ myPeachBot_bot
 
       <!-- What you can do -->
       <h2>What you can ask</h2>
-      <p>The bot has access to five tools. Type any natural-language question and it will use them automatically. Or use the slash commands directly:</p>
+      <p>The bot has access to nine tools. Type any natural-language question and it will use them automatically. Or use the slash commands directly:</p>
 
       <table class="cmd-table">
         <tr>
           <td><code>/briefing</code></td>
-          <td>Run a full morning briefing right now using live market data and your portfolio context.</td>
+          <td>Run a full morning briefing right now using live market data, technicals, and portfolio context.</td>
+        </tr>
+        <tr>
+          <td><code>/pdf</code></td>
+          <td>Generate and send a full PDF morning brief with macro table, portfolio, and embedded charts.</td>
+        </tr>
+        <tr>
+          <td><code>/chart AAPL [3mo]</code></td>
+          <td>Price candlestick with volume. Pass multiple tickers for a normalized return comparison: <code>/chart AAPL MSFT NVDA 3mo</code>.</td>
+        </tr>
+        <tr>
+          <td><code>/technicals AAPL</code></td>
+          <td>RSI(14), SMA20, SMA50, 52-week high/low, and distance from each level.</td>
+        </tr>
+        <tr>
+          <td><code>/correlation</code></td>
+          <td>Send a heatmap of 30-day return correlations for your portfolio holdings.</td>
+        </tr>
+        <tr>
+          <td><code>/history</code></td>
+          <td>Portfolio value over time — market value vs cost basis with daily snapshots going back 90 days.</td>
         </tr>
         <tr>
           <td><code>/quote AAPL</code></td>
-          <td>Get the current price, day change, and volume for any ticker.</td>
+          <td>Current price, day change, and volume.</td>
         </tr>
         <tr>
           <td><code>/portfolio</code></td>
-          <td>See all open positions with current price, unrealised P&L, and your thesis notes.</td>
+          <td>All open positions with current price, unrealised P&amp;L, and thesis notes.</td>
         </tr>
         <tr>
           <td><code>/add AAPL 10 150.00</code></td>
-          <td>Add 10 shares of AAPL at a $150 cost basis. Add a thesis at the end: <code>/add AAPL 10 150 AI supercycle play</code>. If you already hold AAPL, the cost basis is averaged automatically.</td>
+          <td>Add 10 shares at $150 cost basis. Optionally append a thesis. Re-adding averages the cost basis automatically.</td>
         </tr>
         <tr>
           <td><code>/remove AAPL</code></td>
-          <td>Remove a position from your portfolio.</td>
+          <td>Remove a position from the portfolio ledger.</td>
         </tr>
         <tr>
           <td><code>/alert AAPL above 200</code></td>
-          <td>Set a price alert. Peach checks every 5 minutes during market hours and fires a notification the moment the price crosses.</td>
+          <td>Price alert — Peach checks every 5 minutes during market hours and fires instantly on trigger.</td>
         </tr>
         <tr>
           <td><code>/alerts</code></td>
           <td>List all active price alerts.</td>
         </tr>
         <tr>
+          <td><code>/trade LONG NVDA 900 AI play</code></td>
+          <td>Log a paper trade. Specify LONG or SHORT, ticker, entry price, optional shares and thesis.</td>
+        </tr>
+        <tr>
+          <td><code>/trades</code></td>
+          <td>View your paper trade history with entry/exit prices and P&amp;L for closed trades.</td>
+        </tr>
+        <tr>
+          <td><code>/closetr 3 950</code></td>
+          <td>Close paper trade #3 at $950. Calculates and displays the P&amp;L.</td>
+        </tr>
+        <tr>
           <td><code>/mychatid</code></td>
-          <td>Show your Telegram chat ID. Useful for configuring proactive notifications.</td>
+          <td>Show your Telegram chat ID. Needed for proactive notifications if auto-detection fails.</td>
         </tr>
         <tr>
           <td>Free text</td>
-          <td>Ask anything in plain language — <em>"what's happening with NVDA today?"</em>, <em>"is my portfolio up or down?"</em>, <em>"set an alert if SPY drops below 500"</em>. The agent calls the right tools and answers.</td>
+          <td>Ask anything: <em>"what's happening with NVDA?"</em>, <em>"is my portfolio up?"</em>, <em>"any earnings this week?"</em>. The agent picks the right tools and answers.</td>
         </tr>
       </table>
 
@@ -181,13 +213,17 @@ myPeachBot_bot
       <h2>What the agent can do</h2>
       <p>The Telegram bot uses the same agentic loop as the morning briefing. For each message, it can call up to eight tools before formulating a reply:</p>
       <ul>
-        <li><strong>get_quote</strong> — current price, day change, volume for any ticker</li>
-        <li><strong>get_portfolio</strong> — all positions with live P&amp;L calculations</li>
+        <li><strong>get_quote</strong> — current price, day change, and volume for any ticker</li>
+        <li><strong>get_portfolio</strong> — all positions with live unrealised P&amp;L</li>
         <li><strong>get_pre_market</strong> — pre-market price and percentage change (before 9:30 AM ET)</li>
         <li><strong>get_news</strong> — recent headlines for a specific ticker from Yahoo Finance</li>
-        <li><strong>add_alert</strong> — set a threshold alert from conversation context</li>
+        <li><strong>get_technicals</strong> — RSI(14), SMA20/50, 52-week high/low, trend signals</li>
+        <li><strong>get_earnings_calendar</strong> — watchlist tickers reporting earnings in the next 7 days</li>
+        <li><strong>get_correlation</strong> — 30-day return correlation matrix for portfolio holdings</li>
+        <li><strong>search_web</strong> — real-time DuckDuckGo search for breaking news or analyst notes</li>
+        <li><strong>add_alert</strong> — set a price threshold alert from conversation context</li>
       </ul>
-      <p>The agent reasons about what tools to use based on your question. If you ask <em>"how is my tech exposure looking?"</em>, it calls <code>get_portfolio</code> and <code>get_quote</code> for each holding before answering.</p>
+      <p>The agent reasons about which tools to call. Ask <em>"is NVDA overbought?"</em> and it calls <code>get_technicals</code>. Ask <em>"any earnings risk this week?"</em> and it calls <code>get_earnings_calendar</code> then <code>search_web</code> for analyst expectations.</p>
 
     </div>
   </div>

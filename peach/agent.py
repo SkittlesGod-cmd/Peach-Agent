@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from typing import Any
 
 import requests
@@ -65,7 +66,9 @@ class PeachAgent:
     def run_briefing(self, market_data: AggregatedMarketData) -> str:
         """Run the morning briefing agentic loop. Falls back to MarketAnalyzer on failure."""
         try:
-            return self._run_loop(self._briefing_prompt(market_data))
+            briefing = self._run_loop(self._briefing_prompt(market_data))
+            self._auto_update_memory(briefing, market_data)
+            return briefing
         except Exception as exc:
             self.logger.warning("Agent loop failed; falling back to MarketAnalyzer: %s", exc)
             from .analyzer import MarketAnalyzer
@@ -123,17 +126,53 @@ class PeachAgent:
 
         return "Analysis timed out after maximum tool iterations."
 
+    def _auto_update_memory(self, briefing: str, market_data: AggregatedMarketData) -> None:
+        """Persist a rolling context summary after each briefing."""
+        try:
+            from datetime import date
+            self.memory.set("_last_briefing_date", date.today().isoformat())
+            self.memory.set("_last_briefing_summary", briefing[:600])
+            positions = self.portfolio.get_all_positions()
+            if positions:
+                self.memory.set(
+                    "portfolio_context",
+                    ", ".join(f"{p.ticker}@${p.cost_basis:.0f}" for p in positions),
+                )
+            top = sorted(
+                [m for m in market_data.metrics if m.percent_change is not None],
+                key=lambda m: abs(m.percent_change or 0),
+                reverse=True,
+            )[:3]
+            if top:
+                self.memory.set(
+                    "recent_movers",
+                    ", ".join(f"{m.ticker} {m.percent_change:+.1f}%" for m in top),
+                )
+        except Exception as exc:
+            self.logger.debug("Memory auto-update failed: %s", exc)
+
     def _call_llm(self, messages: list[dict[str, Any]]) -> dict[str, Any]:
-        response = self.session.post(
-            self.config.proxy_url,
-            json={
-                "model": self.config.openrouter_model,
-                "temperature": 0.2,
-                "messages": messages,
-                "tools": TOOL_SCHEMAS,
-                "tool_choice": "auto",
-            },
-            timeout=120,
-        )
-        response.raise_for_status()
-        return response.json()
+        last_exc: Exception | None = None
+        for attempt in range(3):
+            try:
+                response = self.session.post(
+                    self.config.proxy_url,
+                    json={
+                        "model": self.config.openrouter_model,
+                        "temperature": 0.2,
+                        "messages": messages,
+                        "tools": TOOL_SCHEMAS,
+                        "tool_choice": "auto",
+                    },
+                    timeout=120,
+                )
+                response.raise_for_status()
+                return response.json()
+            except Exception as exc:
+                last_exc = exc
+                if attempt < 2:
+                    wait = 2 ** attempt * 2  # 2s, 4s
+                    self.logger.warning("LLM call failed (attempt %d/3): %s — retrying in %ds",
+                                        attempt + 1, exc, wait)
+                    time.sleep(wait)
+        raise last_exc  # type: ignore[misc]

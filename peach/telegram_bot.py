@@ -133,6 +133,7 @@ class PeachBot:
         app.add_handler(CommandHandler("alert",       self._cmd_alert))
         app.add_handler(CommandHandler("alerts",      self._cmd_alerts))
         app.add_handler(CommandHandler("chart",       self._cmd_chart))
+        app.add_handler(CommandHandler("history",     self._cmd_history))
         app.add_handler(CommandHandler("pdf",         self._cmd_pdf))
         app.add_handler(CommandHandler("technicals",  self._cmd_technicals))
         app.add_handler(CommandHandler("correlation", self._cmd_correlation))
@@ -163,6 +164,7 @@ class PeachBot:
             "/add AAPL 10 150.00 — add a position\n"
             "/remove AAPL — remove a position\n"
             "/quote AAPL — live quote\n"
+            "/history — portfolio value over time\n"
             "/alert AAPL above 200 — price alert\n"
             "/alerts — list active alerts\n"
             "/trade LONG AAPL 150.00 [shares] [notes] — log paper trade\n"
@@ -226,17 +228,61 @@ class PeachBot:
     async def _cmd_chart(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         args = context.args or []
         if not args:
-            await update.message.reply_text("Usage: /chart TICKER [1mo|3mo|6mo|1y]")
+            await update.message.reply_text(
+                "Usage:\n"
+                "  /chart AAPL [1mo|3mo|6mo|1y]  — candlestick\n"
+                "  /chart AAPL MSFT NVDA [3mo]    — comparison"
+            )
             return
-        ticker = args[0].upper()
-        period = args[1] if len(args) > 1 else "1mo"
-        await update.message.reply_text(f"Generating chart for {ticker}…")
+
+        # Detect period token: last arg if it matches a period pattern
+        period_tokens = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y"}
+        period = "3mo" if len(args) > 1 and args[-1].lower() in period_tokens else "1mo"
+        tickers = [a.upper() for a in args if a.lower() not in period_tokens]
+
+        if not tickers:
+            await update.message.reply_text("Please specify at least one ticker.")
+            return
+
+        from .charts import ChartGenerator
+        cg = ChartGenerator(self.logger)
+
+        if len(tickers) == 1:
+            await update.message.reply_text(f"Generating chart for {tickers[0]}…")
+            try:
+                img = cg.price_chart(tickers[0], period)
+                await update.message.reply_photo(photo=img, caption=f"{tickers[0]}  ·  {period}")
+            except Exception as exc:
+                await update.message.reply_text(f"Chart failed: {exc}")
+        else:
+            label = "  ·  ".join(tickers)
+            await update.message.reply_text(f"Generating comparison for {label}…")
+            try:
+                img = cg.comparison_chart(tickers, period)
+                await update.message.reply_photo(photo=img, caption=f"Return comparison  ·  {period}")
+            except Exception as exc:
+                await update.message.reply_text(f"Comparison chart failed: {exc}")
+
+    async def _cmd_history(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        snapshots = self.portfolio.get_snapshots(days=90)
+        if len(snapshots) < 2:
+            await update.message.reply_text(
+                "Not enough history yet — snapshots are recorded at 4 PM ET each trading day. "
+                "Check back after the first two market closes."
+            )
+            return
         try:
             from .charts import ChartGenerator
-            img = ChartGenerator(self.logger).price_chart(ticker, period)
-            await update.message.reply_photo(photo=img, caption=f"{ticker}  ·  {period}")
+            img = ChartGenerator(self.logger).portfolio_history_chart(snapshots)
+            latest = snapshots[-1]
+            pnl = latest["pnl"]
+            caption = (
+                f"Portfolio value  ·  {len(snapshots)} days\n"
+                f"Current: ${latest['total_value']:,.0f}  |  P&L: ${pnl:+,.0f}"
+            )
+            await update.message.reply_photo(photo=img, caption=caption)
         except Exception as exc:
-            await update.message.reply_text(f"Chart failed: {exc}")
+            await update.message.reply_text(f"History chart failed: {exc}")
 
     async def _cmd_technicals(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         args = context.args or []
