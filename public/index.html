@@ -24,7 +24,7 @@
     </div>
   </nav>
 
-  <!-- ── Hero ──────────────────────────────────────────────────────────────── -->
+  <!-- ── Hero (unchanged) ──────────────────────────────────────────────────── -->
   <section class="hero">
     <p class="hero-eyebrow">A pre-market intelligence agent</p>
     <h1 class="hero-name">Peach.</h1>
@@ -56,167 +56,187 @@
     </div>
   </div>
 
-  <!-- ── What it does ───────────────────────────────────────────────────────── -->
-  <div class="wrap">
-    <div class="section">
-      <div class="split">
+  <!-- ── What it does ──────────────────────────────────────────────────────── -->
+  <section class="hp-section">
+    <div class="wrap">
+      <div class="hp-intro">
         <div>
           <p class="section-eyebrow">What it does</p>
-          <h2 class="section-title">Quiet, repeatable market prep.</h2>
-          <p class="section-body">Peach is a modular Python agent — a scheduler, data fetcher, LLM analysis engine, Telegram bot, and delivery pipeline in a single package. Runs in the background. Needs no babysitting.</p>
+          <h2 class="section-title">Quiet, repeatable<br>market prep.</h2>
         </div>
-        <ul class="feature-rows">
-          <li class="feature-row">
-            <h3>Morning briefing</h3>
-            <p>At 09:00 ET every weekday, Peach fetches market data, builds an analyst prompt, and calls the pre-configured LLM. The result is a structured Markdown report delivered to email or a local file.</p>
-          </li>
-          <li class="feature-row">
-            <h3>Telegram bot</h3>
-            <p>Ask for live quotes, portfolio P&L, on-demand briefings, and price alerts — all from Telegram. The agent uses tool calls to fetch live data before answering.</p>
-          </li>
-          <li class="feature-row">
-            <h3>Portfolio tracking</h3>
-            <p>Add positions with a cost basis and thesis. Peach computes real-time P&L against current prices whenever you ask.</p>
-          </li>
-          <li class="feature-row">
-            <h3>Price alerts</h3>
-            <p>Set threshold alerts — Peach checks every 5 minutes during market hours and pushes a Telegram notification the moment the price crosses.</p>
-          </li>
-          <li class="feature-row">
-            <h3>Charts &amp; PDF brief</h3>
-            <p>Every morning run generates a PDF with macro snapshot, portfolio table, and embedded candlestick and P&amp;L charts — delivered to Telegram and saved locally. Request any chart on demand with <code>/chart</code>.</p>
-          </li>
-          <li class="feature-row">
-            <h3>Discord bot</h3>
-            <p>All commands available on Discord too: <code>!briefing</code>, <code>!chart</code>, <code>!technicals</code>, <code>!peach &lt;question&gt;</code>. Morning brief and alerts are pushed to your configured channel automatically.</p>
-          </li>
-          <li class="feature-row">
-            <h3>Deterministic fallback</h3>
-            <p>If the LLM provider is unreachable, Peach generates a data-first briefing from raw metrics. A provider outage will never crash the daemon or silence the morning report.</p>
-          </li>
-        </ul>
+        <p class="hp-intro-body">Peach is a modular Python agent — a scheduler, data fetcher, LLM analysis engine, Telegram bot, and delivery pipeline in a single package. Runs in the background. Needs no babysitting.</p>
       </div>
-    </div>
-  </div>
 
-  <!-- ── How the agent thinks ──────────────────────────────────────────────── -->
-  <div class="wrap">
-    <div class="section">
-      <p class="section-eyebrow">The agent loop</p>
-      <h2 class="section-title">Reason. Call. Re-reason.</h2>
-      <p class="section-body" style="margin-bottom: 0;">Peach doesn't just fill in a template. It runs a tool-use loop — calling tools for live data, reading the results, and continuing to reason until the answer is complete.</p>
-      <ol class="pipeline" style="margin-top: 56px;">
-        <li class="pipeline-step">
-          <span class="step-num">01</span>
-          <div class="step-text">
+      <ul class="feature-grid">
+        <li class="feature-item">
+          <span class="feature-num">01</span>
+          <h3>Morning briefing</h3>
+          <p>At 09:00 ET every weekday, Peach fetches market data, builds an analyst prompt, and calls the pre-configured LLM. Delivered to email or saved locally as Markdown.</p>
+        </li>
+        <li class="feature-item">
+          <span class="feature-num">02</span>
+          <h3>Telegram &amp; Discord</h3>
+          <p>Live quotes, portfolio P&amp;L, on-demand briefings, and price alerts — from Telegram or Discord. The agent uses tool calls to fetch live data before answering.</p>
+        </li>
+        <li class="feature-item">
+          <span class="feature-num">03</span>
+          <h3>Portfolio tracking</h3>
+          <p>Add positions with a cost basis and thesis. Peach computes real-time P&amp;L against current prices and tracks daily portfolio value history.</p>
+        </li>
+        <li class="feature-item">
+          <span class="feature-num">04</span>
+          <h3>Price alerts</h3>
+          <p>Set threshold alerts — Peach checks every 5 minutes during market hours and pushes a notification the moment a price crosses.</p>
+        </li>
+        <li class="feature-item">
+          <span class="feature-num">05</span>
+          <h3>Charts &amp; PDF brief</h3>
+          <p>Every morning run generates a PDF with macro snapshot, portfolio table, and embedded candlestick and P&amp;L charts. Request any chart on demand.</p>
+        </li>
+        <li class="feature-item">
+          <span class="feature-num">06</span>
+          <h3>Deterministic fallback</h3>
+          <p>If the LLM provider is unreachable, Peach generates a data-first briefing from raw metrics. A provider outage will never silence the morning report.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── The agent loop ────────────────────────────────────────────────────── -->
+  <section class="hp-section hp-alt">
+    <div class="wrap">
+      <div class="hp-loop-head">
+        <p class="section-eyebrow">The agent loop</p>
+        <h2 class="section-title">Reason. Call.<br>Re-reason.</h2>
+        <p class="section-body">Peach doesn't just fill in a template. It runs a tool-use loop — calling tools for live data, reading the results, and continuing to reason until the answer is complete.</p>
+      </div>
+      <ol class="loop-grid">
+        <li class="loop-item">
+          <span class="loop-num">01</span>
+          <div>
             <h3>Schedule</h3>
             <p>APScheduler fires the pipeline at 09:00 ET on weekdays. The schedule, timezone, and tickers are fully configurable.</p>
           </div>
         </li>
-        <li class="pipeline-step">
-          <span class="step-num">02</span>
-          <div class="step-text">
+        <li class="loop-item">
+          <span class="loop-num">02</span>
+          <div>
             <h3>Fetch</h3>
             <p>Previous-session closes, volumes, pre-market moves, and headlines are collected. Individual failures are logged without stopping the run.</p>
           </div>
         </li>
-        <li class="pipeline-step">
-          <span class="step-num">03</span>
-          <div class="step-text">
+        <li class="loop-item">
+          <span class="loop-num">03</span>
+          <div>
             <h3>Reason</h3>
-            <p>The market snapshot and portfolio context are given to the agent. The LLM decides what tools to call — live quotes, pre-market data, news — before writing the briefing.</p>
+            <p>The market snapshot and portfolio context are given to the agent. The LLM decides what tools to call before writing the briefing.</p>
           </div>
         </li>
-        <li class="pipeline-step">
-          <span class="step-num">04</span>
-          <div class="step-text">
+        <li class="loop-item">
+          <span class="loop-num">04</span>
+          <div>
             <h3>Tool calls</h3>
             <p>The agent calls up to 8 tools per briefing. Each result is fed back into the reasoning loop before the next step.</p>
           </div>
         </li>
-        <li class="pipeline-step">
-          <span class="step-num">05</span>
-          <div class="step-text">
+        <li class="loop-item">
+          <span class="loop-num">05</span>
+          <div>
             <h3>Deliver</h3>
             <p>The finished briefing is formatted as a Markdown email and delivered via SMTP — or saved to a local file if no email is configured.</p>
           </div>
         </li>
-        <li class="pipeline-step">
-          <span class="step-num">06</span>
-          <div class="step-text">
+        <li class="loop-item">
+          <span class="loop-num">06</span>
+          <div>
             <h3>Notify</h3>
-            <p>A summary is pushed to Telegram, and price alerts are checked every 5 minutes during market hours for the rest of the day.</p>
+            <p>A summary is pushed to Telegram and Discord. Price alerts are checked every 5 minutes during market hours for the rest of the day.</p>
           </div>
         </li>
       </ol>
     </div>
-  </div>
+  </section>
 
-  <!-- ── Install band ───────────────────────────────────────────────────────── -->
+  <!-- ── Install ────────────────────────────────────────────────────────────── -->
   <section class="install-band">
     <div class="wrap">
       <p class="section-eyebrow">Install</p>
-      <h2 class="section-title">Two commands.<br>Nothing else.</h2>
-      <div class="term">
-        <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-        <pre class="term-body"><span class="dim"># 1. Install</span>
+      <h2 class="install-heading">Two commands.<br>Nothing else.</h2>
+      <div class="install-term">
+        <div class="term">
+          <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+          <pre class="term-body"><span class="dim"># 1. Install</span>
 curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
 
 <span class="dim"># 2. Start</span>
 peach start</pre>
+        </div>
       </div>
-      <p style="margin: 28px 0 0; font-size: 13.5px; color: rgba(255,255,255,0.38); font-weight: 300;">No API keys to set. No config files to edit. Briefings land in ~/briefing.md until you add email or Telegram.</p>
+      <p class="install-note">No API keys to set. No config files to edit. Briefings land in ~/briefing.md until you add email or Telegram.</p>
     </div>
   </section>
 
-  <!-- ── Navigation cards ───────────────────────────────────────────────────── -->
-  <div class="wrap">
-    <div class="section">
-      <div class="card-grid" style="grid-template-columns: repeat(3, 1fr);">
-        <a class="card" href="/install">
-          <span class="card-eyebrow">Tutorial</span>
+  <!-- ── Explore ────────────────────────────────────────────────────────────── -->
+  <section class="hp-section">
+    <div class="wrap">
+      <p class="section-eyebrow" style="margin-bottom:52px;">Explore</p>
+      <div class="explore-grid">
+        <a class="explore-card" href="/install">
+          <span class="explore-label">Tutorial</span>
           <h3>Install &amp; setup</h3>
           <p>Step-by-step guide from zero to a running agent in under two minutes.</p>
+          <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
-        <a class="card" href="/telegram">
-          <span class="card-eyebrow">New</span>
+        <a class="explore-card" href="/telegram">
+          <span class="explore-label">Bot</span>
           <h3>Telegram bot</h3>
           <p>Set up the bot to get live quotes, alerts, and on-demand briefings from anywhere.</p>
+          <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
-        <a class="card" href="/deploy">
-          <span class="card-eyebrow">Deployment</span>
+        <a class="explore-card" href="/deploy">
+          <span class="explore-label">Deployment</span>
           <h3>Choose a host</h3>
           <p>Why the daemon needs an always-on runtime, and how to deploy it there.</p>
+          <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
-        <a class="card" href="/config">
-          <span class="card-eyebrow">Reference</span>
+        <a class="explore-card" href="/config">
+          <span class="explore-label">Reference</span>
           <h3>Configuration</h3>
           <p>Every environment variable and config key, with defaults and examples.</p>
+          <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
-        <a class="card" href="/architecture">
-          <span class="card-eyebrow">Architecture</span>
+        <a class="explore-card" href="/architecture">
+          <span class="explore-label">Architecture</span>
           <h3>How it's built</h3>
           <p>Module responsibilities, the agentic loop, and runtime file layout.</p>
+          <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
-        <a class="card" href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">
-          <span class="card-eyebrow">Open Source</span>
+        <a class="explore-card" href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">
+          <span class="explore-label">Open Source</span>
           <h3>GitHub</h3>
           <p>Browse the source, open an issue, or fork and extend for your own use case.</p>
+          <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
       </div>
     </div>
-  </div>
+  </section>
 
+  <!-- ── Footer ────────────────────────────────────────────────────────────── -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <span class="footer-brand">Peach</span>
-      <span style="display:flex;gap:24px;">
+      <div class="footer-left">
+        <span class="footer-brand">Peach</span>
+        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+      </div>
+      <nav class="footer-links">
         <a href="/install">Install</a>
         <a href="/telegram">Telegram</a>
+        <a href="/deploy">Deploy</a>
+        <a href="/config">Config</a>
         <a href="/architecture">Architecture</a>
         <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
-      </span>
-      <span><span data-year></span></span>
+      </nav>
+      <span class="footer-year">© <span data-year></span></span>
     </div>
   </footer>
 
