@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import logging
+from datetime import date, datetime, timedelta
 from typing import Any
 
+import pandas as pd
 import yfinance as yf
 
 from .config import PeachConfig
+from .data_fetcher import _calc_rsi
 from .portfolio import PortfolioLedger
 
 
@@ -16,12 +19,10 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "get_quote",
-            "description": "Get the current price and day change for a ticker symbol.",
+            "description": "Get the current price, day change, and volume for a ticker symbol.",
             "parameters": {
                 "type": "object",
-                "properties": {
-                    "ticker": {"type": "string", "description": "e.g. AAPL, SPY, NVDA"}
-                },
+                "properties": {"ticker": {"type": "string", "description": "e.g. AAPL, SPY, NVDA"}},
                 "required": ["ticker"],
             },
         },
@@ -30,7 +31,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "get_portfolio",
-            "description": "Get all open portfolio positions with cost basis and current P&L.",
+            "description": "Get all open portfolio positions with cost basis and live unrealized P&L.",
             "parameters": {"type": "object", "properties": {}, "required": []},
         },
     },
@@ -38,15 +39,10 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "get_pre_market",
-            "description": (
-                "Get pre-market price and change for a ticker. "
-                "Only meaningful before 9:30 AM ET on trading days."
-            ),
+            "description": "Get pre-market price and change for a ticker (before 9:30 AM ET).",
             "parameters": {
                 "type": "object",
-                "properties": {
-                    "ticker": {"type": "string"}
-                },
+                "properties": {"ticker": {"type": "string"}},
                 "required": ["ticker"],
             },
         },
@@ -55,12 +51,10 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "get_news",
-            "description": "Get recent news headlines for a specific ticker from yfinance.",
+            "description": "Get recent news headlines for a specific ticker from Yahoo Finance.",
             "parameters": {
                 "type": "object",
-                "properties": {
-                    "ticker": {"type": "string"}
-                },
+                "properties": {"ticker": {"type": "string"}},
                 "required": ["ticker"],
             },
         },
@@ -69,7 +63,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "add_alert",
-            "description": "Set a price alert. Peach will notify you when the price crosses the threshold.",
+            "description": "Set a price alert. Peach notifies when price crosses the threshold.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -79,6 +73,57 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
                     "note":      {"type": "string", "description": "Optional reason for the alert"},
                 },
                 "required": ["ticker", "direction", "price"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_technicals",
+            "description": (
+                "Get technical indicators for a ticker: RSI(14), SMA(20), SMA(50), "
+                "52-week high/low, and distance from each level. Use to identify "
+                "overbought/oversold conditions and trend direction."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {"ticker": {"type": "string"}},
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_earnings_calendar",
+            "description": "List tickers in the watchlist with earnings reports in the next 7 days.",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_correlation",
+            "description": (
+                "Get the 30-day return correlation matrix for all portfolio holdings. "
+                "Useful for understanding concentration risk."
+            ),
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_web",
+            "description": (
+                "Search the web for recent news, analyst notes, or any market information "
+                "not covered by other tools. Use for specific events, earnings reactions, "
+                "or macro developments."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"],
             },
         },
     },
@@ -113,12 +158,20 @@ class ToolExecutor:
                     float(arguments["price"]),
                     arguments.get("note", ""),
                 )
+            if name == "get_technicals":
+                return self._get_technicals(arguments["ticker"])
+            if name == "get_earnings_calendar":
+                return self._get_earnings_calendar()
+            if name == "get_correlation":
+                return self._get_correlation()
+            if name == "search_web":
+                return self._search_web(arguments["query"])
             return f"Unknown tool: {name}"
         except Exception as exc:
             self.logger.warning("Tool %s raised: %s", name, exc)
             return f"Tool error: {exc}"
 
-    # ------------------------------------------------------------------ #
+    # ── Market data ────────────────────────────────────────────────────────────
 
     def _get_quote(self, ticker: str) -> str:
         ticker = ticker.upper()
@@ -184,3 +237,98 @@ class ToolExecutor:
         alert_id = self.portfolio.add_alert(ticker.upper(), direction, price, note)
         return f"Alert #{alert_id} set: notify when {ticker.upper()} {direction} ${price:.2f}."
 
+    # ── Technicals ─────────────────────────────────────────────────────────────
+
+    def _get_technicals(self, ticker: str) -> str:
+        ticker = ticker.upper()
+        history = yf.Ticker(ticker).history(period="3mo", interval="1d", auto_adjust=False)
+        if history.empty:
+            return f"No data for {ticker}."
+        closes = history["Close"].astype(float)
+        current = float(closes.iloc[-1])
+
+        rsi = _calc_rsi(closes)
+        sma20 = float(closes.rolling(20).mean().iloc[-1]) if len(closes) >= 20 else None
+        sma50 = float(closes.rolling(50).mean().iloc[-1]) if len(closes) >= 50 else None
+
+        info = yf.Ticker(ticker).info
+        high52 = info.get("fiftyTwoWeekHigh")
+        low52 = info.get("fiftyTwoWeekLow")
+
+        parts = [f"{ticker} technicals — ${current:.2f}"]
+        if rsi is not None:
+            tag = " 🔴 oversold" if rsi < 30 else (" 🟡 overbought" if rsi > 70 else "")
+            parts.append(f"  RSI(14): {rsi:.1f}{tag}")
+        if sma20:
+            rel = "above" if current > sma20 else "below"
+            parts.append(f"  SMA20:  ${sma20:.2f}  (price {rel})")
+        if sma50:
+            rel = "above" if current > sma50 else "below"
+            parts.append(f"  SMA50:  ${sma50:.2f}  (price {rel})")
+        if high52:
+            pct = (current - high52) / high52 * 100
+            parts.append(f"  52w High: ${high52:.2f}  ({pct:+.1f}% from high)")
+        if low52:
+            pct = (current - low52) / low52 * 100
+            parts.append(f"  52w Low:  ${low52:.2f}  ({pct:+.1f}% from low)")
+        return "\n".join(parts)
+
+    # ── Earnings calendar ──────────────────────────────────────────────────────
+
+    def _get_earnings_calendar(self) -> str:
+        today = date.today()
+        cutoff = today + timedelta(days=7)
+        upcoming = []
+        for ticker in self.config.tickers:
+            try:
+                info = yf.Ticker(ticker).info
+                ts = info.get("earningsTimestamp")
+                if ts:
+                    ed = datetime.fromtimestamp(int(ts)).date()
+                    if today <= ed <= cutoff:
+                        upcoming.append(f"{ticker} — {ed.strftime('%b %d')}")
+            except Exception:
+                continue
+        if not upcoming:
+            return "No earnings in the next 7 days for watched tickers."
+        return "Earnings in next 7 days:\n" + "\n".join(f"  • {u}" for u in upcoming)
+
+    # ── Correlation ────────────────────────────────────────────────────────────
+
+    def _get_correlation(self) -> str:
+        positions = self.portfolio.get_all_positions()
+        if len(positions) < 2:
+            return "Need at least 2 portfolio positions to compute correlation."
+        tickers = [p.ticker for p in positions]
+        try:
+            raw = yf.download(tickers, period="1mo", interval="1d",
+                              auto_adjust=True, progress=False)
+            close = raw["Close"] if "Close" in raw.columns else raw
+            if isinstance(close, pd.Series):
+                close = close.to_frame(name=tickers[0])
+            corr = close.pct_change().dropna().corr().round(2)
+            lines = ["30-day return correlation:"]
+            cols = list(corr.columns)
+            for i, row in enumerate(cols):
+                for col in cols[i + 1 :]:
+                    lines.append(f"  {row}/{col}: {corr.loc[row, col]:.2f}")
+            return "\n".join(lines) if len(lines) > 1 else "Insufficient data."
+        except Exception as exc:
+            return f"Correlation failed: {exc}"
+
+    # ── Web search ─────────────────────────────────────────────────────────────
+
+    def _search_web(self, query: str) -> str:
+        try:
+            from duckduckgo_search import DDGS
+            results = []
+            with DDGS() as ddgs:
+                for r in ddgs.text(query, max_results=5):
+                    title = r.get("title", "")
+                    body = (r.get("body", "") or "")[:200]
+                    results.append(f"• {title}: {body}")
+            return "\n".join(results) if results else "No results found."
+        except ImportError:
+            return "Web search unavailable. Run: pip install duckduckgo-search"
+        except Exception as exc:
+            return f"Search failed: {exc}"

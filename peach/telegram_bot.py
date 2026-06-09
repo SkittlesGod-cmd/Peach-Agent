@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import logging
 import threading
+from datetime import date
 from typing import TYPE_CHECKING
 
 import requests
@@ -56,14 +58,14 @@ class PeachBot:
         t.start()
         self.logger.info("Telegram bot thread started.")
 
+    # ── Proactive push methods ─────────────────────────────────────────────────
+
     def notify(self, message: str) -> None:
-        """Push a message to the configured chat (alerts, briefing summaries)."""
         token = self.config.telegram_bot_token
         if not token:
             return
         chat_id = self.config.telegram_chat_id or str(self.memory.get("_telegram_chat_id", ""))
         if not chat_id:
-            self.logger.debug("No Telegram chat ID stored — skipping notification.")
             return
         try:
             requests.post(
@@ -73,6 +75,40 @@ class PeachBot:
             )
         except Exception as exc:
             self.logger.warning("Telegram notification failed: %s", exc)
+
+    def send_photo(self, photo_bytes: bytes, caption: str = "") -> None:
+        token = self.config.telegram_bot_token
+        if not token:
+            return
+        chat_id = self.config.telegram_chat_id or str(self.memory.get("_telegram_chat_id", ""))
+        if not chat_id:
+            return
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{token}/sendPhoto",
+                data={"chat_id": chat_id, "caption": caption[:1024]},
+                files={"photo": ("chart.png", photo_bytes, "image/png")},
+                timeout=30,
+            )
+        except Exception as exc:
+            self.logger.warning("Telegram send_photo failed: %s", exc)
+
+    def send_document(self, doc_bytes: bytes, filename: str, caption: str = "") -> None:
+        token = self.config.telegram_bot_token
+        if not token:
+            return
+        chat_id = self.config.telegram_chat_id or str(self.memory.get("_telegram_chat_id", ""))
+        if not chat_id:
+            return
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{token}/sendDocument",
+                data={"chat_id": chat_id, "caption": caption[:1024]},
+                files={"document": (filename, doc_bytes, "application/pdf")},
+                timeout=60,
+            )
+        except Exception as exc:
+            self.logger.warning("Telegram send_document failed: %s", exc)
 
     # ------------------------------------------------------------------ #
 
@@ -87,37 +123,51 @@ class PeachBot:
     async def _run_async(self) -> None:
         app = Application.builder().token(self.config.telegram_bot_token).build()
 
-        app.add_handler(CommandHandler("start",     self._cmd_start))
-        app.add_handler(CommandHandler("help",      self._cmd_start))
-        app.add_handler(CommandHandler("briefing",  self._cmd_briefing))
-        app.add_handler(CommandHandler("portfolio", self._cmd_portfolio))
-        app.add_handler(CommandHandler("add",       self._cmd_add))
-        app.add_handler(CommandHandler("remove",    self._cmd_remove))
-        app.add_handler(CommandHandler("quote",     self._cmd_quote))
-        app.add_handler(CommandHandler("alert",     self._cmd_alert))
-        app.add_handler(CommandHandler("alerts",    self._cmd_alerts))
-        app.add_handler(CommandHandler("mychatid",  self._cmd_mychatid))
+        app.add_handler(CommandHandler("start",       self._cmd_start))
+        app.add_handler(CommandHandler("help",        self._cmd_start))
+        app.add_handler(CommandHandler("briefing",    self._cmd_briefing))
+        app.add_handler(CommandHandler("portfolio",   self._cmd_portfolio))
+        app.add_handler(CommandHandler("add",         self._cmd_add))
+        app.add_handler(CommandHandler("remove",      self._cmd_remove))
+        app.add_handler(CommandHandler("quote",       self._cmd_quote))
+        app.add_handler(CommandHandler("alert",       self._cmd_alert))
+        app.add_handler(CommandHandler("alerts",      self._cmd_alerts))
+        app.add_handler(CommandHandler("chart",       self._cmd_chart))
+        app.add_handler(CommandHandler("pdf",         self._cmd_pdf))
+        app.add_handler(CommandHandler("technicals",  self._cmd_technicals))
+        app.add_handler(CommandHandler("correlation", self._cmd_correlation))
+        app.add_handler(CommandHandler("trades",      self._cmd_trades))
+        app.add_handler(CommandHandler("trade",       self._cmd_trade))
+        app.add_handler(CommandHandler("closetr",     self._cmd_close_trade))
+        app.add_handler(CommandHandler("mychatid",    self._cmd_mychatid))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_message))
 
         await app.initialize()
         await app.start()
         await app.updater.start_polling(drop_pending_updates=True)
         self.logger.info("Telegram bot polling for updates.")
-        await asyncio.Event().wait()  # block forever; daemon thread dies with the process
+        await asyncio.Event().wait()
 
-    # ------------------------------------------------------------------ #
+    # ── Commands ───────────────────────────────────────────────────────────────
 
     async def _cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         self._save_chat_id(update)
         await update.message.reply_text(
             "Peach is running.\n\n"
-            "/briefing — run a briefing now\n"
+            "/briefing — run a morning briefing\n"
+            "/pdf — generate and send PDF brief\n"
+            "/chart TICKER [1mo|3mo|6mo|1y] — price chart\n"
+            "/technicals TICKER — RSI, SMA, 52w levels\n"
+            "/correlation — portfolio correlation heatmap\n"
             "/portfolio — tracked positions & P&L\n"
             "/add AAPL 10 150.00 — add a position\n"
             "/remove AAPL — remove a position\n"
             "/quote AAPL — live quote\n"
             "/alert AAPL above 200 — price alert\n"
             "/alerts — list active alerts\n"
+            "/trade LONG AAPL 150.00 [shares] [notes] — log paper trade\n"
+            "/trades — paper trade history\n"
+            "/closetr ID 165.00 — close a paper trade\n"
             "/mychatid — show your chat ID\n\n"
             "Or just type anything to ask the agent."
         )
@@ -142,6 +192,74 @@ class PeachBot:
         except Exception as exc:
             self.logger.exception("On-demand briefing failed: %s", exc)
             await update.message.reply_text(f"Briefing failed: {exc}")
+
+    async def _cmd_pdf(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        self._save_chat_id(update)
+        await update.message.reply_text("Generating PDF brief…")
+        try:
+            from .charts import ChartGenerator
+            from .data_fetcher import MarketDataFetcher
+            from .report import ReportGenerator
+
+            market_data = MarketDataFetcher(self.config, self.logger).fetch()
+            briefing = self.agent.run_briefing(market_data)
+            cg = ChartGenerator(self.logger)
+            positions = self.portfolio.get_all_positions()
+            chart_images: dict[str, bytes] = {}
+            if positions:
+                try:
+                    chart_images["Portfolio P&L"] = cg.portfolio_pnl_chart(positions)
+                except Exception:
+                    pass
+            pdf_bytes = ReportGenerator().morning_brief(
+                briefing, market_data.macro, positions, chart_images
+            )
+            await update.message.reply_document(
+                document=io.BytesIO(pdf_bytes),
+                filename=f"peach_brief_{date.today()}.pdf",
+                caption="Morning Brief",
+            )
+        except Exception as exc:
+            self.logger.exception("PDF generation failed: %s", exc)
+            await update.message.reply_text(f"PDF failed: {exc}")
+
+    async def _cmd_chart(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        args = context.args or []
+        if not args:
+            await update.message.reply_text("Usage: /chart TICKER [1mo|3mo|6mo|1y]")
+            return
+        ticker = args[0].upper()
+        period = args[1] if len(args) > 1 else "1mo"
+        await update.message.reply_text(f"Generating chart for {ticker}…")
+        try:
+            from .charts import ChartGenerator
+            img = ChartGenerator(self.logger).price_chart(ticker, period)
+            await update.message.reply_photo(photo=img, caption=f"{ticker}  ·  {period}")
+        except Exception as exc:
+            await update.message.reply_text(f"Chart failed: {exc}")
+
+    async def _cmd_technicals(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        args = context.args or []
+        if not args:
+            await update.message.reply_text("Usage: /technicals TICKER")
+            return
+        result = self.agent.executor.execute("get_technicals", {"ticker": args[0]})
+        await update.message.reply_text(result)
+
+    async def _cmd_correlation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        positions = self.portfolio.get_all_positions()
+        if len(positions) < 2:
+            await update.message.reply_text("Need at least 2 portfolio positions for correlation.")
+            return
+        await update.message.reply_text("Computing correlation…")
+        try:
+            from .charts import ChartGenerator
+            img = ChartGenerator(self.logger).correlation_heatmap(
+                [p.ticker for p in positions], period="3mo"
+            )
+            await update.message.reply_photo(photo=img, caption="30-day return correlation")
+        except Exception as exc:
+            await update.message.reply_text(f"Correlation failed: {exc}")
 
     async def _cmd_portfolio(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         self._save_chat_id(update)
@@ -191,7 +309,6 @@ class PeachBot:
         await update.message.reply_text(result)
 
     async def _cmd_alert(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        # /alert AAPL above 200 [optional note]
         args = context.args or []
         if len(args) < 3:
             await update.message.reply_text("Usage: /alert TICKER above|below PRICE [note]")
@@ -222,6 +339,66 @@ class PeachBot:
             if a.note:
                 lines.append(f"  {a.note}")
         await update.message.reply_text("\n".join(lines))
+
+    async def _cmd_trades(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        trades = self.portfolio.get_paper_trades()
+        if not trades:
+            await update.message.reply_text(
+                "No paper trades. Log one with:\n"
+                "/trade LONG AAPL 150.00 [shares] [notes]"
+            )
+            return
+        lines = ["Paper trades (latest 20):"]
+        for t in trades[:20]:
+            status = "OPEN" if t.is_open else f"CLOSED @ ${t.exit_price:.2f}"
+            pnl_str = f"  P&L: ${t.pnl:+.2f}" if t.pnl is not None else ""
+            lines.append(f"#{t.id} {t.ticker} {t.direction.upper()} {t.shares}sh"
+                         f" @ ${t.entry_price:.2f}  [{status}]{pnl_str}")
+            if t.notes:
+                lines.append(f"  {t.notes}")
+        await update.message.reply_text("\n".join(lines))
+
+    async def _cmd_trade(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        # /trade LONG AAPL 150.00 [SHARES] [notes...]
+        args = context.args or []
+        if len(args) < 3:
+            await update.message.reply_text(
+                "Usage: /trade LONG|SHORT TICKER ENTRY_PRICE [SHARES] [notes]"
+            )
+            return
+        try:
+            raw_dir = args[0].lower()
+            direction = "long" if raw_dir in ("long", "buy") else "short"
+            ticker = args[1].upper()
+            entry = float(args[2])
+            shares = 1.0
+            notes = ""
+            if len(args) > 3:
+                try:
+                    shares = float(args[3])
+                    notes = " ".join(args[4:])
+                except ValueError:
+                    notes = " ".join(args[3:])
+            trade_id = self.portfolio.add_paper_trade(ticker, direction, entry, shares, notes)
+            await update.message.reply_text(
+                f"Paper trade #{trade_id}: {direction.upper()} {shares}sh {ticker} @ ${entry:.2f}"
+            )
+        except ValueError as exc:
+            await update.message.reply_text(f"Error: {exc}")
+
+    async def _cmd_close_trade(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        # /closetr ID EXIT_PRICE
+        args = context.args or []
+        if len(args) < 2:
+            await update.message.reply_text("Usage: /closetr TRADE_ID EXIT_PRICE")
+            return
+        try:
+            trade_id = int(args[0])
+            exit_price = float(args[1])
+            result = self.portfolio.close_paper_trade(trade_id, exit_price)
+            await update.message.reply_text(result)
+        except ValueError as exc:
+            await update.message.reply_text(f"Error: {exc}")
 
     async def _on_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         self._save_chat_id(update)

@@ -70,6 +70,9 @@ class PeachConfig:
     ollama_model: str = "llama3.1"
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
+    discord_token: str | None = None
+    discord_channel_id: str | None = None
+    drawdown_alert_pct: float = 0.05
     alpha_vantage_api_key: str | None = None
     news_api_key: str | None = None
     smtp_host: str = "smtp.gmail.com"
@@ -140,6 +143,11 @@ def load_config(home: str | None = None) -> PeachConfig:
         ollama_model=os.getenv("PEACH_OLLAMA_MODEL", str(data.get("ollama_model", "llama3.1"))),
         telegram_bot_token=os.getenv("TELEGRAM_BOT_TOKEN", data.get("telegram_bot_token")),
         telegram_chat_id=os.getenv("TELEGRAM_CHAT_ID", data.get("telegram_chat_id")),
+        discord_token=os.getenv("DISCORD_TOKEN", data.get("discord_token")),
+        discord_channel_id=os.getenv("DISCORD_CHANNEL_ID", data.get("discord_channel_id")),
+        drawdown_alert_pct=float(
+            os.getenv("PEACH_DRAWDOWN_PCT", str(data.get("drawdown_alert_pct", 0.05)))
+        ),
         alpha_vantage_api_key=os.getenv("ALPHA_VANTAGE_API_KEY", data.get("alpha_vantage_api_key")),
         news_api_key=os.getenv("NEWS_API_KEY", data.get("news_api_key")),
         smtp_host=os.getenv("SMTP_HOST", str(data.get("smtp_host", "smtp.gmail.com"))),

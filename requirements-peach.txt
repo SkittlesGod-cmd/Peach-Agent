@@ -1,5 +1,10 @@
 apscheduler>=3.10.4,<4
+discord.py>=2.3.0,<3
+duckduckgo-search>=6.0.0,<8
+fpdf2>=2.7.9,<3
 markdown>=3.6,<4
+matplotlib>=3.7.0,<4
+mplfinance>=0.12.10b0,<1
 openai>=1.40.0,<7
 python-telegram-bot>=20.7,<22
 requests>=2.32.0,<3
