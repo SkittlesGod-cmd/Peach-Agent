@@ -15,29 +15,6 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
-            "name": "get_broker_account",
-            "description": (
-                "Get Alpaca brokerage account summary: total equity, cash, buying power, "
-                "and today's P&L. Only available when Alpaca credentials are configured."
-            ),
-            "parameters": {"type": "object", "properties": {}, "required": []},
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_broker_positions",
-            "description": (
-                "Get all open positions from the Alpaca brokerage account with real cost basis, "
-                "current price, total unrealised P&L, and intraday P&L. "
-                "Only available when Alpaca credentials are configured."
-            ),
-            "parameters": {"type": "object", "properties": {}, "required": []},
-        },
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "get_quote",
             "description": "Get the current price and day change for a ticker symbol.",
             "parameters": {
@@ -136,10 +113,6 @@ class ToolExecutor:
                     float(arguments["price"]),
                     arguments.get("note", ""),
                 )
-            if name == "get_broker_account":
-                return self._get_broker_account()
-            if name == "get_broker_positions":
-                return self._get_broker_positions()
             return f"Unknown tool: {name}"
         except Exception as exc:
             self.logger.warning("Tool %s raised: %s", name, exc)
@@ -211,28 +184,3 @@ class ToolExecutor:
         alert_id = self.portfolio.add_alert(ticker.upper(), direction, price, note)
         return f"Alert #{alert_id} set: notify when {ticker.upper()} {direction} ${price:.2f}."
 
-    def _get_broker_account(self) -> str:
-        from .alpaca import AlpacaClient
-        client = AlpacaClient(self.config, self.logger)
-        if not client.is_configured():
-            return (
-                "Alpaca is not configured. Add alpaca_api_key and alpaca_secret_key "
-                "to peach_config.json to connect your brokerage account."
-            )
-        try:
-            return client.account_summary()
-        except Exception as exc:
-            return f"Alpaca account fetch failed: {exc}"
-
-    def _get_broker_positions(self) -> str:
-        from .alpaca import AlpacaClient
-        client = AlpacaClient(self.config, self.logger)
-        if not client.is_configured():
-            return (
-                "Alpaca is not configured. Add alpaca_api_key and alpaca_secret_key "
-                "to peach_config.json to connect your brokerage account."
-            )
-        try:
-            return client.positions_summary()
-        except Exception as exc:
-            return f"Alpaca positions fetch failed: {exc}"

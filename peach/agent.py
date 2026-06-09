@@ -108,15 +108,6 @@ class PeachAgent:
 
         return "Analysis timed out after maximum tool iterations."
 
-    def _active_tools(self) -> list[dict[str, Any]]:
-        """Return only tool schemas that have backing credentials configured."""
-        broker_tools = {"get_broker_account", "get_broker_positions"}
-        has_alpaca = bool(self.config.alpaca_api_key and self.config.alpaca_secret_key)
-        return [
-            t for t in TOOL_SCHEMAS
-            if t["function"]["name"] not in broker_tools or has_alpaca
-        ]
-
     def _call_llm(self, messages: list[dict[str, Any]]) -> dict[str, Any]:
         response = self.session.post(
             self.config.proxy_url,
@@ -124,7 +115,7 @@ class PeachAgent:
                 "model": self.config.openrouter_model,
                 "temperature": 0.2,
                 "messages": messages,
-                "tools": self._active_tools(),
+                "tools": TOOL_SCHEMAS,
                 "tool_choice": "auto",
             },
             timeout=120,
