@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Config · Peach</title>
-  <meta name="description" content="Every Peach configuration option — environment variables, JSON keys, LLM providers, schedule, email, and Telegram." />
+  <meta name="description" content="Every Peach configuration option — environment variables, JSON keys, LLM providers, schedule, email, and Discord." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
@@ -21,7 +21,7 @@
     <div class="nav-links">
       <a href="/">Overview</a>
       <a href="/install">Install</a>
-      <a href="/telegram">Telegram</a>
+      <a href="/paper-trades">Paper Trades</a>
       <a href="/deploy">Deploy</a>
       <a href="/config" aria-current="page">Config</a>
       <a href="/architecture">Architecture</a>
@@ -47,8 +47,9 @@
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
         <pre class="term-body"><span class="dim"># ~/.local/share/peach-agent/peach_config.json</span>
 {
-  "tickers":    ["SPY", "QQQ", "AAPL", "MSFT", "NVDA", "TSLA"],
-  "telegram_bot_token": "YOUR_BOT_TOKEN"
+  "tickers":          ["SPY", "QQQ", "AAPL", "MSFT", "NVDA", "TSLA"],
+  "discord_token":    "YOUR_BOT_TOKEN",
+  "discord_channel_id": "YOUR_CHANNEL_ID"
 }</pre>
       </div>
 
@@ -57,29 +58,9 @@
         <p>Environment variables always win. <code>PEACH_SCHEDULE_HOUR=8</code> overrides <code>"schedule_hour": 9</code> in the JSON. This makes it easy to use config files for defaults and env vars for host-specific overrides.</p>
       </div>
 
-      <!-- Telegram -->
-      <h2>Telegram</h2>
-      <table class="data-table">
-        <thead>
-          <tr><th>Key</th><th>Env var</th><th>Description</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>telegram_bot_token</code></td>
-            <td><code>TELEGRAM_BOT_TOKEN</code></td>
-            <td>Token from @BotFather. Required to enable the Telegram bot. See the <a href="/telegram">Telegram guide</a>.</td>
-          </tr>
-          <tr>
-            <td><code>telegram_chat_id</code></td>
-            <td><code>TELEGRAM_CHAT_ID</code></td>
-            <td>Your Telegram chat ID for proactive notifications (alerts, briefing summaries). Auto-saved when you message the bot, or retrieve with <code>/mychatid</code>.</td>
-          </tr>
-        </tbody>
-      </table>
-
       <!-- Discord -->
-      <h2>Discord <span class="tag">Optional</span></h2>
-      <p>Enable the Discord bot to get briefings, charts, and alerts pushed to a channel — and to use <code>!peach</code>, <code>!chart</code>, <code>!technicals</code>, and all other commands from Discord.</p>
+      <h2>Discord</h2>
+      <p>Enable the Discord bot to get briefings, charts, and alerts pushed to a channel — and to use <code>!peach</code>, <code>!chart</code>, <code>!technicals</code>, <code>!trade</code>, and all other commands from Discord.</p>
       <table class="data-table">
         <thead>
           <tr><th>Key</th><th>Env var</th><th>Description</th></tr>
@@ -263,7 +244,7 @@ peach --home /opt/peach status</pre>
           <tr><td><code>briefing.md</code></td><td>Latest briefing, written when email is not configured.</td></tr>
           <tr><td><code>portfolio.db</code></td><td>SQLite — positions, alerts, paper trades, and daily portfolio snapshots.</td></tr>
           <tr><td><code>memory.db</code></td><td>SQLite key-value store for agent memory, chat ID, and drawdown rate limits.</td></tr>
-          <tr><td><code>morning_brief.pdf</code></td><td>Most recent PDF morning brief — overwritten each run and delivered to Telegram/Discord.</td></tr>
+          <tr><td><code>morning_brief.pdf</code></td><td>Most recent PDF morning brief — overwritten each run and delivered to Discord.</td></tr>
         </tbody>
       </table>
 
@@ -278,7 +259,7 @@ peach --home /opt/peach status</pre>
       </div>
       <nav class="footer-links">
         <a href="/install">Install</a>
-        <a href="/telegram">Telegram</a>
+        <a href="/paper-trades">Paper Trades</a>
         <a href="/deploy">Deploy</a>
         <a href="/config">Config</a>
         <a href="/architecture">Architecture</a>

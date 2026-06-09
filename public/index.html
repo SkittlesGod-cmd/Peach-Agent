@@ -21,7 +21,7 @@
     <div class="nav-links">
       <a href="/" aria-current="page">Overview</a>
       <a href="/install">Install</a>
-      <a href="/telegram">Telegram</a>
+      <a href="/paper-trades">Paper Trades</a>
       <a href="/deploy">Deploy</a>
       <a href="/config">Config</a>
       <a href="/architecture">Architecture</a>
@@ -68,7 +68,7 @@
           <p class="section-eyebrow">What it does</p>
           <h2 class="section-title">Quiet, repeatable<br>market prep.</h2>
         </div>
-        <p class="hp-intro-body">Peach is a modular Python agent — a scheduler, data fetcher, LLM analysis engine, Telegram bot, and delivery pipeline in a single package. Runs in the background. Needs no babysitting.</p>
+        <p class="hp-intro-body">Peach is a modular Python agent — a scheduler, data fetcher, LLM analysis engine, Discord bot, and delivery pipeline in a single package. Runs in the background. Needs no babysitting.</p>
       </div>
 
       <ul class="feature-grid" data-stagger>
@@ -79,8 +79,8 @@
         </li>
         <li class="feature-item">
           <span class="feature-num">02</span>
-          <h3>Telegram &amp; Discord</h3>
-          <p>Live quotes, portfolio P&amp;L, on-demand briefings, and price alerts — from Telegram or Discord. The agent uses tool calls to fetch live data before answering.</p>
+          <h3>Discord</h3>
+          <p>Live quotes, portfolio P&amp;L, on-demand briefings, and price alerts from Discord. The agent uses tool calls to fetch live data before answering — just type <code>!peach</code>.</p>
         </li>
         <li class="feature-item">
           <span class="feature-num">03</span>
@@ -99,8 +99,8 @@
         </li>
         <li class="feature-item">
           <span class="feature-num">06</span>
-          <h3>Deterministic fallback</h3>
-          <p>If the LLM provider is unreachable, Peach generates a data-first briefing from raw metrics. A provider outage will never silence the morning report.</p>
+          <h3>Paper Trading</h3>
+          <p>Log hypothetical long and short positions before committing real capital. Peach tracks unrealised P&amp;L against live prices and records performance when you close.</p>
         </li>
       </ul>
     </div>
@@ -112,7 +112,7 @@
       <div class="hp-loop-head" data-reveal>
         <p class="section-eyebrow">Visual output</p>
         <h2 class="section-title">Charts, delivered<br>every morning.</h2>
-        <p class="section-body">Candlestick charts, portfolio P&amp;L, and correlation heatmaps — generated automatically and pushed to Telegram and Discord alongside every briefing.</p>
+        <p class="section-body">Candlestick charts, portfolio P&amp;L, and correlation heatmaps — generated automatically and pushed to Discord alongside every briefing.</p>
       </div>
       <div class="charts-duo" data-reveal>
         <div class="chart-card" id="pc-portfolio"></div>
@@ -169,7 +169,7 @@
           <span class="loop-num">06</span>
           <div>
             <h3>Notify</h3>
-            <p>A summary is pushed to Telegram and Discord. Price alerts are checked every 5 minutes during market hours for the rest of the day.</p>
+            <p>A summary is pushed to Discord. Price alerts are checked every 5 minutes during market hours for the rest of the day.</p>
           </div>
         </li>
       </ol>
@@ -191,7 +191,7 @@ curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/in
 peach start</pre>
         </div>
       </div>
-      <p class="install-note" data-reveal>No API keys to set. No config files to edit. Briefings land in ~/briefing.md until you add email or Telegram.</p>
+      <p class="install-note" data-reveal>No API keys to set. No config files to edit. Briefings land in ~/briefing.md until you add email or Discord.</p>
     </div>
   </section>
 
@@ -206,10 +206,10 @@ peach start</pre>
           <p>Step-by-step guide from zero to a running agent in under two minutes.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
-        <a class="explore-card" href="/telegram">
-          <span class="explore-label">Bot</span>
-          <h3>Telegram bot</h3>
-          <p>Set up the bot to get live quotes, alerts, and on-demand briefings from anywhere.</p>
+        <a class="explore-card" href="/paper-trades">
+          <span class="explore-label">Simulate</span>
+          <h3>Paper Trading</h3>
+          <p>Log hypothetical positions, track live P&amp;L, and close trades to record your performance.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
         <a class="explore-card" href="/deploy">
@@ -249,7 +249,7 @@ peach start</pre>
       </div>
       <nav class="footer-links">
         <a href="/install">Install</a>
-        <a href="/telegram">Telegram</a>
+        <a href="/paper-trades">Paper Trades</a>
         <a href="/deploy">Deploy</a>
         <a href="/config">Config</a>
         <a href="/architecture">Architecture</a>

@@ -21,7 +21,7 @@
     <div class="nav-links">
       <a href="/">Overview</a>
       <a href="/install">Install</a>
-      <a href="/telegram">Telegram</a>
+      <a href="/paper-trades">Paper Trades</a>
       <a href="/deploy">Deploy</a>
       <a href="/config">Config</a>
       <a href="/architecture" aria-current="page">Architecture</a>
@@ -99,19 +99,15 @@ Tools available (9 total):
           </tr>
           <tr>
             <td><code>memory.py</code></td>
-            <td>SQLite key-value store for persistent agent context — Telegram chat ID, user preferences, and any facts the agent should remember across sessions.</td>
-          </tr>
-          <tr>
-            <td><code>telegram_bot.py</code></td>
-            <td>Telegram bot interface. Runs in a daemon thread with its own asyncio loop. Handles 17 slash commands (including <code>/chart</code>, <code>/pdf</code>, <code>/history</code>, <code>/trade</code>) and free-text chat routing to <code>PeachAgent</code>.</td>
+            <td>SQLite key-value store for persistent agent context — Discord channel ID, user preferences, and any facts the agent should remember across sessions.</td>
           </tr>
           <tr>
             <td><code>discord_bot.py</code></td>
-            <td>Discord bot interface. Runs in a daemon thread with its own asyncio loop. Mirrors Telegram commands with a <code>!</code> prefix (<code>!briefing</code>, <code>!chart</code>, <code>!peach</code>, etc.) and pushes morning briefs and alerts to the configured channel.</td>
+            <td>Discord bot interface. Runs in a daemon thread with its own asyncio loop. Handles commands with a <code>!</code> prefix (<code>!briefing</code>, <code>!chart</code>, <code>!peach</code>, <code>!trade</code>, <code>!trades</code>, <code>!closetr</code>, etc.) and pushes morning briefs, charts, and alerts to the configured channel.</td>
           </tr>
           <tr>
             <td><code>charts.py</code></td>
-            <td>Chart generation via mplfinance and matplotlib. Produces OHLCV candlestick charts, portfolio P&amp;L bars, sector allocation pie, correlation heatmap, portfolio history line, and multi-ticker comparison overlay. Returns PNG bytes for Telegram/Discord delivery or PDF embedding.</td>
+            <td>Chart generation via mplfinance and matplotlib. Produces OHLCV candlestick charts, portfolio P&amp;L bars, sector allocation pie, correlation heatmap, portfolio history line, and multi-ticker comparison overlay. Returns PNG bytes for Discord delivery or PDF embedding.</td>
           </tr>
           <tr>
             <td><code>report.py</code></td>
@@ -185,8 +181,8 @@ Tools available (9 total):
           <tr><td><code>peach_config.json</code></td><td>Local non-committed configuration. Env vars overlay it at startup.</td></tr>
           <tr><td><code>briefing.md</code></td><td>Latest briefing output when no email is configured.</td></tr>
           <tr><td><code>portfolio.db</code></td><td>SQLite — positions, alerts, paper trades, and daily portfolio snapshots. WAL mode for concurrent access.</td></tr>
-          <tr><td><code>memory.db</code></td><td>SQLite key-value — Telegram chat ID, user preferences, last briefing summary, recent movers, drawdown alert rate limits.</td></tr>
-          <tr><td><code>morning_brief.pdf</code></td><td>Most recent PDF morning brief — overwritten each run. Also delivered to Telegram and Discord.</td></tr>
+          <tr><td><code>memory.db</code></td><td>SQLite key-value — Discord channel ID, user preferences, last briefing summary, recent movers, drawdown alert rate limits.</td></tr>
+          <tr><td><code>morning_brief.pdf</code></td><td>Most recent PDF morning brief — overwritten each run. Also delivered to Discord.</td></tr>
         </tbody>
       </table>
 
@@ -216,7 +212,7 @@ Tools available (9 total):
       </div>
       <nav class="footer-links">
         <a href="/install">Install</a>
-        <a href="/telegram">Telegram</a>
+        <a href="/paper-trades">Paper Trades</a>
         <a href="/deploy">Deploy</a>
         <a href="/config">Config</a>
         <a href="/architecture">Architecture</a>

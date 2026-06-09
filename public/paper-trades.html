@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paper Trading · Peach</title>
+  <meta name="description" content="Log hypothetical long and short positions, track unrealised P&L against live prices, and review closed trade performance — all from Discord or the terminal." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" aria-label="Main">
+    <a class="brand" href="/">
+      <span class="brand-icon" aria-hidden="true"><svg width="20" height="13" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span>
+      Peach
+    </a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/install">Install</a>
+      <a href="/paper-trades" aria-current="page">Paper Trades</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+      <a href="/architecture">Architecture</a>
+    </div>
+  </nav>
+
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
+  <div class="page-hero">
+    <div class="wrap">
+      <p class="section-eyebrow">Paper Trading</p>
+      <h1 class="page-title">Simulate before<br>you commit.</h1>
+      <p class="page-sub">Log hypothetical long and short positions with entry price and thesis. Peach tracks unrealised P&L against live prices and records performance when you close — no real money required.</p>
+      <div class="page-actions">
+        <a class="btn btn-dark" href="/install">Get started</a>
+        <a class="btn btn-outline" href="/architecture">How it's built</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main content ───────────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="doc-wide">
+
+      <h2>How paper trading works</h2>
+      <p>Paper trades are stored in SQLite alongside your real portfolio. Each trade has a direction (long or short), an entry price, an optional share count, and an optional thesis note. Peach fetches live prices at query time to compute your current P&L — nothing is simulated ahead of time.</p>
+      <p>Trades can be opened and closed from Discord or the CLI. Closed trades keep their entry and exit prices permanently, so you can review your track record at any time.</p>
+
+      <!-- Open a trade -->
+      <ol class="tutorial-steps">
+
+        <li class="tutorial-step">
+          <span class="step-num">01</span>
+          <div class="step-body">
+            <h3>Open a position</h3>
+            <p>Use the <code>!trade</code> command in Discord. Specify direction, ticker, entry price, optional share count, and an optional thesis note:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># Long 5 shares of NVDA at $890, with a thesis:</span>
+!trade LONG NVDA 890 5 Jensen keynote catalyst
+
+<span class="dim"># Short TSLA at $240 with no share count:</span>
+!trade SHORT TSLA 240 overvalued on rate risk
+
+<span class="dim"># Peach confirms and assigns a trade ID:</span>
+<span class="dim"># Trade #4 opened — LONG NVDA @ $890.00 (5 shares)</span></pre>
+            </div>
+            <div class="callout">
+              <p>The share count is optional — if omitted, Peach logs the position without a size so you can still track direction and P&L percentage without committing to a quantity.</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">02</span>
+          <div class="step-body">
+            <h3>Check open trades</h3>
+            <p>Use <code>!trades</code> to see all open positions with live unrealised P&L fetched at query time:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body">!trades
+
+<span class="dim"># Peach responds with live P&L for each open trade:</span>
+<span class="dim"># #3  LONG  AAPL   entry $182  now $194.20  +$12.20 (+6.7%)</span>
+<span class="dim"># #4  LONG  NVDA   entry $890  now $941.50  +$51.50 (+5.8%)  5 shares → +$257.50</span>
+<span class="dim"># #5  SHORT TSLA   entry $240  now $228.10  +$11.90 (+5.0%)</span></pre>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">03</span>
+          <div class="step-body">
+            <h3>Close a trade</h3>
+            <p>Close any open trade by ID with an exit price. Peach records the P&L and marks it done:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># Close trade #4 (NVDA long) at today's price:</span>
+!closetr 4 950
+
+<span class="dim"># Peach confirms with final P&L:</span>
+<span class="dim"># Trade #4 closed — LONG NVDA $890 → $950  +$60.00 (+6.7%)  5 shares → +$300.00</span></pre>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">04</span>
+          <div class="step-body">
+            <h3>Review your track record</h3>
+            <p>Run <code>!trades all</code> to see both open and closed trades with full history:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body">!trades all
+
+<span class="dim"># Open:</span>
+<span class="dim"># #3  LONG  AAPL   entry $182  now $194.20  +6.7%  [open]</span>
+<span class="dim"># #5  SHORT TSLA   entry $240  now $228.10  +5.0%  [open]</span>
+<span class="dim">#</span>
+<span class="dim"># Closed:</span>
+<span class="dim"># #4  LONG  NVDA   entry $890  exit $950    +6.7%  +$300 total  [closed]</span>
+<span class="dim"># #1  LONG  MSFT   entry $410  exit $438    +6.8%             [closed]</span>
+<span class="dim"># #2  SHORT QQQ    entry $465  exit $451    +3.0%             [closed]</span></pre>
+            </div>
+          </div>
+        </li>
+
+        <li class="tutorial-step">
+          <span class="step-num">05</span>
+          <div class="step-body">
+            <h3>Ask the agent about your trades <span class="tag">New</span></h3>
+            <p>The agent can reason about your paper trades in natural language. Ask it to review your ideas before you open a position, or to summarise your performance:</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># Ask the agent to review a thesis before opening:</span>
+!peach I'm thinking of going long NVDA at 890, what do you think?
+
+<span class="dim"># Or review your open book:</span>
+!peach how are my paper trades doing relative to the broader market?</pre>
+            </div>
+            <div class="callout">
+              <p>The agent has access to <code>get_quote</code>, <code>get_technicals</code>, and <code>get_portfolio</code> so it can cross-reference your paper position against RSI, SMA levels, and recent news before giving an opinion.</p>
+            </div>
+          </div>
+        </li>
+
+      </ol>
+
+      <!-- Command reference -->
+      <h2>Command reference</h2>
+      <table class="cmd-table">
+        <tr>
+          <td><code>!trade LONG NVDA 890 5 thesis</code></td>
+          <td>Open a long position in NVDA at $890, 5 shares. Thesis is optional and stored with the trade.</td>
+        </tr>
+        <tr>
+          <td><code>!trade SHORT TSLA 240 overvalued</code></td>
+          <td>Open a short position in TSLA at $240 with a thesis note.</td>
+        </tr>
+        <tr>
+          <td><code>!trades</code></td>
+          <td>List all open paper trades with live unrealised P&L.</td>
+        </tr>
+        <tr>
+          <td><code>!trades all</code></td>
+          <td>List open and closed trades. Closed entries show entry, exit, and final P&L.</td>
+        </tr>
+        <tr>
+          <td><code>!closetr 4 950</code></td>
+          <td>Close trade #4 at $950. Peach records the final P&L and marks the trade done.</td>
+        </tr>
+      </table>
+
+      <!-- Storage -->
+      <h2>Storage and persistence</h2>
+      <p>Paper trades are stored in the <code>paper_trades</code> table inside <code>portfolio.db</code> — the same SQLite database as your real positions and price alerts. They survive daemon restarts and are included in the daily backup if you've configured one.</p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Field</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>Auto-incrementing trade ID, referenced in <code>!closetr</code>.</td></tr>
+          <tr><td><code>ticker</code></td><td>The ticker symbol (e.g. NVDA, TSLA).</td></tr>
+          <tr><td><code>direction</code></td><td><code>LONG</code> or <code>SHORT</code>.</td></tr>
+          <tr><td><code>entry_price</code></td><td>Entry price as specified when opening.</td></tr>
+          <tr><td><code>shares</code></td><td>Share count. Optional — null if not provided.</td></tr>
+          <tr><td><code>entry_date</code></td><td>Timestamp when the trade was opened.</td></tr>
+          <tr><td><code>notes</code></td><td>Optional thesis or reason stored with the trade.</td></tr>
+          <tr><td><code>is_open</code></td><td><code>true</code> while the position is active.</td></tr>
+          <tr><td><code>exit_price</code></td><td>Exit price recorded when closed. Null while open.</td></tr>
+          <tr><td><code>exit_date</code></td><td>Timestamp when the trade was closed. Null while open.</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- ── Dark band ─────────────────────────────────────────────────────────── -->
+  <section class="install-band">
+    <div class="wrap">
+      <p class="section-eyebrow">Track record</p>
+      <h2 class="install-heading">Test ideas.<br>Keep score.</h2>
+      <div class="install-term">
+        <div class="term">
+          <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+          <pre class="term-body"><span class="dim"># Open a position:</span>
+!trade LONG NVDA 890 5 Jensen keynote catalyst
+
+<span class="dim"># Check live P&L:</span>
+!trades
+
+<span class="dim"># Close it:</span>
+!closetr 4 950
+<span class="dim"># Trade #4 closed — LONG NVDA $890 → $950  +6.7%  +$300 total</span></pre>
+        </div>
+      </div>
+      <p class="install-note">Trades are stored in SQLite and survive daemon restarts. Closed trades are kept permanently so you can review your full track record.</p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand"><span class="brand-icon" aria-hidden="true"><svg width="16" height="10" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span> Peach</span>
+        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+      </div>
+      <nav class="footer-links">
+        <a href="/install">Install</a>
+        <a href="/paper-trades">Paper Trades</a>
+        <a href="/deploy">Deploy</a>
+        <a href="/config">Config</a>
+        <a href="/architecture">Architecture</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <span class="footer-year">© <span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
+</html>

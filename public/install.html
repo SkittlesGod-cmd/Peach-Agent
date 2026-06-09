@@ -21,7 +21,7 @@
     <div class="nav-links">
       <a href="/">Overview</a>
       <a href="/install" aria-current="page">Install</a>
-      <a href="/telegram">Telegram</a>
+      <a href="/paper-trades">Paper Trades</a>
       <a href="/deploy">Deploy</a>
       <a href="/config">Config</a>
       <a href="/architecture">Architecture</a>
@@ -35,7 +35,7 @@
       <h1 class="page-title">Up and running<br>in two minutes.</h1>
       <p class="page-sub">One install command, one start command. No API keys, no config files, no accounts to create. Briefings land automatically every weekday at 09:00 ET.</p>
       <div class="page-actions">
-        <a class="btn btn-dark" href="/telegram">Connect Telegram →</a>
+        <a class="btn btn-dark" href="/paper-trades">Try paper trading →</a>
         <a class="btn btn-outline" href="/config">Config reference</a>
       </div>
     </div>
@@ -80,7 +80,7 @@ git --version</pre>
           <span class="step-num">03</span>
           <div class="step-body">
             <h3>Start the agent</h3>
-            <p>This launches Peach as a detached background daemon. It schedules the morning briefing, starts the price-alert checker, and — if configured — starts the Telegram bot.</p>
+            <p>This launches Peach as a detached background daemon. It schedules the morning briefing, starts the price-alert checker, and — if configured — starts the Discord bot.</p>
             <div class="term">
               <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
               <pre class="term-body">peach start</pre>
@@ -97,7 +97,7 @@ git --version</pre>
           <span class="step-num">04</span>
           <div class="step-body">
             <h3>Read your first briefing</h3>
-            <p>Until email or Telegram is configured, briefings are written to a Markdown file after each 09:00 ET run. You can also trigger one immediately:</p>
+            <p>Until email or Discord is configured, briefings are written to a Markdown file after each 09:00 ET run. You can also trigger one immediately:</p>
             <div class="term">
               <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
               <pre class="term-body"><span class="dim"># Run a briefing right now instead of waiting for 09:00</span>
@@ -113,9 +113,9 @@ cat ~/.local/share/peach-agent/briefing.md</pre>
         <li class="tutorial-step">
           <span class="step-num">05</span>
           <div class="step-body">
-            <h3>Connect Telegram <span class="tag tag-new">Recommended</span></h3>
-            <p>The Telegram bot gives you live quotes, portfolio tracking, price alerts, and on-demand briefings from anywhere. Setup takes about two minutes.</p>
-            <a class="btn btn-dark" href="/telegram" style="display:inline-flex;margin-top:4px;">Telegram setup guide →</a>
+            <h3>Try Paper Trading <span class="tag tag-new">New</span></h3>
+            <p>Log hypothetical long and short positions before committing real capital. Peach tracks live P&amp;L and records your performance when you close.</p>
+            <a class="btn btn-dark" href="/paper-trades" style="display:inline-flex;margin-top:4px;">Paper trading guide →</a>
           </div>
         </li>
 
@@ -206,10 +206,10 @@ cat ~/.local/share/peach-agent/briefing.md</pre>
       <p class="section-eyebrow">Next</p>
       <h2 class="section-title" style="max-width:480px;margin-bottom:40px;">Make it useful everywhere.</h2>
       <div class="card-grid">
-        <a class="card" href="/telegram">
+        <a class="card" href="/paper-trades">
           <span class="card-eyebrow">New</span>
-          <h3>Telegram bot</h3>
-          <p>Live quotes, price alerts, and on-demand briefings from your phone.</p>
+          <h3>Paper Trading</h3>
+          <p>Log hypothetical positions, track live P&amp;L, and review your closed-trade track record.</p>
         </a>
         <a class="card" href="/deploy">
           <span class="card-eyebrow">Deployment</span>
@@ -238,7 +238,7 @@ cat ~/.local/share/peach-agent/briefing.md</pre>
       </div>
       <nav class="footer-links">
         <a href="/install">Install</a>
-        <a href="/telegram">Telegram</a>
+        <a href="/paper-trades">Paper Trades</a>
         <a href="/deploy">Deploy</a>
         <a href="/config">Config</a>
         <a href="/architecture">Architecture</a>

@@ -21,7 +21,7 @@
     <div class="nav-links">
       <a href="/">Overview</a>
       <a href="/install">Install</a>
-      <a href="/telegram">Telegram</a>
+      <a href="/paper-trades">Paper Trades</a>
       <a href="/deploy" aria-current="page">Deploy</a>
       <a href="/config">Config</a>
       <a href="/architecture">Architecture</a>
@@ -64,7 +64,7 @@ peach start</pre>
             <span class="option-badge">Simplest</span>
           </div>
           <div class="option-right">
-            <p>DigitalOcean, Linode (Akamai), Vultr, or AWS EC2. A $4–6/month Ubuntu instance is more than sufficient. You get SSH access, full control, and a static IP for the Telegram webhook if you need it.</p>
+            <p>DigitalOcean, Linode (Akamai), Vultr, or AWS EC2. A $4–6/month Ubuntu instance is more than sufficient. You get SSH access, full control, and a dedicated IP if you need it.</p>
             <div class="term">
               <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
               <pre class="term-body"><span class="dim"># On a fresh Ubuntu 22.04 VPS:</span>
@@ -90,7 +90,7 @@ cd Peach-Agent
 
 <span class="dim"># Create a .env file with your credentials</span>
 cat > peach.env &lt;&lt;EOF
-TELEGRAM_BOT_TOKEN=your_token
+DISCORD_TOKEN=your_token
 SMTP_USERNAME=you@gmail.com
 SMTP_PASSWORD=your-app-password
 PEACH_EMAIL_FROM=you@gmail.com
@@ -214,7 +214,7 @@ launchctl load ~/Library/LaunchAgents/com.peach.agent.plist</pre>
       </div>
       <nav class="footer-links">
         <a href="/install">Install</a>
-        <a href="/telegram">Telegram</a>
+        <a href="/paper-trades">Paper Trades</a>
         <a href="/deploy">Deploy</a>
         <a href="/config">Config</a>
         <a href="/architecture">Architecture</a>
