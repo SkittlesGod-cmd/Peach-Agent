@@ -138,7 +138,7 @@ class PeachDiscord:
         async def cmd_portfolio(ctx: dc_commands.Context) -> None:
             positions = self.portfolio.get_all_positions()
             if not positions:
-                await ctx.send("No positions tracked. Use Telegram `/add` to add positions.")
+                await ctx.send("No positions tracked. Use `!add TICKER SHARES COST` to add positions.")
                 return
             lines = ["**Portfolio**"]
             for pos in positions:

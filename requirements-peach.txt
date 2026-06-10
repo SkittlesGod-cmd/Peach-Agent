@@ -6,6 +6,5 @@ markdown>=3.6,<4
 matplotlib>=3.7.0,<4
 mplfinance>=0.12.10b0,<1
 openai>=1.40.0,<7
-python-telegram-bot>=20.7,<22
 requests>=2.32.0,<3
 yfinance>=0.2.40,<1

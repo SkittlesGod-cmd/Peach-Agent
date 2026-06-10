@@ -317,22 +317,6 @@ def command_doctor(args: argparse.Namespace) -> int:
     except Exception as exc:
         _fail(f"yfinance failed: {exc}")
 
-    # Telegram
-    if config.telegram_bot_token:
-        try:
-            import requests
-            r = requests.get(
-                f"https://api.telegram.org/bot{config.telegram_bot_token}/getMe", timeout=5
-            )
-            if r.ok:
-                _ok(f"Telegram bot: @{r.json()['result']['username']}")
-            else:
-                _fail(f"Telegram token invalid ({r.status_code})")
-        except Exception as exc:
-            _fail(f"Telegram check failed: {exc}")
-    else:
-        print("  –  Telegram not configured")
-
     # Discord
     if config.discord_token:
         try:
@@ -358,7 +342,7 @@ def command_doctor(args: argparse.Namespace) -> int:
         print(f"  –  Email not configured  (briefings → {config.home / 'briefing.md'})")
 
     # Dependencies
-    critical = ["apscheduler", "yfinance", "requests", "fpdf", "mplfinance", "telegram"]
+    critical = ["apscheduler", "yfinance", "requests", "fpdf", "mplfinance", "discord"]
     missing = []
     for dep in critical:
         try:

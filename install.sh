@@ -64,7 +64,8 @@ chmod +x "$BIN_DIR/peach"
 # ── Quick setup wizard ────────────────────────────────────────────────────────
 # Reads from /dev/tty so prompts work even when this script is piped from curl.
 
-_setup_telegram=""
+_setup_discord=""
+_setup_discord_channel=""
 _setup_email=""
 _setup_email_pw=""
 _setup_email_to=""
@@ -76,14 +77,22 @@ if [ -e /dev/tty ]; then
     printf '  %s   %s\n' "$(bold 'Quick setup')" "$(dim 'press Enter to skip any question')"
     printf '  %s\n' "$(bold '─────────────────────────────────────────────')"
 
-    # ── Telegram ──────────────────────────────────────────────────────────────
+    # ── Discord ───────────────────────────────────────────────────────────────
     printf '\n'
-    printf '  %s  %s\n' "$(peach 'Telegram bot')" "$(dim 'recommended')"
-    printf '  %s\n' "$(dim 'Message @BotFather on Telegram → /newbot → copy the token')"
-    printf '  Token: '
-    read -r _setup_telegram </dev/tty || true
-    _setup_telegram="${_setup_telegram#"${_setup_telegram%%[![:space:]]*}"}"
-    _setup_telegram="${_setup_telegram%"${_setup_telegram##*[![:space:]]}"}"
+    printf '  %s  %s\n' "$(peach 'Discord bot')" "$(dim 'recommended')"
+    printf '  %s\n' "$(dim 'Create a bot at discord.com/developers → copy the token')"
+    printf '  Bot token: '
+    read -r _setup_discord </dev/tty || true
+    _setup_discord="${_setup_discord#"${_setup_discord%%[![:space:]]*}"}"
+    _setup_discord="${_setup_discord%"${_setup_discord##*[![:space:]]}"}"
+
+    if [ -n "$_setup_discord" ]; then
+        printf '  %s\n' "$(dim 'Right-click your channel → Copy Channel ID (enable Developer Mode first)')"
+        printf '  Channel ID: '
+        read -r _setup_discord_channel </dev/tty || true
+        _setup_discord_channel="${_setup_discord_channel#"${_setup_discord_channel%%[![:space:]]*}"}"
+        _setup_discord_channel="${_setup_discord_channel%"${_setup_discord_channel##*[![:space:]]}"}"
+    fi
 
     # ── Email ─────────────────────────────────────────────────────────────────
     printf '\n'
@@ -122,8 +131,9 @@ if [ -e /dev/tty ]; then
     printf '  %s\n' "$(bold '─────────────────────────────────────────────')"
 
     # ── Write answers into peach_config.json ──────────────────────────────────
-    if [ -n "$_setup_telegram" ] || [ -n "$_setup_email" ] || [ -n "$_setup_tickers" ]; then
-        _PEACH_TELEGRAM="$_setup_telegram" \
+    if [ -n "$_setup_discord" ] || [ -n "$_setup_email" ] || [ -n "$_setup_tickers" ]; then
+        _PEACH_DISCORD="$_setup_discord" \
+        _PEACH_DISCORD_CHANNEL="$_setup_discord_channel" \
         _PEACH_EMAIL="$_setup_email" \
         _PEACH_EMAIL_PW="$_setup_email_pw" \
         _PEACH_EMAIL_TO="$_setup_email_to" \
@@ -135,14 +145,17 @@ path = sys.argv[1]
 with open(path) as f:
     cfg = json.load(f)
 
-tok   = os.environ.get("_PEACH_TELEGRAM", "").strip()
-mail  = os.environ.get("_PEACH_EMAIL",    "").strip()
-pw    = os.environ.get("_PEACH_EMAIL_PW", "").strip()
-to    = os.environ.get("_PEACH_EMAIL_TO", "").strip()
-ticks = os.environ.get("_PEACH_TICKERS",  "").strip()
+discord_tok = os.environ.get("_PEACH_DISCORD",         "").strip()
+discord_ch  = os.environ.get("_PEACH_DISCORD_CHANNEL", "").strip()
+mail        = os.environ.get("_PEACH_EMAIL",            "").strip()
+pw          = os.environ.get("_PEACH_EMAIL_PW",         "").strip()
+to          = os.environ.get("_PEACH_EMAIL_TO",         "").strip()
+ticks       = os.environ.get("_PEACH_TICKERS",          "").strip()
 
-if tok:
-    cfg["telegram_bot_token"] = tok
+if discord_tok:
+    cfg["discord_token"] = discord_tok
+if discord_ch:
+    cfg["discord_channel_id"] = discord_ch
 
 if mail:
     cfg["smtp_username"] = mail
@@ -163,10 +176,10 @@ PYWRITE
 
     # ── Setup summary ─────────────────────────────────────────────────────────
     printf '\n'
-    if [ -n "$_setup_telegram" ]; then
-        ok "Telegram bot configured"
+    if [ -n "$_setup_discord" ]; then
+        ok "Discord bot configured"
     else
-        skip "Telegram skipped — add later: telegram_bot_token in peach_config.json"
+        skip "Discord skipped — add later: discord_token in peach_config.json"
     fi
 
     if [ -n "$_setup_email" ]; then
@@ -182,7 +195,7 @@ PYWRITE
     fi
 
 else
-    skip "Non-interactive install — edit $INSTALL_DIR/peach_config.json to configure email and Telegram"
+    skip "Non-interactive install — edit $INSTALL_DIR/peach_config.json to configure email and Discord"
 fi
 
 # ── Done ─────────────────────────────────────────────────────────────────────
@@ -198,7 +211,7 @@ fi
 printf '  %s\n' "$(bold 'Start the agent:')"
 printf '  %s\n\n' "$(peach 'peach start')"
 
-if [ -z "$_setup_telegram" ] && [ -z "$_setup_email" ]; then
+if [ -z "$_setup_discord" ] && [ -z "$_setup_email" ]; then
     printf '  %s\n' "$(dim 'Briefings land at:')"
     printf '  %s\n\n' "$(dim "$INSTALL_DIR/briefing.md")"
 fi

@@ -19,7 +19,6 @@ def run_pipeline(
     config: PeachConfig,
     logger: logging.Logger,
     agent: object,
-    bot: object,
     discord_bot: object,
     portfolio: object,
     chart_gen: object,
@@ -29,7 +28,6 @@ def run_pipeline(
         from .data_fetcher import MarketDataFetcher
         from .notifier import EmailNotifier
         from .agent import PeachAgent
-        from .telegram_bot import PeachBot
 
         market_data = MarketDataFetcher(config, logger).fetch()
         logger.info("Fetched %d metrics, %d headlines, macro=%s",
@@ -44,11 +42,6 @@ def run_pipeline(
             briefing = MarketAnalyzer(config, logger).analyze(market_data)
 
         EmailNotifier(config, logger).send(briefing)
-
-        # Telegram: send snippet
-        if isinstance(bot, PeachBot):
-            snippet = briefing[:1000] + ("…" if len(briefing) > 1000 else "")
-            bot.notify(f"Morning briefing ready:\n\n{snippet}")
 
         # Discord: send snippet
         _notify_discord(discord_bot, f"**Morning Briefing**\n{briefing[:1900]}", logger)
@@ -83,8 +76,6 @@ def run_pipeline(
             pdf_path.write_bytes(pdf_bytes)
             logger.info("Morning brief PDF written to %s", pdf_path)
 
-            if isinstance(bot, PeachBot):
-                bot.send_document(pdf_bytes, pdf_name, "Morning Brief PDF")
             _send_discord_file(discord_bot, pdf_bytes, pdf_name, "Morning Brief", logger)
         except Exception as exc:
             logger.warning("PDF generation failed: %s", exc)
@@ -99,14 +90,12 @@ def check_alerts(
     config: PeachConfig,
     logger: logging.Logger,
     portfolio: object,
-    bot: object,
     discord_bot: object,
     memory: object,
 ) -> None:
     try:
         import yfinance as yf
         from .portfolio import PortfolioLedger
-        from .telegram_bot import PeachBot
         from .memory import AgentMemory
 
         if not isinstance(portfolio, PortfolioLedger):
@@ -132,8 +121,6 @@ def check_alerts(
                     if alert.note:
                         msg += f"\n{alert.note}"
                     logger.info(msg)
-                    if isinstance(bot, PeachBot):
-                        bot.notify(msg)
                     _notify_discord(discord_bot, msg, logger)
             except Exception as exc:
                 logger.warning("Alert check failed for %s: %s", alert.ticker, exc)
@@ -161,8 +148,6 @@ def check_alerts(
                 f"(${cost_basis:.2f} → ${current:.2f})"
             )
             logger.info(msg)
-            if isinstance(bot, PeachBot):
-                bot.notify(msg)
             _notify_discord(discord_bot, msg, logger)
 
     except Exception as exc:
@@ -190,12 +175,10 @@ def run_correlation_report(
     config: PeachConfig,
     logger: logging.Logger,
     portfolio: object,
-    bot: object,
     discord_bot: object,
 ) -> None:
     """Weekly Monday job: send correlation heatmap for portfolio holdings."""
     from .portfolio import PortfolioLedger
-    from .telegram_bot import PeachBot
 
     if not isinstance(portfolio, PortfolioLedger):
         return
@@ -209,8 +192,6 @@ def run_correlation_report(
             [p.ticker for p in positions], period="3mo"
         )
         caption = "Weekly correlation heatmap  ·  3-month returns"
-        if isinstance(bot, PeachBot):
-            bot.send_photo(img, caption)
         _send_discord_file(discord_bot, img, "correlation.png", caption, logger)
         logger.info("Correlation report sent.")
     except Exception as exc:
@@ -275,18 +256,15 @@ def main(argv: list[str] | None = None) -> int:
     from .portfolio import PortfolioLedger
     from .memory import AgentMemory
     from .agent import PeachAgent
-    from .telegram_bot import PeachBot
     from .discord_bot import PeachDiscord
     from .charts import ChartGenerator
 
     portfolio = PortfolioLedger(config.portfolio_db)
     memory = AgentMemory(config.memory_db)
     agent = PeachAgent(config, portfolio, memory, logger)
-    bot = PeachBot(config, agent, portfolio, memory, logger)
     discord_bot = PeachDiscord(config, agent, portfolio, memory, logger)
     chart_gen = ChartGenerator(logger)
 
-    bot.start()
     discord_bot.start()
 
     tz = ZoneInfo(config.timezone)
@@ -309,7 +287,7 @@ def main(argv: list[str] | None = None) -> int:
         run_pipeline,
         trigger=CronTrigger(day_of_week="mon-fri", hour=config.schedule_hour,
                             minute=config.schedule_minute, timezone=tz),
-        args=[config, logger, agent, bot, discord_bot, portfolio, chart_gen],
+        args=[config, logger, agent, discord_bot, portfolio, chart_gen],
         id="peach-market-briefing",
         replace_existing=True, max_instances=1, coalesce=True, misfire_grace_time=3600,
     )
@@ -319,7 +297,7 @@ def main(argv: list[str] | None = None) -> int:
         check_alerts,
         trigger=CronTrigger(day_of_week="mon-fri", hour="9-16",
                             minute="*/5", timezone=tz),
-        args=[config, logger, portfolio, bot, discord_bot, memory],
+        args=[config, logger, portfolio, discord_bot, memory],
         id="peach-alert-checker",
         replace_existing=True, max_instances=1, coalesce=True,
     )
@@ -337,7 +315,7 @@ def main(argv: list[str] | None = None) -> int:
     scheduler.add_job(
         run_correlation_report,
         trigger=CronTrigger(day_of_week="mon", hour=9, minute=35, timezone=tz),
-        args=[config, logger, portfolio, bot, discord_bot],
+        args=[config, logger, portfolio, discord_bot],
         id="peach-correlation-report",
         replace_existing=True, max_instances=1, coalesce=True,
     )
@@ -345,7 +323,7 @@ def main(argv: list[str] | None = None) -> int:
     if config.run_on_start:
         scheduler.add_job(
             run_pipeline,
-            args=[config, logger, agent, bot, discord_bot, portfolio, chart_gen],
+            args=[config, logger, agent, discord_bot, portfolio, chart_gen],
             id="peach-run-on-start", replace_existing=True,
         )
 

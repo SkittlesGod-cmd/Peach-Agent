@@ -1,6 +1,6 @@
 # Peach
 
-Peach is a pre-market intelligence agent. It runs as a background daemon, gathers market data and headlines, and generates a Markdown briefing before the market opens — emailed, written to disk, or sent to your Telegram.
+Peach is a pre-market intelligence agent. It runs as a background daemon, gathers market data and headlines, and generates a Markdown briefing before the market opens — emailed, written to disk, or pushed to Discord.
 
 ## Install
 
@@ -13,27 +13,30 @@ peach start
 
 Requires Python 3.9+ and git. Briefings run at 09:00 ET Monday–Friday.
 
-## Add Telegram (recommended)
+## Add Discord (recommended)
 
-1. Message [@BotFather](https://t.me/BotFather) on Telegram → `/newbot` → copy the token
-2. Edit `~/.local/share/peach-agent/peach_config.json`:
+1. Go to [discord.com/developers](https://discord.com/developers/applications) → New Application → Bot → copy the token
+2. Invite the bot to your server with `Send Messages` and `Attach Files` permissions
+3. Enable Developer Mode in Discord settings, right-click your channel → Copy Channel ID
+4. Edit `~/.local/share/peach-agent/peach_config.json`:
 
 ```json
 {
-  "telegram_bot_token": "YOUR_BOT_TOKEN"
+  "discord_token": "YOUR_BOT_TOKEN",
+  "discord_channel_id": "YOUR_CHANNEL_ID"
 }
 ```
 
-3. Restart: `peach stop && peach start`
-4. Message your bot `/start` — it will save your chat ID automatically
+5. Restart: `peach stop && peach start`
 
 **What you get:**
-- `/briefing` — run a briefing on demand
-- `/quote AAPL` — live quote
-- `/add AAPL 10 150.00` — track a position
-- `/portfolio` — P&L on your positions
-- `/alert AAPL above 200` — price alerts
-- Type anything — the agent will answer using live tools
+- `!briefing` — run a briefing on demand
+- `!quote AAPL` — live quote
+- `!add AAPL 10 150.00` — track a position
+- `!portfolio` — P&L on your positions
+- `!alert AAPL above 200` — price alerts
+- `!trade LONG NVDA 890 5 thesis` — paper trade
+- `!peach <question>` — ask the agent anything with live tools
 
 ## Add Email (optional)
 

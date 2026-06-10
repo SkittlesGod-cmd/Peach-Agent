@@ -68,8 +68,6 @@ class PeachConfig:
     openrouter_model: str = "anthropic/claude-3-haiku"
     ollama_url: str = "http://127.0.0.1:11434"
     ollama_model: str = "llama3.1"
-    telegram_bot_token: str | None = None
-    telegram_chat_id: str | None = None
     discord_token: str | None = None
     discord_channel_id: str | None = None
     drawdown_alert_pct: float = 0.05
@@ -141,8 +139,6 @@ def load_config(home: str | None = None) -> PeachConfig:
         openrouter_model=os.getenv("PEACH_OPENROUTER_MODEL", str(data.get("openrouter_model", "anthropic/claude-3-haiku"))),
         ollama_url=os.getenv("OLLAMA_URL", str(data.get("ollama_url", "http://127.0.0.1:11434"))).rstrip("/"),
         ollama_model=os.getenv("PEACH_OLLAMA_MODEL", str(data.get("ollama_model", "llama3.1"))),
-        telegram_bot_token=os.getenv("TELEGRAM_BOT_TOKEN", data.get("telegram_bot_token")),
-        telegram_chat_id=os.getenv("TELEGRAM_CHAT_ID", data.get("telegram_chat_id")),
         discord_token=os.getenv("DISCORD_TOKEN", data.get("discord_token")),
         discord_channel_id=os.getenv("DISCORD_CHANNEL_ID", data.get("discord_channel_id")),
         drawdown_alert_pct=float(
