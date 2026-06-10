@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy · Peach</title>
+  <meta name="description" content="Peach privacy policy — how data is handled on the website and in the agent." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" aria-label="Main">
+    <a class="brand" href="/">
+      <span class="brand-icon" aria-hidden="true"><svg width="20" height="13" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span>
+      Peach
+    </a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/install">Install</a>
+      <a href="/paper-trades">Paper Trades</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+      <a href="/architecture">Architecture</a>
+    </div>
+  </nav>
+
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
+  <div class="page-hero">
+    <div class="wrap">
+      <p class="section-eyebrow">Privacy</p>
+      <h1 class="page-title">Simple, local,<br>transparent.</h1>
+      <p class="page-sub">Peach is open source. You can read every line of code. Here's a plain-English summary of what touches what data.</p>
+    </div>
+  </div>
+
+  <!-- ── Privacy sections ──────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="doc-content">
+
+      <div class="privacy-section" data-reveal>
+        <h2>This website</h2>
+        <p>The peach-agent.vercel.app website uses no analytics, no cookies, no tracking pixels, and no third-party scripts beyond Google Fonts (for typography). No personal data is collected when you visit.</p>
+      </div>
+
+      <div class="privacy-section" data-reveal>
+        <h2>The Peach daemon (local)</h2>
+        <p>Peach runs entirely on your machine. Config, portfolio positions, paper trades, price alerts, and the briefing history are stored in <code>~/.local/share/peach-agent/</code>. No data is synced to any remote server.</p>
+      </div>
+
+      <div class="privacy-section" data-reveal>
+        <h2>Market data</h2>
+        <p>To generate briefings, Peach calls Yahoo Finance (via the open-source yfinance library) for prices, history, and headlines. These are public, unauthenticated requests. No personally identifiable information is included.</p>
+      </div>
+
+      <div class="privacy-section" data-reveal>
+        <h2>LLM proxy</h2>
+        <p>Briefing generation routes through a Vercel serverless function at <code>peach-agent.vercel.app/api/analyze</code>. The function forwards your market data snapshot to OpenRouter and returns the model's response. The OpenRouter API key is stored only in Vercel's environment and is never visible to you or included in any response. OpenRouter's own privacy policy applies to model inference.</p>
+      </div>
+
+      <div class="privacy-section" data-reveal>
+        <h2>Discord</h2>
+        <p>If you configure a Discord bot, your <code>discord_token</code> and <code>discord_channel_id</code> are stored locally in <code>peach_config.json</code>. Peach uses these to send messages to your Discord channel. Discord's own privacy policy applies.</p>
+      </div>
+
+      <div class="privacy-section" data-reveal>
+        <h2>Your config file</h2>
+        <p><code>peach_config.json</code> is stored at <code>~/.local/share/peach-agent/peach_config.json</code>. By default it is world-readable (mode 644). Peach warns you at startup if this is the case. Run <code>chmod 600 ~/.local/share/peach-agent/peach_config.json</code> to restrict access. Never commit this file to a public repository.</p>
+      </div>
+
+      <div class="callout" data-reveal>
+        <p>Questions? <a href="https://github.com/SkittlesGod-cmd/Peach-Agent/issues" target="_blank" rel="noopener">Open an issue on GitHub.</a></p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand"><span class="brand-icon" aria-hidden="true"><svg width="16" height="10" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span> Peach</span>
+        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+      </div>
+      <nav class="footer-links">
+        <a href="/install">Install</a>
+        <a href="/paper-trades">Paper Trades</a>
+        <a href="/deploy">Deploy</a>
+        <a href="/config">Config</a>
+        <a href="/architecture">Architecture</a>
+        <a href="/changelog">Changelog</a>
+        <a href="/faq">FAQ</a>
+        <a href="/privacy">Privacy</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <span class="footer-year">© <span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
+</html>

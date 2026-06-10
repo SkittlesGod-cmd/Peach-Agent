@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>404 · Peach</title>
+  <meta name="description" content="Page not found." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" aria-label="Main">
+    <a class="brand" href="/">
+      <span class="brand-icon" aria-hidden="true"><svg width="20" height="13" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span>
+      Peach
+    </a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/install">Install</a>
+      <a href="/paper-trades">Paper Trades</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+      <a href="/architecture">Architecture</a>
+    </div>
+  </nav>
+
+  <!-- ── 404 content ───────────────────────────────────────────────────────── -->
+  <div class="notfound-wrap">
+    <p class="notfound-num" aria-hidden="true">404</p>
+    <p class="section-eyebrow">Page not found</p>
+    <p class="notfound-msg">This page doesn't exist or was moved. Try one of these instead.</p>
+    <div class="notfound-links">
+      <a class="btn btn-outline" href="/">Home</a>
+      <a class="btn btn-outline" href="/install">Install guide</a>
+      <a class="btn btn-outline" href="/faq">FAQ</a>
+      <a class="btn btn-outline" href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <button onclick="history.back()" class="btn btn-outline" style="margin-top:16px">← Go back</button>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand"><span class="brand-icon" aria-hidden="true"><svg width="16" height="10" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span> Peach</span>
+        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+      </div>
+      <nav class="footer-links">
+        <a href="/install">Install</a>
+        <a href="/paper-trades">Paper Trades</a>
+        <a href="/deploy">Deploy</a>
+        <a href="/config">Config</a>
+        <a href="/architecture">Architecture</a>
+        <a href="/changelog">Changelog</a>
+        <a href="/faq">FAQ</a>
+        <a href="/privacy">Privacy</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <span class="footer-year">© <span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
+</html>

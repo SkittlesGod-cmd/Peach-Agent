@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ · Peach</title>
+  <meta name="description" content="Frequently asked questions about installing, running, and extending Peach." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" aria-label="Main">
+    <a class="brand" href="/">
+      <span class="brand-icon" aria-hidden="true"><svg width="20" height="13" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span>
+      Peach
+    </a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/install">Install</a>
+      <a href="/paper-trades">Paper Trades</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+      <a href="/architecture">Architecture</a>
+    </div>
+  </nav>
+
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
+  <div class="page-hero">
+    <div class="wrap">
+      <p class="section-eyebrow">FAQ</p>
+      <h1 class="page-title">Common<br>questions.</h1>
+      <p class="page-sub">Can't find what you're looking for? Open an issue on GitHub.</p>
+      <div class="page-actions">
+        <a class="btn btn-dark" href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn btn-outline" href="/install">Install guide</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FAQ content ───────────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="doc-wide">
+      <div class="faq-section" data-reveal>
+
+        <!-- Group: Getting started -->
+        <div class="faq-group" data-reveal>
+          <h2 class="faq-group-title">Getting started</h2>
+
+          <details class="faq-item">
+            <summary class="faq-q">Does Peach need an API key?</summary>
+            <div class="faq-a">
+              <p>No. The LLM runs through a pre-configured Vercel proxy backed by free OpenRouter models. You never touch an API key. If you want to use your own key, set <code>llm_provider</code> to <code>"openrouter"</code> in the config and add <code>OPENROUTER_API_KEY</code>.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">What Python version do I need?</summary>
+            <div class="faq-a">
+              <p>Python 3.9 or later. Check with <code>python3 --version</code>. Python 3.11+ is recommended for best performance.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">Does it work on Windows?</summary>
+            <div class="faq-a">
+              <p>Peach is tested on macOS and Linux. It may work on Windows with WSL2 (Windows Subsystem for Linux), but is not officially supported.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">How long does installation take?</summary>
+            <div class="faq-a">
+              <p>About 30 seconds. The script clones the repository, creates a virtualenv, and installs ~20 dependencies. It prints a progress indicator the whole time.</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Group: Running & scheduling -->
+        <div class="faq-group" data-reveal>
+          <h2 class="faq-group-title">Running &amp; scheduling</h2>
+
+          <details class="faq-item">
+            <summary class="faq-q">Does Peach need to run 24/7?</summary>
+            <div class="faq-a">
+              <p>The scheduler runs inside a background daemon (<code>peach start</code>). If your machine is off or sleeping at 09:00 ET, that day's briefing is skipped — there is no catch-up. For reliable delivery, run Peach on a VPS or always-on server. See the <a href="/deploy">Deploy guide</a>.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">Can I change the briefing time?</summary>
+            <div class="faq-a">
+              <p>Yes. Set <code>schedule_hour</code> and <code>schedule_minute</code> in <code>peach_config.json</code>. Values are in 24-hour format and respect the <code>timezone</code> setting (default <code>America/New_York</code>).</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">What happens if the LLM proxy is down?</summary>
+            <div class="faq-a">
+              <p>Peach falls back to a deterministic data-first briefing — prices, technicals, and headlines formatted without an LLM. The briefing is clearly marked as a fallback so you know the difference.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">Can I run a briefing immediately without waiting for 09:00?</summary>
+            <div class="faq-a">
+              <p>Yes. Either run <code>peach run</code> for a one-off briefing, or start the daemon with <code>PEACH_RUN_ON_START=true peach start</code>.</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Group: Discord -->
+        <div class="faq-group" data-reveal>
+          <h2 class="faq-group-title">Discord</h2>
+
+          <details class="faq-item">
+            <summary class="faq-q">What Discord commands are available?</summary>
+            <div class="faq-a">
+              <table class="cmd-table">
+                <tbody>
+                  <tr><td><code>!briefing</code></td><td>Run a briefing now</td></tr>
+                  <tr><td><code>!quote TICKER</code></td><td>Live price</td></tr>
+                  <tr><td><code>!portfolio</code></td><td>Open positions with P&amp;L</td></tr>
+                  <tr><td><code>!add TICKER SHARES COST</code></td><td>Track a position</td></tr>
+                  <tr><td><code>!alert TICKER above|below PRICE</code></td><td>Set a price alert</td></tr>
+                  <tr><td><code>!chart TICKER [period]</code></td><td>Price chart</td></tr>
+                  <tr><td><code>!technicals TICKER</code></td><td>RSI, SMA, 52w levels</td></tr>
+                  <tr><td><code>!trade LONG|SHORT TICKER PRICE [SHARES]</code></td><td>Open a paper trade</td></tr>
+                  <tr><td><code>!trades</code></td><td>List open paper trades</td></tr>
+                  <tr><td><code>!closetr ID PRICE</code></td><td>Close a paper trade</td></tr>
+                  <tr><td><code>!peach &lt;question&gt;</code></td><td>Ask the agent anything</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">Do I need my own Discord server?</summary>
+            <div class="faq-a">
+              <p>You need a Discord server where you have permission to add a bot. Create one for free at <a href="https://discord.com" target="_blank" rel="noopener">discord.com</a>. Then go to <a href="https://discord.com/developers" target="_blank" rel="noopener">discord.com/developers</a> to create a bot application, get your token, and invite it.</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Group: Data & privacy -->
+        <div class="faq-group" data-reveal>
+          <h2 class="faq-group-title">Data &amp; privacy</h2>
+
+          <details class="faq-item">
+            <summary class="faq-q">Is my portfolio data sent anywhere?</summary>
+            <div class="faq-a">
+              <p>No. Portfolio positions, paper trades, and price alerts are stored entirely in a local SQLite database at <code>~/.local/share/peach-agent/</code>. Nothing leaves your machine except outbound API calls to Yahoo Finance (market data) and the Peach LLM proxy (briefing generation).</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">What market data source does Peach use?</summary>
+            <div class="faq-a">
+              <p>Yahoo Finance via the yfinance Python library. No paid subscriptions or data API keys are required. Data is fetched over the public Yahoo Finance endpoints.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-q">Is Peach open source?</summary>
+            <div class="faq-a">
+              <p>Yes. MIT license. The full source is on GitHub at <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">github.com/SkittlesGod-cmd/Peach-Agent</a>. You can read every line, fork it, and extend it.</p>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Still have questions ──────────────────────────────────────────────── -->
+  <div class="divider-band">
+    <div class="wrap">
+      <p class="section-eyebrow">Still have questions?</p>
+      <h2 class="section-title" style="max-width:480px;margin-bottom:16px;">Open an issue on GitHub.</h2>
+      <p class="section-body" style="max-width:480px;margin-bottom:40px;">Open an issue on GitHub and we'll add the answer here.</p>
+      <a class="btn btn-outline" href="https://github.com/SkittlesGod-cmd/Peach-Agent/issues" target="_blank" rel="noopener">Open an issue</a>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand"><span class="brand-icon" aria-hidden="true"><svg width="16" height="10" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span> Peach</span>
+        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+      </div>
+      <nav class="footer-links">
+        <a href="/install">Install</a>
+        <a href="/paper-trades">Paper Trades</a>
+        <a href="/deploy">Deploy</a>
+        <a href="/config">Config</a>
+        <a href="/architecture">Architecture</a>
+        <a href="/changelog">Changelog</a>
+        <a href="/faq">FAQ</a>
+        <a href="/privacy">Privacy</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <span class="footer-year">© <span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
+</html>

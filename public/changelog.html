@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Changelog · Peach</title>
+  <meta name="description" content="Version history for Peach — every release, feature, and fix." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" aria-label="Main">
+    <a class="brand" href="/">
+      <span class="brand-icon" aria-hidden="true"><svg width="20" height="13" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span>
+      Peach
+    </a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/install">Install</a>
+      <a href="/paper-trades">Paper Trades</a>
+      <a href="/deploy">Deploy</a>
+      <a href="/config">Config</a>
+      <a href="/architecture">Architecture</a>
+    </div>
+  </nav>
+
+  <!-- ── Page hero ──────────────────────────────────────────────────────────── -->
+  <div class="page-hero">
+    <div class="wrap">
+      <p class="section-eyebrow">Changelog</p>
+      <h1 class="page-title">What's new<br>in Peach.</h1>
+      <p class="page-sub">Every release, feature, and fix. The source of truth is always the GitHub commit history.</p>
+      <div class="page-actions">
+        <a class="btn btn-dark" href="https://github.com/SkittlesGod-cmd/Peach-Agent/commits/main" target="_blank" rel="noopener">View on GitHub</a>
+        <a class="btn btn-outline" href="https://github.com/SkittlesGod-cmd/Peach-Agent/issues" target="_blank" rel="noopener">Report issue</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Timeline ──────────────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="doc-wide">
+      <div class="changelog-timeline" data-reveal>
+
+        <!-- v2.1 -->
+        <div class="changelog-entry" data-reveal>
+          <div class="version-meta">
+            <span class="version-tag">v2.1</span>
+            <span class="version-date">June 2026</span>
+            <span class="version-badge">latest</span>
+          </div>
+          <div class="version-changes">
+            <ul class="change-list">
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Free OpenRouter model support (<code>openai/gpt-oss-120b:free</code> — no API credits needed)
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Discord <code>!add</code>, <code>!alert</code>, <code>!trade</code>, <code>!trades</code>, <code>!closetr</code> commands
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Briefing format overhaul — date header, tape callout blockquote, ↑↓ arrows, ⚠ RSI flags, Today's Focus
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-fix">fix</span>
+                yfinance curl_cffi hard timeout via <code>ThreadPoolExecutor</code> (was blocking 15+ minutes)
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-fix">fix</span>
+                Discord message splitting now breaks on newlines (was cutting markdown tables mid-row)
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-fix">fix</span>
+                Full briefing now sent to Discord, not just first 1&nbsp;900 chars
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- v2.0 -->
+        <div class="changelog-entry" data-reveal>
+          <div class="version-meta">
+            <span class="version-tag">v2.0</span>
+            <span class="version-date">May 2026</span>
+          </div>
+          <div class="version-changes">
+            <ul class="change-list">
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Discord bot integration — <code>!briefing</code>, <code>!quote</code>, <code>!portfolio</code>, <code>!chart</code>, <code>!technicals</code>, <code>!peach</code>
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Paper trading system (<code>!trade</code>, <code>!trades</code>, <code>!closetr</code>) with SQLite backend and live P&amp;L
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Weekly correlation heatmap pushed to Discord every Monday 09:35 ET
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Daily portfolio snapshot at 4:05&nbsp;PM ET
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                PDF morning brief generation with embedded charts
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-removed">removed</span>
+                Telegram integration
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- v1.5 -->
+        <div class="changelog-entry" data-reveal>
+          <div class="version-meta">
+            <span class="version-tag">v1.5</span>
+            <span class="version-date">March 2026</span>
+          </div>
+          <div class="version-changes">
+            <ul class="change-list">
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Candlestick, portfolio P&amp;L, and correlation heatmap chart generation (mplfinance)
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Portfolio tracking with cost basis and thesis
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Price alert system — checks every 5 minutes during market hours
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Drawdown alerts with 24-hour rate limiting
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-improve">improve</span>
+                Email renders as HTML with markdown → HTML converter
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- v1.0 -->
+        <div class="changelog-entry" data-reveal>
+          <div class="version-meta">
+            <span class="version-tag">v1.0</span>
+            <span class="version-date">January 2026</span>
+          </div>
+          <div class="version-changes">
+            <ul class="change-list">
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Morning briefing at 09:00 ET weekdays via APScheduler
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                SMTP email delivery
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                yfinance data fetcher — prices, RSI, SMA, 52-week levels
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Configurable watchlist, schedule, and timezone
+              </li>
+              <li class="change-item">
+                <span class="change-tag change-tag-feat">feat</span>
+                Deterministic fallback briefing when LLM is unreachable
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stay up to date ───────────────────────────────────────────────────── -->
+  <div class="divider-band">
+    <div class="wrap">
+      <p class="section-eyebrow">Stay up to date</p>
+      <h2 class="section-title" style="max-width:480px;margin-bottom:24px;">Watch the repo for<br>every new release.</h2>
+      <p class="section-body" style="max-width:480px;margin-bottom:40px;">Star or watch the repository on GitHub to be notified when new versions ship. Release notes mirror this page.</p>
+      <a class="btn btn-outline" href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">Watch on GitHub</a>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand"><span class="brand-icon" aria-hidden="true"><svg width="16" height="10" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span> Peach</span>
+        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+      </div>
+      <nav class="footer-links">
+        <a href="/install">Install</a>
+        <a href="/paper-trades">Paper Trades</a>
+        <a href="/deploy">Deploy</a>
+        <a href="/config">Config</a>
+        <a href="/architecture">Architecture</a>
+        <a href="/changelog">Changelog</a>
+        <a href="/faq">FAQ</a>
+        <a href="/privacy">Privacy</a>
+        <a href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <span class="footer-year">© <span data-year></span></span>
+    </div>
+  </footer>
+
+  <script src="/site.js"></script>
+</body>
+</html>
