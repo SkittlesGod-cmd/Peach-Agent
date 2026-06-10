@@ -107,9 +107,14 @@ class PeachDiscord:
                 "**Peach commands**\n"
                 "`!briefing` — run a briefing now\n"
                 "`!quote TICKER` — live quote\n"
-                "`!portfolio` — open positions\n"
+                "`!portfolio` — open positions with live P&L\n"
+                "`!add TICKER SHARES COST` — track a position\n"
+                "`!alert TICKER above|below PRICE` — set a price alert\n"
                 "`!chart TICKER [period]` — price chart (1mo/3mo/6mo/1y)\n"
                 "`!technicals TICKER` — RSI, SMA, 52w levels\n"
+                "`!trade LONG|SHORT TICKER PRICE [SHARES] [note]` — open a paper trade\n"
+                "`!trades` — list open paper trades\n"
+                "`!closetr ID PRICE` — close a paper trade\n"
                 "`!peach <question>` — ask the agent anything"
             )
 
@@ -136,14 +141,52 @@ class PeachDiscord:
 
         @bot.command(name="portfolio")
         async def cmd_portfolio(ctx: dc_commands.Context) -> None:
-            positions = self.portfolio.get_all_positions()
-            if not positions:
-                await ctx.send("No positions tracked. Use `!add TICKER SHARES COST` to add positions.")
+            result = self.agent.executor.execute("get_portfolio", {})
+            await ctx.send(result)
+
+        @bot.command(name="add")
+        async def cmd_add(
+            ctx: dc_commands.Context,
+            ticker: str = "",
+            shares: str = "",
+            cost: str = "",
+            *,
+            thesis: str = "",
+        ) -> None:
+            if not ticker or not shares or not cost:
+                await ctx.send("Usage: `!add TICKER SHARES COST [thesis]`")
                 return
-            lines = ["**Portfolio**"]
-            for pos in positions:
-                lines.append(f"• **{pos.ticker}** — {pos.shares} sh @ ${pos.cost_basis:.2f}")
-            await ctx.send("\n".join(lines))
+            try:
+                self.portfolio.add_position(
+                    ticker.upper(), float(shares), float(cost), thesis
+                )
+                await ctx.send(
+                    f"Added **{ticker.upper()}** — {shares} sh @ ${float(cost):.2f}"
+                    + (f"\nThesis: {thesis}" if thesis else "")
+                )
+            except ValueError:
+                await ctx.send("Invalid number. Usage: `!add TICKER SHARES COST`")
+
+        @bot.command(name="alert")
+        async def cmd_alert(
+            ctx: dc_commands.Context,
+            ticker: str = "",
+            direction: str = "",
+            price: str = "",
+            *,
+            note: str = "",
+        ) -> None:
+            if not ticker or direction not in ("above", "below") or not price:
+                await ctx.send("Usage: `!alert TICKER above|below PRICE [note]`")
+                return
+            try:
+                result = self.agent.executor.execute(
+                    "add_alert",
+                    {"ticker": ticker, "direction": direction, "price": float(price), "note": note},
+                )
+                await ctx.send(result)
+            except ValueError:
+                await ctx.send("Invalid price. Usage: `!alert TICKER above|below PRICE`")
 
         @bot.command(name="chart")
         async def cmd_chart(
@@ -170,6 +213,63 @@ class PeachDiscord:
             result = self.agent.executor.execute("get_technicals", {"ticker": ticker})
             await ctx.send(f"```\n{result}\n```")
 
+        @bot.command(name="trade")
+        async def cmd_trade(
+            ctx: dc_commands.Context,
+            direction: str = "",
+            ticker: str = "",
+            price: str = "",
+            shares: str = "1",
+            *,
+            note: str = "",
+        ) -> None:
+            if direction.upper() not in ("LONG", "SHORT") or not ticker or not price:
+                await ctx.send("Usage: `!trade LONG|SHORT TICKER PRICE [SHARES] [note]`")
+                return
+            try:
+                trade_id = self.portfolio.add_paper_trade(
+                    ticker.upper(),
+                    direction.lower(),
+                    float(price),
+                    float(shares),
+                    note,
+                )
+                await ctx.send(
+                    f"Paper trade #{trade_id} opened: **{direction.upper()} {ticker.upper()}** "
+                    f"@ ${float(price):.2f}  ×{float(shares):.0f}"
+                    + (f"\n_{note}_" if note else "")
+                )
+            except ValueError:
+                await ctx.send("Invalid price/shares. Usage: `!trade LONG|SHORT TICKER PRICE [SHARES]`")
+
+        @bot.command(name="trades")
+        async def cmd_trades(ctx: dc_commands.Context) -> None:
+            open_trades = self.portfolio.get_paper_trades(open_only=True)
+            if not open_trades:
+                await ctx.send("No open paper trades. Use `!trade LONG|SHORT TICKER PRICE` to open one.")
+                return
+            lines = ["**Open Paper Trades**"]
+            for t in open_trades:
+                lines.append(
+                    f"`#{t.id}` **{t.direction.upper()} {t.ticker}** "
+                    f"@ ${t.entry_price:.2f} × {t.shares:.0f}  ·  {t.entry_date}"
+                    + (f"\n   _{t.notes}_" if t.notes else "")
+                )
+            await ctx.send("\n".join(lines))
+
+        @bot.command(name="closetr")
+        async def cmd_closetr(
+            ctx: dc_commands.Context, trade_id: str = "", exit_price: str = ""
+        ) -> None:
+            if not trade_id or not exit_price:
+                await ctx.send("Usage: `!closetr TRADE_ID EXIT_PRICE`")
+                return
+            try:
+                result = self.portfolio.close_paper_trade(int(trade_id), float(exit_price))
+                await ctx.send(result)
+            except ValueError:
+                await ctx.send("Invalid ID or price. Usage: `!closetr ID PRICE`")
+
         @bot.command(name="peach")
         async def cmd_peach(ctx: dc_commands.Context, *, message: str = "") -> None:
             if not message:
@@ -186,10 +286,19 @@ class PeachDiscord:
 
 
 def _split(text: str, limit: int = 1900) -> list[str]:
+    """Split text at newline boundaries, never mid-line."""
     if len(text) <= limit:
         return [text]
     chunks: list[str] = []
-    while text:
-        chunks.append(text[:limit])
-        text = text[limit:]
+    current_lines: list[str] = []
+    current_len = 0
+    for line in text.splitlines(keepends=True):
+        if current_len + len(line) > limit and current_lines:
+            chunks.append("".join(current_lines))
+            current_lines = []
+            current_len = 0
+        current_lines.append(line)
+        current_len += len(line)
+    if current_lines:
+        chunks.append("".join(current_lines))
     return chunks

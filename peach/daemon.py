@@ -43,8 +43,11 @@ def run_pipeline(
 
         EmailNotifier(config, logger).send(briefing)
 
-        # Discord: send snippet
-        _notify_discord(discord_bot, f"**Morning Briefing**\n{briefing[:1900]}", logger)
+        # Discord: send full briefing split across messages
+        from .discord_bot import _split
+        for i, chunk in enumerate(_split(briefing)):
+            prefix = "**Morning Briefing**\n" if i == 0 else ""
+            _notify_discord(discord_bot, prefix + chunk, logger)
 
         # Generate charts and PDF
         from .charts import ChartGenerator

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 import json
 import logging
 import time
@@ -18,33 +19,66 @@ from .tools import TOOL_SCHEMAS, ToolExecutor
 
 SYSTEM_PROMPT = """You are Peach, a pre-market intelligence agent for an active trader.
 
-You have tools: get_quote, get_portfolio, get_pre_market, get_news, add_alert,
+Tools available: get_quote, get_portfolio, get_pre_market, get_news, add_alert,
 get_technicals, get_earnings_calendar, get_correlation, search_web.
 
 Use tools proactively when they add real value. Cite specific numbers — never invent prices or facts.
-When RSI < 30 flag oversold; when RSI > 70 flag overbought.
 
-## Morning briefing format (use this exact structure):
+## REQUIRED OUTPUT FORMAT for morning briefings
+
+Your response MUST begin exactly like this template (fill in real values):
+
+# Peach Brief — {Weekday Mon DD}
+
+> {RISK-ON|RISK-OFF|MIXED} — {one tight sentence explaining the tape}
+
+---
+
+Then continue with these sections in order, each separated by `---`:
 
 **Macro Tape**
-Index levels (SPY, QQQ, DIA), VIX reading, 10Y yield, DXY. Characterize the tape: risk-on, risk-off, or mixed.
+| Index | Price | Change |
+|-------|-------|--------|
+| SPY   | $XXX  | ↑/↓ X.X% |
+| QQQ   | $XXX  | ↑/↓ X.X% |
+| DIA   | $XXX  | ↑/↓ X.X% |
+
+VIX XX.X ↑/↓ (+X.X%) · 10Y X.XX% · DXY XX.X
+
+---
 
 **Portfolio Check**
-Each open position with current price vs cost basis. Flag any position near a 52-week extreme or showing unusual RSI.
+Call get_portfolio. For each position show: price vs cost, unrealised P&L %.
+Mark positions ≥5% in drawdown with `▼`. Skip section if portfolio is empty.
+
+---
 
 **Earnings Watch**
-Call get_earnings_calendar. Any ticker reporting in the next 7 days gets flagged with expected move and key metric to watch.
+Call get_earnings_calendar. Flag any earnings in the next 7 days.
+If none: _No earnings this week for watched tickers._
+
+---
 
 **Standouts**
-2-4 tickers from the watchlist with unusual price/volume action. Reference technicals where relevant.
+2-4 bullets. Use ⚠ oversold when RSI < 30, ⚠ overbought when RSI > 70.
+
+---
 
 **Lookout List**
-2-3 specific setups for today: ticker, direction, key level, and one-sentence rationale.
+2-3 rows. Format: `**TICKER** · Long/Short · $XXX level · one-sentence rationale`
+
+---
 
 **Risk Notes**
-Macro tail risks, positions at technical breakdown levels, sector concentration. Be specific.
+2-3 concise bullets.
 
-When answering a direct question, be brief and precise. State uncertainty explicitly if data is unavailable.
+---
+
+**Today's Focus** — {single most important thing to watch today}
+
+## End of format template
+
+When answering a direct question (not a briefing), be brief and precise. State uncertainty explicitly.
 """
 
 
@@ -66,7 +100,8 @@ class PeachAgent:
     def run_briefing(self, market_data: AggregatedMarketData) -> str:
         """Run the morning briefing agentic loop. Falls back to MarketAnalyzer on failure."""
         try:
-            briefing = self._run_loop(self._briefing_prompt(market_data))
+            raw = self._run_loop(self._briefing_prompt(market_data))
+            briefing = self._polish(raw)
             self._auto_update_memory(briefing, market_data)
             return briefing
         except Exception as exc:
@@ -84,13 +119,39 @@ class PeachAgent:
 
     def _briefing_prompt(self, market_data: AggregatedMarketData) -> str:
         payload = market_data.to_prompt_payload()
+        today = date.today().strftime("%a %b %d").replace(" 0", " ")
         parts = []
         context = self.memory.context_summary()
         if context:
             parts.append(context)
-        parts.append("Generate the morning market briefing. Use your tools for live data if helpful.")
+        parts.append(
+            f"Today is {today}. Generate the morning market briefing.\n\n"
+            "IMPORTANT — you MUST call these tools before writing their sections:\n"
+            "1. Call get_portfolio FIRST — write exactly what it returns; "
+            "do NOT invent cost bases. If empty, write '_No positions tracked._'\n"
+            "2. Call get_earnings_calendar — write only what the tool reports; "
+            "do NOT add tickers from training data.\n\n"
+            "Use the pre-fetched snapshot for everything else."
+        )
         parts.append(f"Pre-fetched market snapshot:\n{json.dumps(payload, indent=2)}")
         return "\n\n".join(parts)
+
+    def _polish(self, text: str) -> str:
+        """Guarantee the date header and Today's Focus are present."""
+        today = date.today().strftime("%a %b %d").replace(" 0", " ")
+        header = f"# Peach Brief — {today}"
+        lines = text.splitlines()
+
+        # Prepend header if not present
+        if not lines or not lines[0].startswith("# Peach Brief"):
+            text = f"{header}\n\n{text}"
+            lines = text.splitlines()
+
+        # Append Today's Focus if not present
+        if "**Today's Focus**" not in text:
+            text = text.rstrip() + "\n\n---\n\n**Today's Focus** — Watch the key support levels and VIX direction at the open."
+
+        return text
 
     def _run_loop(self, user_content: str, max_iterations: int = 8) -> str:
         messages: list[dict[str, Any]] = [
