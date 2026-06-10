@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 import logging
-from typing import Any
+from typing import Any, Callable, TypeVar
 from urllib.parse import quote_plus
 import xml.etree.ElementTree as ET
 
@@ -107,6 +108,20 @@ class AggregatedMarketData:
 
 # ── Fetcher ────────────────────────────────────────────────────────────────────
 
+_T = TypeVar("_T")
+_YF_TIMEOUT = 12  # seconds — curl_cffi has no built-in cap; enforce one here
+
+
+def _yf_get(fn: Callable[[], _T], default: _T, timeout: int = _YF_TIMEOUT) -> _T:
+    """Run a yfinance call in a thread with a hard wall-clock timeout."""
+    with ThreadPoolExecutor(max_workers=1) as ex:
+        fut = ex.submit(fn)
+        try:
+            return fut.result(timeout=timeout)
+        except (FutureTimeout, Exception):
+            return default
+
+
 _MACRO_SYMBOLS = {
     "VIX":       "^VIX",
     "YIELD_10Y": "^TNX",
@@ -142,7 +157,7 @@ class MarketDataFetcher:
         macro: dict[str, Any] = {}
         for name, symbol in _MACRO_SYMBOLS.items():
             try:
-                info = yf.Ticker(symbol).info
+                info = _yf_get(lambda s=symbol: yf.Ticker(s).info, default={})
                 price = info.get("currentPrice") or info.get("regularMarketPrice")
                 prev = info.get("previousClose") or info.get("regularMarketPreviousClose")
                 if price:
@@ -163,7 +178,10 @@ class MarketDataFetcher:
             try:
                 t = yf.Ticker(ticker)
                 # 3 months for RSI(14) and SMA(50)
-                history = t.history(period="3mo", interval="1d", auto_adjust=False)
+                history = _yf_get(
+                    lambda _t=t: _t.history(period="3mo", interval="1d", auto_adjust=False),
+                    default=pd.DataFrame(),
+                )
                 if history.empty:
                     self.logger.warning("No yfinance history returned for %s", ticker)
                     metrics.append(self._empty_metric(ticker))
@@ -191,7 +209,7 @@ class MarketDataFetcher:
                 above_sma50 = bool(latest_close > float(sma50)) if sma50 is not None else None
 
                 # Info (52w H/L, pre-market, earnings)
-                info = t.info
+                info = _yf_get(lambda _t=t: _t.info, default={})
                 week_52_high = info.get("fiftyTwoWeekHigh")
                 week_52_low = info.get("fiftyTwoWeekLow")
 
