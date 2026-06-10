@@ -28,8 +28,11 @@
     </div>
   </nav>
 
-  <!-- ── Hero (unchanged) ──────────────────────────────────────────────────── -->
+  <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
   <section class="hero">
+    <canvas class="hero-wave-canvas" id="hero-wave" aria-hidden="true"></canvas>
+    <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+    <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
     <p class="hero-eyebrow">A pre-market intelligence agent</p>
     <h1 class="hero-name">Peach.</h1>
     <p class="hero-sub">An agent that gathers market data, runs LLM analysis, and delivers a concise briefing to your inbox before the opening bell — every trading day, automatically.</p>
@@ -39,6 +42,13 @@
     </div>
     <span class="hero-scroll">Scroll to explore</span>
   </section>
+
+  <!-- wave break between hero and stats -->
+  <div class="wave-sep" aria-hidden="true">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,28 C180,52 360,4 540,28 C720,52 900,4 1080,28 C1260,52 1380,12 1440,28 L1440,56 L0,56 Z" fill="var(--bg)"/>
+    </svg>
+  </div>
 
   <!-- ── Stats ─────────────────────────────────────────────────────────────── -->
   <div class="stat-strip">

@@ -86,6 +86,60 @@ document.querySelectorAll('.term').forEach(term => {
   });
 });
 
+// ── Hero wave canvas ──────────────────────────────────────────────────────────
+
+function renderHeroWaves() {
+  const canvas = document.getElementById('hero-wave');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let raf, t = 0;
+
+  function setSize() {
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+
+  function frame() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Three layered sine waves at the base of the hero
+    const layers = [
+      { baseY: 0.70, amp: 0.045, freq: 0.0048, speed: 0.38, alpha: 0.07 },
+      { baseY: 0.78, amp: 0.030, freq: 0.0072, speed: 0.62, alpha: 0.055 },
+      { baseY: 0.85, amp: 0.055, freq: 0.0030, speed: 0.22, alpha: 0.04 },
+    ];
+
+    layers.forEach(({ baseY, amp, freq, speed, alpha }) => {
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 3) {
+        const y = (baseY + Math.sin(x * freq + t * speed) * amp) * H;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, H + 1);
+      ctx.lineTo(0, H + 1);
+      ctx.closePath();
+
+      const g = ctx.createLinearGradient(0, H * (baseY - amp), 0, H);
+      g.addColorStop(0, `rgba(224,120,76,${alpha})`);
+      g.addColorStop(1, `rgba(244,192,160,${alpha * 0.4})`);
+      ctx.fillStyle = g;
+      ctx.fill();
+    });
+
+    t += 0.010;
+    raf = requestAnimationFrame(frame);
+  }
+
+  setSize();
+  window.addEventListener('resize', setSize, { passive: true });
+  frame();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelAnimationFrame(raf);
+    else frame();
+  });
+}
+
 // ── Charts ────────────────────────────────────────────────────────────────────
 
 function seededRand(seed) {
@@ -108,11 +162,10 @@ function renderPortfolioChart() {
     vals.push(Math.max(46000, vals[i - 1] * (1 + drift)));
   }
 
-  const last   = vals[vals.length - 1];
-  const pct    = ((last / vals[0] - 1) * 100).toFixed(1);
-  const up     = last >= vals[0];
-  const color  = up ? '#4ade80' : '#f87171';
-  const accent = '#e0784c';
+  const last  = vals[vals.length - 1];
+  const pct   = ((last / vals[0] - 1) * 100).toFixed(1);
+  const up    = last >= vals[0];
+  const line  = '#e0784c';  // peach accent
 
   const W = 560, H = 160;
   const minV = Math.min(...vals) - 1200;
@@ -120,13 +173,13 @@ function renderPortfolioChart() {
   const tx = i => ((i / (days - 1)) * W).toFixed(2);
   const ty = v  => (H - ((v - minV) / (maxV - minV)) * H).toFixed(2);
 
-  const coords = vals.map((v, i) => `${tx(i)},${ty(v)}`);
+  const coords   = vals.map((v, i) => `${tx(i)},${ty(v)}`);
   const linePath = `M ${coords.join(' L ')}`;
   const areaPath = `${linePath} L ${W},${H} L 0,${H} Z`;
 
-  // Subtle horizontal grid
+  // Warm grid lines
   const grids = [0.25, 0.5, 0.75].map(t =>
-    `<line x1="0" y1="${(H * t).toFixed(0)}" x2="${W}" y2="${(H * t).toFixed(0)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`
+    `<line x1="0" y1="${(H * t).toFixed(0)}" x2="${W}" y2="${(H * t).toFixed(0)}" stroke="rgba(23,16,10,0.04)" stroke-width="1"/>`
   ).join('');
 
   container.innerHTML = `
@@ -140,20 +193,21 @@ function renderPortfolioChart() {
     <svg class="chart-svg" viewBox="0 0 ${W} ${H}" height="160" preserveAspectRatio="none">
       <defs>
         <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${accent}" stop-opacity="0.22"/>
-          <stop offset="100%" stop-color="${accent}" stop-opacity="0"/>
+          <stop offset="0%" stop-color="${line}" stop-opacity="0.18"/>
+          <stop offset="85%" stop-color="${line}" stop-opacity="0.03"/>
+          <stop offset="100%" stop-color="${line}" stop-opacity="0"/>
         </linearGradient>
         <clipPath id="pc"><rect width="${W}" height="${H}"/></clipPath>
       </defs>
       ${grids}
       <path d="${areaPath}" fill="url(#pg)" clip-path="url(#pc)"/>
-      <path d="${linePath}" fill="none" stroke="${accent}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cline"/>
+      <path d="${linePath}" fill="none" stroke="${line}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="cline"/>
     </svg>
     <div class="chart-tickers">
       ${['SPY','AAPL','NVDA','MSFT','TSLA'].map(t => `<span class="chart-ticker">${t}</span>`).join('')}
     </div>`;
 
-  // Animate line on enter
+  // Draw-on animation
   const path = container.querySelector('.cline');
   if (path && path.getTotalLength) {
     const len = path.getTotalLength();
@@ -161,17 +215,13 @@ function renderPortfolioChart() {
     path.style.strokeDashoffset = len;
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) {
-        path.style.transition = 'stroke-dashoffset 2.4s cubic-bezier(.4,0,.2,1) .2s';
+        path.style.transition = 'stroke-dashoffset 2.6s cubic-bezier(.4,0,.2,1) .15s';
         path.style.strokeDashoffset = '0';
         obs.disconnect();
       }
     }, { threshold: 0.3 });
     obs.observe(container);
   }
-}
-
-function renderCandlestickChart() {
-  // (unused — using heatmap instead)
 }
 
 function renderHeatmap() {
@@ -187,13 +237,14 @@ function renderHeatmap() {
     [0.39, 0.44, 0.51, 0.42, 1.00],
   ];
 
+  // Warm pastel scale: cream → peach → deep orange
   const colorFor = v => {
-    // 0 → red(0°), 0.5 → yellow(55°), 1 → green(140°)
-    const hue = v * 140;
-    const sat = 58 + v * 12;
-    const lit = 28 + v * 18;
-    return `hsl(${hue.toFixed(0)},${sat.toFixed(0)}%,${lit.toFixed(0)}%)`;
+    const r = Math.round(254 + (192 - 254) * v);
+    const g = Math.round(245 + (100 - 245) * v);
+    const b = Math.round(238 + ( 60 - 238) * v);
+    return `rgb(${r},${g},${b})`;
   };
+  const textFor = v => v > 0.72 ? '#fff' : '#9c8d84';
 
   const colLabels = `
     <div class="hm-col-labels" style="grid-template-columns:repeat(${tickers.length},1fr);">
@@ -205,7 +256,7 @@ function renderHeatmap() {
       <span class="hm-row-label">${rowT}</span>
       ${tickers.map((_, c) => {
         const v = corr[r][c];
-        return `<div class="hm-cell" style="background:${colorFor(v)}" title="${rowT}/${tickers[c]}: ${v.toFixed(2)}">${v.toFixed(2)}</div>`;
+        return `<div class="hm-cell" style="background:${colorFor(v)};color:${textFor(v)}" title="${rowT}/${tickers[c]}: ${v.toFixed(2)}">${v.toFixed(2)}</div>`;
       }).join('')}
     </div>`).join('');
 
@@ -220,18 +271,19 @@ function renderHeatmap() {
   const cells = container.querySelectorAll('.hm-cell');
   cells.forEach((cell, i) => {
     cell.style.opacity = '0';
-    cell.style.transform = 'scale(0.7)';
-    cell.style.transition = `opacity 0.3s ease ${i * 18}ms, transform 0.3s ease ${i * 18}ms`;
+    cell.style.transform = 'scale(0.72)';
+    cell.style.transition = `opacity 0.32s ease ${i * 16}ms, transform 0.32s ease ${i * 16}ms`;
   });
   const hObs = new IntersectionObserver(([e]) => {
     if (e.isIntersecting) {
-      cells.forEach(cell => { cell.style.opacity = '1'; cell.style.transform = 'scale(1)'; });
+      cells.forEach(c => { c.style.opacity = '1'; c.style.transform = 'scale(1)'; });
       hObs.disconnect();
     }
   }, { threshold: 0.3 });
   hObs.observe(container);
 }
 
-// Init charts
+// Init
+renderHeroWaves();
 renderPortfolioChart();
 renderHeatmap();
