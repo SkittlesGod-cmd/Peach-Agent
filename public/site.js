@@ -287,3 +287,16 @@ function renderHeatmap() {
 renderHeroWaves();
 renderPortfolioChart();
 renderHeatmap();
+
+// ── Vercel Analytics & Speed Insights ────────────────────────────────────────
+(function () {
+  [
+    '/_vercel/insights/script.js',
+    '/_vercel/speed-insights/script.js',
+  ].forEach(function (src) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.defer = true;
+    document.head.appendChild(s);
+  });
+})();

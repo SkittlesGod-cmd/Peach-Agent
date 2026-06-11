@@ -1,0 +1,8 @@
+{
+  "name": "peach-agent-site",
+  "private": true,
+  "dependencies": {
+    "@vercel/analytics": "latest",
+    "@vercel/speed-insights": "latest"
+  }
+}
