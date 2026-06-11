@@ -216,64 +216,48 @@ class EmailNotifier:
                 sign = -1 if m_pct.group(1) == "↓" else 1
                 chart_data.append((cells[0], sign * float(m_pct.group(2))))
 
-        def build_chart_svg(data: list[tuple[str, float]]) -> str:
+        def build_chart_html(data: list[tuple[str, float]]) -> str:
+            """Pure HTML/CSS bar chart — works in Gmail (no SVG)."""
             if not data:
                 return ""
-            row_h, label_w, bar_max_w, pad = 28, 52, 200, 16
-            total_h = len(data) * row_h + pad * 2
-            total_w = 560
-            mid_x = label_w + bar_max_w  # zero line x
-
             max_abs = max(abs(v) for _, v in data) or 1
-            svg = (f'<svg width="{total_w}" height="{total_h}" '
-                   f'xmlns="http://www.w3.org/2000/svg" '
-                   f'style="display:block;width:100%;max-width:{total_w}px;">')
+            bar_max_px = 200
+            rows = ""
+            for ticker, pct in data:
+                bar_px = max(4, int(abs(pct) / max_abs * bar_max_px))
+                color = "#3db870" if pct >= 0 else "#e07840"
+                sign = "+" if pct > 0 else ""
+                rows += (
+                    '<tr>'
+                    f'<td style="width:40px;font-size:12px;font-weight:700;color:#2a1a10;'
+                    f'padding:5px 10px 5px 0;text-align:right;vertical-align:middle;'
+                    f'white-space:nowrap;">{ticker}</td>'
+                    '<td style="padding:5px 0;vertical-align:middle;">'
+                    '<table style="border-collapse:collapse;"><tr>'
+                    f'<td style="width:{bar_px}px;height:12px;background:{color};'
+                    f'border-radius:3px;font-size:1px;line-height:1;">&nbsp;</td>'
+                    f'<td style="padding-left:8px;font-size:12px;color:{color};'
+                    f'font-weight:700;white-space:nowrap;">{sign}{pct:.2f}%</td>'
+                    '</tr></table>'
+                    '</td>'
+                    '</tr>'
+                )
+            return (
+                '<table style="width:100%;border-collapse:collapse;">'
+                + rows +
+                '</table>'
+            )
 
-            # background
-            svg += f'<rect width="{total_w}" height="{total_h}" fill="#fff7f2" rx="6"/>'
-
-            # zero line
-            svg += (f'<line x1="{mid_x}" y1="{pad//2}" x2="{mid_x}" '
-                    f'y2="{total_h - pad//2}" stroke="#f0d8c8" stroke-width="1"/>')
-
-            for i, (ticker, pct) in enumerate(data):
-                y = pad + i * row_h
-                bar_w = int(abs(pct) / max_abs * bar_max_w * 0.88)
-                bar_color = "#4cae78" if pct >= 0 else "#e07840"
-                bar_x = mid_x if pct >= 0 else mid_x - bar_w
-                cy = y + row_h // 2
-
-                # ticker label
-                svg += (f'<text x="{label_w - 8}" y="{cy + 4}" '
-                        f'font-family="-apple-system,BlinkMacSystemFont,\'Segoe UI\',Arial,sans-serif" '
-                        f'font-size="12" font-weight="600" fill="#2a1a10" '
-                        f'text-anchor="end">{ticker}</text>')
-
-                # bar
-                if bar_w > 0:
-                    svg += (f'<rect x="{bar_x}" y="{cy - 7}" width="{bar_w}" height="14" '
-                            f'rx="3" fill="{bar_color}" opacity="0.88"/>')
-
-                # % label
-                sign_str = "+" if pct > 0 else ""
-                label_x = (mid_x + bar_w + 6) if pct >= 0 else (mid_x - bar_w - 6)
-                anchor = "start" if pct >= 0 else "end"
-                svg += (f'<text x="{label_x}" y="{cy + 4}" '
-                        f'font-family="-apple-system,BlinkMacSystemFont,\'Segoe UI\',Arial,sans-serif" '
-                        f'font-size="11" fill="{bar_color}" font-weight="600" '
-                        f'text-anchor="{anchor}">{sign_str}{pct:.2f}%</text>')
-
-            svg += "</svg>"
-            return svg
-
-        chart_svg = build_chart_svg(chart_data)
+        chart_html = build_chart_html(chart_data)
         chart_block = ""
-        if chart_svg:
+        if chart_html:
             chart_block = (
-                '<div style="padding:16px 24px 12px;border-bottom:1px solid #fae0cc;">'
+                '<div style="padding:14px 24px 10px;background:#fff7f2;'
+                'border-bottom:1px solid #fae0cc;">'
                 '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;'
-                'text-transform:uppercase;color:#c05818;margin-bottom:10px;">Market Snapshot</div>'
-                + chart_svg +
+                'text-transform:uppercase;color:#c05818;margin-bottom:10px;">'
+                'Market Snapshot</div>'
+                + chart_html +
                 '</div>'
             )
 
@@ -377,12 +361,9 @@ class EmailNotifier:
   <div style="max-width:600px;margin:0 auto;">
 
     <!-- Header card -->
-    <div class="peach-card peach-s1" style="background:linear-gradient(135deg,#ffe8d0 0%,#fdd0a8 45%,#f8b888 100%);border-radius:14px 14px 0 0;padding:28px 28px 0;position:relative;overflow:hidden;">
-      <!-- decorative orb -->
-      <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.18);border-radius:50%;"></div>
-      <div style="position:absolute;top:10px;right:30px;width:80px;height:80px;background:rgba(255,255,255,0.12);border-radius:50%;"></div>
-      <div style="font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:#9c5c2c;margin-bottom:7px;position:relative;">Peach &middot; Pre-Market Intelligence</div>
-      <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#2a1208;letter-spacing:-0.3px;position:relative;">{html.escape(title)}</h1>
+    <div class="peach-card peach-s1" style="background:linear-gradient(135deg,#ffe8d0 0%,#fdd0a8 45%,#f8b888 100%);border-radius:14px 14px 0 0;padding:18px 24px 0;">
+      <div style="font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:#9c5c2c;margin-bottom:4px;">Peach &middot; Pre-Market Intelligence</div>
+      <h1 style="margin:0 0 14px;font-size:20px;font-weight:700;color:#2a1208;letter-spacing:-0.2px;">{html.escape(title)}</h1>
       {wave_svg}
     </div>
 
