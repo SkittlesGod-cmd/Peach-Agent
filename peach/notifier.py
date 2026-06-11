@@ -9,6 +9,8 @@ import html
 import logging
 import smtplib
 
+import requests
+
 from .config import PeachConfig
 
 
@@ -20,17 +22,24 @@ class EmailNotifier:
     def send(self, markdown_report: str) -> None:
         # Always persist locally — email is a bonus delivery, not the only copy
         self._save_briefing(markdown_report)
-        if not self.config.has_email_settings:
+        if not self.config.email_to:
             return
 
         subject = f"{self.config.email_subject_prefix} - {datetime.now().strftime('%Y-%m-%d')}"
+        html_body = self._markdown_to_html(markdown_report)
+
+        if self.config.has_email_settings:
+            self._send_smtp(markdown_report, html_body, subject)
+        else:
+            self._send_via_proxy(html_body, subject)
+
+    def _send_smtp(self, plain: str, html_body: str, subject: str) -> None:
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
         message["From"] = self.config.email_from or ""
         message["To"] = self.config.email_to or ""
-        message.attach(MIMEText(markdown_report, "plain", "utf-8"))
-        message.attach(MIMEText(self._markdown_to_html(markdown_report), "html", "utf-8"))
-
+        message.attach(MIMEText(plain, "plain", "utf-8"))
+        message.attach(MIMEText(html_body, "html", "utf-8"))
         try:
             with smtplib.SMTP(self.config.smtp_host, self.config.smtp_port, timeout=30) as smtp:
                 smtp.ehlo()
@@ -38,12 +47,29 @@ class EmailNotifier:
                 smtp.ehlo()
                 smtp.login(self.config.smtp_username, self.config.smtp_password)
                 smtp.send_message(message)
-            self.logger.info("Sent Peach briefing email to %s", self.config.email_to)
+            self.logger.info("Sent Peach briefing email (SMTP) to %s", self.config.email_to)
         except smtplib.SMTPException as exc:
             self.logger.exception("SMTP transmission failed: %s", exc)
             raise
         except OSError as exc:
             self.logger.exception("Network error while sending email: %s", exc)
+            raise
+
+    def _send_via_proxy(self, html_body: str, subject: str) -> None:
+        base = self.config.proxy_url.rsplit("/api/", 1)[0]
+        url = f"{base}/api/send-email"
+        try:
+            resp = requests.post(
+                url,
+                json={"to": self.config.email_to, "subject": subject, "html": html_body},
+                timeout=30,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            self.logger.info("Sent Peach briefing email (proxy) to %s (id=%s)",
+                             self.config.email_to, data.get("id", "?"))
+        except Exception as exc:
+            self.logger.exception("Proxy email delivery failed: %s", exc)
             raise
 
     def _save_briefing(self, markdown_report: str) -> None:
