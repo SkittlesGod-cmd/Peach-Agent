@@ -43,8 +43,8 @@ def _as_int(value: Any, default: int) -> int:
 
 def resolve_home(home: str | None = None) -> Path:
     """Return the configured Peach runtime directory."""
-
-    raw_home = home or os.getenv("PEACH_HOME") or os.getcwd()
+    default = Path.home() / ".local" / "share" / "peach-agent"
+    raw_home = home or os.getenv("PEACH_HOME") or str(default)
     return Path(raw_home).expanduser().resolve()
 
 
