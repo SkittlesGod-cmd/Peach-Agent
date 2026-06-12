@@ -204,6 +204,49 @@ def command_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_research(args: argparse.Namespace) -> int:
+    """Research opportunity hunter subcommands."""
+    config = load_config(args.home)
+    config.home.mkdir(parents=True, exist_ok=True)
+    logger = configure_logging(config.log_path, include_console=True)
+
+    from .research_db import ResearchDB
+    from .research_agent import ResearchAgent
+
+    db = ResearchDB(config.research_db)
+    agent = ResearchAgent(config, db, logger)
+
+    if args.research_cmd == "hunt":
+        print(f"Hunting for research opportunities (batch={args.batch})…")
+        result = agent.run_hunt(batch=args.batch)
+        print(result)
+        agent.sync_dashboard()
+
+    elif args.research_cmd == "followup":
+        print("Checking for follow-ups due…")
+        result = agent.run_followups()
+        print(result)
+        agent.sync_dashboard()
+
+    elif args.research_cmd == "list":
+        profs = db.get_all(args.status or None)
+        if not profs:
+            print("No professors found yet. Run: peach research hunt")
+            return 0
+        print(f"\n{'Name':<30} {'University':<30} {'Status':<12} {'Email'}")
+        print("─" * 90)
+        for p in profs:
+            print(f"{p['name']:<30} {p['university']:<30} {p['status']:<12} {p['email'] or '—'}")
+        stats = db.stats()
+        print(f"\nTotal: {len(profs)}  |  " + "  ".join(f"{k}: {v}" for k, v in stats.items()))
+
+    elif args.research_cmd == "sync":
+        ok = agent.sync_dashboard()
+        print("Dashboard synced." if ok else "Sync failed — check RESEARCH_SYNC_TOKEN config.")
+
+    return 0
+
+
 def command_logs(args: argparse.Namespace) -> int:
     config = load_config(args.home)
     if not config.log_path.exists():
@@ -404,6 +447,21 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("upgrade", help="Pull latest code, update deps, restart if needed.").set_defaults(func=command_upgrade)
     sub.add_parser("doctor",  help="Check configuration and connectivity.").set_defaults(func=command_doctor)
+
+    research_p = sub.add_parser("research", help="Research opportunity hunter.")
+    research_p.set_defaults(func=command_research)
+    research_sub = research_p.add_subparsers(dest="research_cmd", required=True)
+
+    hunt_p = research_sub.add_parser("hunt", help="Find new professors and send outreach emails.")
+    hunt_p.add_argument("--batch", type=int, default=3, help="Universities to scan per run (default 3).")
+
+    research_sub.add_parser("followup", help="Send follow-up emails to non-responders (14+ days).")
+
+    list_p = research_sub.add_parser("list", help="List tracked professors.")
+    list_p.add_argument("--status", choices=["found","emailed","followed_up","replied","declined"],
+                        help="Filter by status.")
+
+    research_sub.add_parser("sync", help="Push database snapshot to the web dashboard.")
 
     return parser
 

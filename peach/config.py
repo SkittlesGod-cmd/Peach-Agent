@@ -80,6 +80,8 @@ class PeachConfig:
     email_from: str | None = None
     email_to: str | None = None
     email_subject_prefix: str = "Peach Market Briefing"
+    student_profile: dict = field(default_factory=lambda: {})
+    research_sync_token: str | None = None
 
     @property
     def has_email_settings(self) -> bool:
@@ -99,6 +101,10 @@ class PeachConfig:
     @property
     def memory_db(self) -> Path:
         return self.home / "memory.db"
+
+    @property
+    def research_db(self) -> Path:
+        return self.home / "research.db"
 
 
 def load_config(home: str | None = None) -> PeachConfig:
@@ -156,4 +162,6 @@ def load_config(home: str | None = None) -> PeachConfig:
             "PEACH_EMAIL_SUBJECT_PREFIX",
             str(data.get("email_subject_prefix", "Peach Market Briefing")),
         ),
+        student_profile=data.get("student_profile", {}),
+        research_sync_token=os.getenv("RESEARCH_SYNC_TOKEN", data.get("research_sync_token")),
     )

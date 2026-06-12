@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@vercel/analytics": "latest",
+    "@vercel/kv": "latest",
     "@vercel/speed-insights": "latest"
   }
 }
