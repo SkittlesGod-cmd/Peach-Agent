@@ -172,6 +172,7 @@ class ResearchAgent:
             {"role": "system", "content": self._system_prompt()},
             {"role": "user", "content": user_content},
         ]
+        tool_calls_made = 0
 
         for iteration in range(max_iter):
             response = self._call_llm(messages)
@@ -187,8 +188,12 @@ class ResearchAgent:
                         args = json.loads(fn.get("arguments", "{}"))
                     except json.JSONDecodeError:
                         args = {}
+                    tool_calls_made += 1
+                    self.logger.info("[%d] → %s(%s)", tool_calls_made, fn["name"],
+                                     ", ".join(f"{k}={repr(v)[:60]}" for k, v in args.items()))
                     result = self.executor.execute(fn["name"], args)
-                    self.logger.debug("[%d] Tool %s → %s", iteration, fn["name"], str(result)[:300])
+                    preview = str(result)[:200].replace("\n", " ")
+                    self.logger.info("     ← %s", preview)
                     messages.append({
                         "role": "tool",
                         "tool_call_id": call["id"],
@@ -196,9 +201,23 @@ class ResearchAgent:
                     })
                 continue
 
-            return str(msg.get("content", "")).strip()
+            # Model returned a text response — done
+            summary = str(msg.get("content", "")).strip()
+            stats = self.db.stats()
+            self.logger.info(
+                "Hunt complete after %d tool calls. DB: %s",
+                tool_calls_made,
+                ", ".join(f"{k}={v}" for k, v in stats.items()) or "empty",
+            )
+            return summary
 
-        return "Research run completed (max iterations reached)."
+        stats = self.db.stats()
+        self.logger.info(
+            "Hunt hit max iterations (%d tool calls). DB: %s",
+            tool_calls_made,
+            ", ".join(f"{k}={v}" for k, v in stats.items()) or "empty",
+        )
+        return f"Research run complete ({tool_calls_made} tool calls, max iterations reached)."
 
     def _call_llm(self, messages: list[dict[str, Any]]) -> dict[str, Any]:
         for attempt in range(3):

@@ -20,7 +20,7 @@ ok()    { printf '  %s %s\n' "$(green '✓')" "$1"; }
 skip()  { printf '  %s %s\n' "$(dim '–')" "$(dim "$1")"; }
 
 printf '\n%s\n' "$(bold 'Peach')"
-printf '%s\n\n' "$(dim 'Pre-market intelligence agent')"
+printf '%s\n\n' "$(dim 'Research Opportunity Hunter')"
 
 # ── Requirements ──────────────────────────────────────────────────────────────
 command -v python3 >/dev/null 2>&1 || die "python3 not found. Install Python 3.9+ from https://python.org"
@@ -42,7 +42,7 @@ else
 fi
 
 step "Installing dependencies..."
-python3 -m venv "$VENV" --quiet
+python3 -m venv "$VENV"
 "$VENV/bin/pip" install -q --upgrade pip
 "$VENV/bin/pip" install -q -r "$INSTALL_DIR/requirements-peach.txt"
 "$VENV/bin/pip" install -q "$INSTALL_DIR"
@@ -64,80 +64,57 @@ chmod +x "$BIN_DIR/peach"
 # ── Quick setup wizard ────────────────────────────────────────────────────────
 # Reads from /dev/tty so prompts work even when this script is piped from curl.
 
-_setup_discord=""
-_setup_discord_channel=""
+_setup_name=""
+_setup_grade=""
 _setup_email=""
-_setup_email_pw=""
-_setup_email_to=""
-_setup_tickers=""
+_setup_interests=""
 
 if [ -e /dev/tty ]; then
     printf '\n'
     printf '  %s\n' "$(bold '─────────────────────────────────────────────')"
-    printf '  %s   %s\n' "$(bold 'Quick setup')" "$(dim 'press Enter to skip any question')"
+    printf '  %s   %s\n' "$(bold 'Student profile')" "$(dim 'press Enter to skip any question')"
+    printf '  %s\n' "$(dim 'Peach uses this to personalize every outreach email')"
     printf '  %s\n' "$(bold '─────────────────────────────────────────────')"
 
-    # ── Discord ───────────────────────────────────────────────────────────────
+    # ── Name ─────────────────────────────────────────────────────────────────
     printf '\n'
-    printf '  %s  %s\n' "$(peach 'Discord bot')" "$(dim 'recommended')"
-    printf '  %s\n' "$(dim 'Create a bot at discord.com/developers → copy the token')"
-    printf '  Bot token: '
-    read -r _setup_discord </dev/tty || true
-    _setup_discord="${_setup_discord#"${_setup_discord%%[![:space:]]*}"}"
-    _setup_discord="${_setup_discord%"${_setup_discord##*[![:space:]]}"}"
+    printf '  Your name: '
+    read -r _setup_name </dev/tty || true
+    _setup_name="${_setup_name#"${_setup_name%%[![:space:]]*}"}"
+    _setup_name="${_setup_name%"${_setup_name##*[![:space:]]}"}"
 
-    if [ -n "$_setup_discord" ]; then
-        printf '  %s\n' "$(dim 'Right-click your channel → Copy Channel ID (enable Developer Mode first)')"
-        printf '  Channel ID: '
-        read -r _setup_discord_channel </dev/tty || true
-        _setup_discord_channel="${_setup_discord_channel#"${_setup_discord_channel%%[![:space:]]*}"}"
-        _setup_discord_channel="${_setup_discord_channel%"${_setup_discord_channel##*[![:space:]]}"}"
-    fi
+    # ── Grade ─────────────────────────────────────────────────────────────────
+    printf '  Grade (e.g. 11th grade): '
+    read -r _setup_grade </dev/tty || true
+    _setup_grade="${_setup_grade#"${_setup_grade%%[![:space:]]*}"}"
+    _setup_grade="${_setup_grade%"${_setup_grade##*[![:space:]]}"}"
 
     # ── Email ─────────────────────────────────────────────────────────────────
     printf '\n'
-    printf '  %s  %s\n' "$(peach 'Email delivery')" "$(dim 'optional')"
-    printf '  Gmail address: '
+    printf '  %s  %s\n' "$(peach 'Your email')" "$(dim 'professors reply here')"
+    printf '  Email address: '
     read -r _setup_email </dev/tty || true
     _setup_email="${_setup_email#"${_setup_email%%[![:space:]]*}"}"
     _setup_email="${_setup_email%"${_setup_email##*[![:space:]]}"}"
 
-    if [ -n "$_setup_email" ]; then
-        printf '  App password:  '
-        # Disable echo for password input
-        stty -echo 2>/dev/tty || true
-        read -r _setup_email_pw </dev/tty || true
-        stty echo 2>/dev/tty || true
-        printf '\n'
-
-        printf '  Send to        %s\n' "$(dim "[Enter = same as above]")"
-        printf '  → '
-        read -r _setup_email_to </dev/tty || true
-        _setup_email_to="${_setup_email_to#"${_setup_email_to%%[![:space:]]*}"}"
-        _setup_email_to="${_setup_email_to%"${_setup_email_to##*[![:space:]]}"}"
-        [ -z "$_setup_email_to" ] && _setup_email_to="$_setup_email"
-    fi
-
-    # ── Tickers ───────────────────────────────────────────────────────────────
+    # ── Interests ────────────────────────────────────────────────────────────
     printf '\n'
-    printf '  %s  %s\n' "$(peach 'Watchlist')" "$(dim 'optional')"
-    printf '  %s\n' "$(dim 'Default: SPY, QQQ, DIA, IWM, AAPL, MSFT, NVDA, TSLA')"
-    printf '  Tickers (comma-separated): '
-    read -r _setup_tickers </dev/tty || true
-    _setup_tickers="${_setup_tickers#"${_setup_tickers%%[![:space:]]*}"}"
-    _setup_tickers="${_setup_tickers%"${_setup_tickers##*[![:space:]]}"}"
+    printf '  %s  %s\n' "$(peach 'Research interests')" "$(dim 'optional')"
+    printf '  %s\n' "$(dim 'e.g. neurosurgery, brain tumors, computational neuroscience')"
+    printf '  Interests: '
+    read -r _setup_interests </dev/tty || true
+    _setup_interests="${_setup_interests#"${_setup_interests%%[![:space:]]*}"}"
+    _setup_interests="${_setup_interests%"${_setup_interests##*[![:space:]]}"}"
 
     printf '\n'
     printf '  %s\n' "$(bold '─────────────────────────────────────────────')"
 
     # ── Write answers into peach_config.json ──────────────────────────────────
-    if [ -n "$_setup_discord" ] || [ -n "$_setup_email" ] || [ -n "$_setup_tickers" ]; then
-        _PEACH_DISCORD="$_setup_discord" \
-        _PEACH_DISCORD_CHANNEL="$_setup_discord_channel" \
+    if [ -n "$_setup_name" ] || [ -n "$_setup_email" ]; then
+        _PEACH_NAME="$_setup_name" \
+        _PEACH_GRADE="$_setup_grade" \
         _PEACH_EMAIL="$_setup_email" \
-        _PEACH_EMAIL_PW="$_setup_email_pw" \
-        _PEACH_EMAIL_TO="$_setup_email_to" \
-        _PEACH_TICKERS="$_setup_tickers" \
+        _PEACH_INTERESTS="$_setup_interests" \
         "$VENV/bin/python3" - "$INSTALL_DIR/peach_config.json" <<'PYWRITE'
 import sys, json, os
 
@@ -145,28 +122,22 @@ path = sys.argv[1]
 with open(path) as f:
     cfg = json.load(f)
 
-discord_tok = os.environ.get("_PEACH_DISCORD",         "").strip()
-discord_ch  = os.environ.get("_PEACH_DISCORD_CHANNEL", "").strip()
-mail        = os.environ.get("_PEACH_EMAIL",            "").strip()
-pw          = os.environ.get("_PEACH_EMAIL_PW",         "").strip()
-to          = os.environ.get("_PEACH_EMAIL_TO",         "").strip()
-ticks       = os.environ.get("_PEACH_TICKERS",          "").strip()
+name      = os.environ.get("_PEACH_NAME",      "").strip()
+grade     = os.environ.get("_PEACH_GRADE",     "").strip()
+mail      = os.environ.get("_PEACH_EMAIL",     "").strip()
+interests = os.environ.get("_PEACH_INTERESTS", "").strip()
 
-if discord_tok:
-    cfg["discord_token"] = discord_tok
-if discord_ch:
-    cfg["discord_channel_id"] = discord_ch
+profile = cfg.get("student_profile", {})
+if name:      profile["name"]      = name
+if grade:     profile["grade"]     = grade
+if interests: profile["interests"] = interests
+if mail:      profile["email"]     = mail
+
+if profile:
+    cfg["student_profile"] = profile
 
 if mail:
-    cfg["smtp_username"] = mail
-    cfg["smtp_password"] = pw
-    cfg["email_from"]    = mail
-    cfg["email_to"]      = to or mail
-
-if ticks:
-    parsed = [t.strip().upper() for t in ticks.split(",") if t.strip()]
-    if parsed:
-        cfg["tickers"] = parsed
+    cfg["email_to"] = mail
 
 with open(path, "w") as f:
     json.dump(cfg, f, indent=2)
@@ -176,26 +147,20 @@ PYWRITE
 
     # ── Setup summary ─────────────────────────────────────────────────────────
     printf '\n'
-    if [ -n "$_setup_discord" ]; then
-        ok "Discord bot configured"
+    if [ -n "$_setup_name" ]; then
+        ok "Student profile saved (name: $_setup_name)"
     else
-        skip "Discord skipped — add later: discord_token in peach_config.json"
+        skip "Profile skipped — edit student_profile in peach_config.json"
     fi
 
     if [ -n "$_setup_email" ]; then
-        ok "Email delivery configured → $_setup_email_to"
+        ok "Email configured → $_setup_email"
     else
-        skip "Email skipped — briefings saved to $INSTALL_DIR/briefing.md"
-    fi
-
-    if [ -n "$_setup_tickers" ]; then
-        ok "Custom watchlist saved"
-    else
-        skip "Using default watchlist (SPY, QQQ, DIA, IWM, AAPL, MSFT, NVDA, TSLA)"
+        skip "Email skipped — add email_to in peach_config.json"
     fi
 
 else
-    skip "Non-interactive install — edit $INSTALL_DIR/peach_config.json to configure email and Discord"
+    skip "Non-interactive install — edit student_profile in peach_config.json"
 fi
 
 # ── Done ─────────────────────────────────────────────────────────────────────
@@ -208,13 +173,9 @@ if ! command -v peach &>/dev/null 2>&1; then
     printf '  %s\n\n' 'export PATH="$HOME/.local/bin:$PATH"'
 fi
 
-printf '  %s\n' "$(bold 'Start the agent:')"
-printf '  %s\n\n' "$(peach 'peach start')"
-
-if [ -z "$_setup_discord" ] && [ -z "$_setup_email" ]; then
-    printf '  %s\n' "$(dim 'Briefings land at:')"
-    printf '  %s\n\n' "$(dim "$INSTALL_DIR/briefing.md")"
-fi
+printf '  %s\n' "$(bold 'Start the agent and run your first hunt:')"
+printf '  %s\n' "$(peach 'peach start')"
+printf '  %s\n\n' "$(peach 'peach research hunt --batch 3')"
 
 printf '  %s\n' "$(dim 'Full setup guide → https://peach-agent.vercel.app/install')"
 printf '\n'
