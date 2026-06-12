@@ -47,25 +47,24 @@
 
       <!-- Agentic loop -->
       <h2>The agentic loop</h2>
-      <p>The core idea: the LLM doesn't just fill in a template. It reasons, decides what data it needs, calls tools, reads the results, and continues until it has a complete answer.</p>
+      <p>The core idea: the LLM doesn't just fill in a template. It reasons, decides what actions to take, calls tools, reads the results, and continues until the research task is complete.</p>
       <div class="term">
         <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
         <pre class="term-body">Perception   →   Reason   →   Tool call   →   Re-reason   →   Output
      ↑                                                              ↓
      └──────────────────── Feedback loop ──────────────────────────┘
 
-Tools available (9 total):
-  get_quote              current price, change, volume
-  get_portfolio          positions with live P&amp;L
-  get_pre_market         pre-market price and % change
-  get_news               recent headlines for a ticker
-  get_technicals         RSI(14), SMA20/50, 52-week H/L
-  get_earnings_calendar  watchlist tickers reporting in next 7 days
-  get_correlation        30-day return correlation matrix
-  search_web             real-time DuckDuckGo search
-  add_alert              set a price threshold alert</pre>
+Research tools (8 total):
+  web_search             DuckDuckGo search — finds real faculty pages
+  scrape_lab_page        fetches a URL, extracts emails + content
+  add_professor          saves a professor to the SQLite database
+  send_outreach_email    sends a personalized cold email via Resend
+  list_professors        queries the database by status
+  get_followups_due      professors emailed 14+ days ago, no reply
+  send_followup_email    sends a polite follow-up email
+  (dashboard sync)       POSTs a snapshot to Vercel KV after each hunt</pre>
       </div>
-      <p>Each conversation or briefing run allows up to 8 tool iterations. If the agent needs pre-market data for three tickers and portfolio context, it calls four tools in sequence before writing the briefing. The LLM is retried up to 3 times with exponential backoff before falling back to <code>MarketAnalyzer</code>.</p>
+      <p>Each research hunt allows up to 20 tool iterations. The agent searches for faculty pages, scrapes them for emails, adds professors, and sends emails — all in a single loop. The LLM is retried up to 3 times with exponential backoff on failure.</p>
 
       <!-- Core modules -->
       <h2>Core modules</h2>
@@ -128,7 +127,19 @@ Tools available (9 total):
           </tr>
           <tr>
             <td><code>config.py</code></td>
-            <td>Loads configuration from env vars and <code>peach_config.json</code>. Returns a frozen <code>PeachConfig</code> dataclass. Env vars always win.</td>
+            <td>Loads configuration from env vars and <code>peach_config.json</code>. Returns a frozen <code>PeachConfig</code> dataclass. Env vars always win. Includes <code>student_profile</code>, <code>research_sync_token</code>, and <code>research_db</code>.</td>
+          </tr>
+          <tr>
+            <td><code>research_agent.py</code></td>
+            <td>Agentic research loop. Runs <code>run_hunt(batch)</code> to search N universities, <code>run_followups()</code> for 14-day follow-up cadence, and <code>sync_dashboard()</code> to push a snapshot to Vercel KV. Max 20 iterations per run.</td>
+          </tr>
+          <tr>
+            <td><code>research_tools.py</code></td>
+            <td>8 tool schemas and <code>ResearchToolExecutor</code>. Includes real DuckDuckGo web search, HTML scraping with email extraction, and email delivery via the Resend proxy. Targets 45+ universities across 10 neuroscience subfields.</td>
+          </tr>
+          <tr>
+            <td><code>research_db.py</code></td>
+            <td>SQLite schema for <code>professors</code> and <code>outreach</code> tables. Tracks status (found → emailed → followed_up → replied), outreach history, and exposes <code>snapshot()</code> for the Vercel dashboard.</td>
           </tr>
         </tbody>
       </table>
@@ -242,7 +253,7 @@ Tools available (9 total):
     <div class="footer-inner">
       <div class="footer-left">
         <span class="footer-brand"><span class="brand-icon" aria-hidden="true"><svg width="16" height="10" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span> Peach</span>
-        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+        <span class="footer-tagline">Research. Outreach. Automatically.</span>
       </div>
       <nav class="footer-links">
         <a href="/install">Install</a>

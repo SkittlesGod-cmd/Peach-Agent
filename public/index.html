@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Peach — Pre-Market Intelligence Agent</title>
-  <meta name="description" content="Peach is a pre-market intelligence agent. Live quotes, portfolio tracking, price alerts, and a Markdown briefing before every opening bell." />
+  <title>Peach — Research Opportunity Hunter</title>
+  <meta name="description" content="Peach is an AI agent that hunts neuroscience and neurosurgery professors at 45+ top universities, reads their lab pages, and sends personalized cold emails on your behalf — automatically." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
@@ -22,7 +22,6 @@
       <a href="/" aria-current="page">Overview</a>
       <a href="/install">Install</a>
       <a href="/dashboard">Research</a>
-      <a href="/paper-trades">Paper Trades</a>
       <a href="/deploy">Deploy</a>
       <a href="/config">Config</a>
       <a href="/architecture">Architecture</a>
@@ -34,12 +33,12 @@
     <canvas class="hero-wave-canvas" id="hero-wave" aria-hidden="true"></canvas>
     <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
     <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
-    <p class="hero-eyebrow">A pre-market intelligence agent</p>
-    <h1 class="hero-name">Peach.</h1>
-    <p class="hero-sub">An agent that gathers market data, runs LLM analysis, and delivers a concise briefing to your inbox before the opening bell — every trading day, automatically.</p>
+    <p class="hero-eyebrow">Research Opportunity Hunter</p>
+    <h1 class="hero-name">Find your first<br>research lab.</h1>
+    <p class="hero-sub">Peach is an AI agent that searches 45+ top universities for neuroscience and neurosurgery professors, reads their lab pages, and sends personalized cold emails on your behalf — automatically.</p>
     <div class="hero-actions">
       <a class="btn btn-dark" href="/install">Get started</a>
-      <a class="btn btn-outline" href="/deploy">Deployment guide</a>
+      <a class="btn btn-outline" href="/dashboard">View dashboard</a>
     </div>
     <span class="hero-scroll">Scroll to explore</span>
   </section>
@@ -54,20 +53,20 @@
   <!-- ── Stats ─────────────────────────────────────────────────────────────── -->
   <div class="stat-strip">
     <div class="stat-cell" data-reveal data-delay="0">
-      <span class="stat-value">09:00</span>
-      <span class="stat-label">ET weekday briefing</span>
+      <span class="stat-value" data-count="45" data-suffix="+">45+</span>
+      <span class="stat-label">universities targeted</span>
     </div>
     <div class="stat-cell" data-reveal data-delay="80">
-      <span class="stat-value" data-count="9" data-suffix=" tools">9 tools</span>
-      <span class="stat-label">quotes, technicals, web search</span>
+      <span class="stat-value" data-count="8" data-suffix=" tools">8 tools</span>
+      <span class="stat-label">search, scrape, email, track</span>
     </div>
     <div class="stat-cell" data-reveal data-delay="160">
-      <span class="stat-value">PDF + charts</span>
-      <span class="stat-label">candlestick, P&amp;L, correlation</span>
+      <span class="stat-value">14-day</span>
+      <span class="stat-label">automated follow-up cadence</span>
     </div>
     <div class="stat-cell" data-reveal data-delay="240">
       <span class="stat-value" data-count="0" data-suffix=" keys">0 keys</span>
-      <span class="stat-label">pre-configured LLM proxy</span>
+      <span class="stat-label">runs with no setup</span>
     </div>
   </div>
 
@@ -77,58 +76,43 @@
       <div class="hp-intro" data-reveal>
         <div>
           <p class="section-eyebrow">What it does</p>
-          <h2 class="section-title">Quiet, repeatable<br>market prep.</h2>
+          <h2 class="section-title">Automated research<br>outreach.</h2>
         </div>
-        <p class="hp-intro-body">Peach is a modular Python agent — a scheduler, data fetcher, LLM analysis engine, Discord bot, and delivery pipeline in a single package. Runs in the background. Needs no babysitting.</p>
+        <p class="hp-intro-body">Peach is a full agentic pipeline — web search, lab page scraping, LLM-powered email writing, SQLite tracking, and a live dashboard. It runs in the background and handles the entire outreach workflow so you can focus on what matters.</p>
       </div>
 
       <ul class="feature-grid" data-stagger>
         <li class="feature-item">
           <span class="feature-num">01</span>
-          <h3>Morning briefing</h3>
-          <p>At 09:00 ET every weekday, Peach fetches market data, builds an analyst prompt, and calls the pre-configured LLM. Delivered to email or saved locally as Markdown.</p>
+          <h3>Real web search</h3>
+          <p>Peach doesn't guess from training data. It searches DuckDuckGo for real faculty directory pages and lab profiles, finding professors active in neuroscience and neurosurgery right now.</p>
         </li>
         <li class="feature-item">
           <span class="feature-num">02</span>
-          <h3>Discord</h3>
-          <p>Live quotes, portfolio P&amp;L, on-demand briefings, and price alerts from Discord. The agent uses tool calls to fetch live data before answering — just type <code>!peach</code>.</p>
+          <h3>Lab page scraping</h3>
+          <p>Each faculty page is fetched and parsed. Peach extracts email addresses, recent paper titles, and research focus — the raw material for a genuinely personalized email.</p>
         </li>
         <li class="feature-item">
           <span class="feature-num">03</span>
-          <h3>Portfolio tracking</h3>
-          <p>Add positions with a cost basis and thesis. Peach computes real-time P&amp;L against current prices and tracks daily portfolio value history.</p>
+          <h3>Personalized outreach</h3>
+          <p>Every email references a specific paper by name, connects your background to their research, and stays under 200 words. No generic templates — each one reads like you wrote it.</p>
         </li>
         <li class="feature-item">
           <span class="feature-num">04</span>
-          <h3>Price alerts</h3>
-          <p>Set threshold alerts — Peach checks every 5 minutes during market hours and pushes a notification the moment a price crosses.</p>
+          <h3>Automated follow-up</h3>
+          <p>Professors who haven't replied after 14 days get a polite follow-up automatically. Peach tracks the cadence so you never have to remember who's waiting.</p>
         </li>
         <li class="feature-item">
           <span class="feature-num">05</span>
-          <h3>Charts &amp; PDF brief</h3>
-          <p>Every morning run generates a PDF with macro snapshot, portfolio table, and embedded candlestick and P&amp;L charts. Request any chart on demand.</p>
+          <h3>Research dashboard</h3>
+          <p>A live web dashboard shows every professor found, their status (found / emailed / followed-up / replied), and filters by university or subfield. Synced from your local daemon in real time.</p>
         </li>
         <li class="feature-item">
           <span class="feature-num">06</span>
-          <h3>Paper Trading</h3>
-          <p>Log hypothetical long and short positions before committing real capital. Peach tracks unrealised P&amp;L against live prices and records performance when you close.</p>
+          <h3>Nationwide coverage</h3>
+          <p>45+ programs including Johns Hopkins, Stanford, UCSF, Harvard, Yale, Columbia, Mayo, and more — across neurosurgery, brain tumor research, computational neuro, and neuroimaging.</p>
         </li>
       </ul>
-    </div>
-  </section>
-
-  <!-- ── Charts showcase ───────────────────────────────────────────────────── -->
-  <section class="hp-section">
-    <div class="wrap">
-      <div class="hp-loop-head" data-reveal>
-        <p class="section-eyebrow">Visual output</p>
-        <h2 class="section-title">Charts, delivered<br>every morning.</h2>
-        <p class="section-body">Candlestick charts, portfolio P&amp;L, and correlation heatmaps — generated automatically and pushed to Discord alongside every briefing.</p>
-      </div>
-      <div class="charts-duo" data-reveal>
-        <div class="chart-card" id="pc-portfolio"></div>
-        <div class="chart-card" id="pc-heat"></div>
-      </div>
     </div>
   </section>
 
@@ -137,50 +121,50 @@
     <div class="wrap">
       <div class="hp-loop-head" data-reveal>
         <p class="section-eyebrow">The agent loop</p>
-        <h2 class="section-title">Reason. Call.<br>Re-reason.</h2>
-        <p class="section-body">Peach doesn't just fill in a template. It runs a tool-use loop — calling tools for live data, reading the results, and continuing to reason until the answer is complete.</p>
+        <h2 class="section-title">Search. Scrape.<br>Email. Track.</h2>
+        <p class="section-body">Peach doesn't fill in a template. It runs a full tool-use loop — searching the real web, reading actual lab pages, writing personalized emails, and syncing to your dashboard.</p>
       </div>
       <ol class="loop-grid" data-stagger>
         <li class="loop-item">
           <span class="loop-num">01</span>
           <div>
-            <h3>Schedule</h3>
-            <p>APScheduler fires the pipeline at 09:00 ET on weekdays. The schedule, timezone, and tickers are fully configurable.</p>
+            <h3>Web search</h3>
+            <p>Peach queries DuckDuckGo for faculty directories and lab pages at each target university, using subfield-specific search terms to find active researchers.</p>
           </div>
         </li>
         <li class="loop-item">
           <span class="loop-num">02</span>
           <div>
-            <h3>Fetch</h3>
-            <p>Previous-session closes, volumes, pre-market moves, and headlines are collected. Individual failures are logged without stopping the run.</p>
+            <h3>Scrape</h3>
+            <p>Each promising URL is fetched. The agent extracts the professor's email, recent publications, lab focus, and department — the foundation for a real email.</p>
           </div>
         </li>
         <li class="loop-item">
           <span class="loop-num">03</span>
           <div>
-            <h3>Reason</h3>
-            <p>The market snapshot and portfolio context are given to the agent. The LLM decides what tools to call before writing the briefing.</p>
+            <h3>Discover</h3>
+            <p>Real professors with confirmed data are saved to a local SQLite database. Duplicates are detected automatically — each professor is tracked once.</p>
           </div>
         </li>
         <li class="loop-item">
           <span class="loop-num">04</span>
           <div>
-            <h3>Tool calls</h3>
-            <p>The agent calls up to 8 tools per briefing. Each result is fed back into the reasoning loop before the next step.</p>
+            <h3>Email</h3>
+            <p>If a real email was found on the page, Peach drafts and sends a cold email referencing a specific paper. The email is under 200 words and written for your exact background.</p>
           </div>
         </li>
         <li class="loop-item">
           <span class="loop-num">05</span>
           <div>
-            <h3>Deliver</h3>
-            <p>The finished briefing is formatted as a Markdown email and delivered via SMTP — or saved to a local file if no email is configured.</p>
+            <h3>Sync</h3>
+            <p>After each hunt, the full professor database is pushed to the Vercel dashboard so your outreach tracker stays current from any device.</p>
           </div>
         </li>
         <li class="loop-item">
           <span class="loop-num">06</span>
           <div>
-            <h3>Notify</h3>
-            <p>A summary is pushed to Discord. Price alerts are checked every 5 minutes during market hours for the rest of the day.</p>
+            <h3>Follow-up</h3>
+            <p>Professors emailed 14+ days ago with no reply are surfaced automatically. A polite follow-up is sent and the status is updated in the database.</p>
           </div>
         </li>
       </ol>
@@ -191,18 +175,21 @@
   <section class="install-band">
     <div class="wrap">
       <p class="section-eyebrow">Install</p>
-      <h2 class="install-heading" data-reveal>Two commands.<br>Nothing else.</h2>
+      <h2 class="install-heading" data-reveal>Three commands.<br>Then it hunts.</h2>
       <div class="install-term" data-reveal>
         <div class="term">
           <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
           <pre class="term-body"><span class="dim"># 1. Install</span>
 curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash
 
-<span class="dim"># 2. Start</span>
-peach start</pre>
+<span class="dim"># 2. Start the daemon</span>
+peach start
+
+<span class="dim"># 3. Run your first research hunt (3 universities)</span>
+peach research hunt --batch 3</pre>
         </div>
       </div>
-      <p class="install-note" data-reveal>No API keys to set. No config files to edit. Briefings land in ~/briefing.md until you add email or Discord.</p>
+      <p class="install-note" data-reveal>No API keys. No accounts. Your student profile in <code>peach_config.json</code> is all Peach needs to personalize every email.</p>
     </div>
   </section>
 
@@ -214,31 +201,31 @@ peach start</pre>
         <a class="explore-card" href="/install">
           <span class="explore-label">Tutorial</span>
           <h3>Install &amp; setup</h3>
-          <p>Step-by-step guide from zero to a running agent in under two minutes.</p>
+          <p>Step-by-step guide from zero to your first research hunt in under five minutes.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
-        <a class="explore-card" href="/paper-trades">
-          <span class="explore-label">Simulate</span>
-          <h3>Paper Trading</h3>
-          <p>Log hypothetical positions, track live P&amp;L, and close trades to record your performance.</p>
+        <a class="explore-card" href="/dashboard">
+          <span class="explore-label">Dashboard</span>
+          <h3>Research tracker</h3>
+          <p>Live view of every professor found, emailed, followed-up, and replied — nationwide.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
         <a class="explore-card" href="/deploy">
           <span class="explore-label">Deployment</span>
-          <h3>Choose a host</h3>
-          <p>Why the daemon needs an always-on runtime, and how to deploy it there.</p>
+          <h3>Always-on hosting</h3>
+          <p>Run Peach on a server so hunts and follow-ups happen even when your laptop is off.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
         <a class="explore-card" href="/config">
           <span class="explore-label">Reference</span>
           <h3>Configuration</h3>
-          <p>Every environment variable and config key, with defaults and examples.</p>
+          <p>Set your student profile, email, sync token, and LLM model in one config file.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
         <a class="explore-card" href="/architecture">
           <span class="explore-label">Architecture</span>
           <h3>How it's built</h3>
-          <p>Module responsibilities, the agentic loop, and runtime file layout.</p>
+          <p>The agentic loop, tool execution, database schema, and dashboard sync explained.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
         <a class="explore-card" href="/changelog">
@@ -250,13 +237,13 @@ peach start</pre>
         <a class="explore-card" href="/faq">
           <span class="explore-label">Help</span>
           <h3>FAQ</h3>
-          <p>Common questions about setup, scheduling, Discord, and data privacy.</p>
+          <p>Common questions about setup, email delivery, the research pipeline, and privacy.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
         <a class="explore-card" href="https://github.com/SkittlesGod-cmd/Peach-Agent" target="_blank" rel="noopener">
           <span class="explore-label">Open Source</span>
           <h3>GitHub</h3>
-          <p>Browse the source, open an issue, or fork and extend for your own use case.</p>
+          <p>Browse the source, open an issue, or fork and extend for your own research focus.</p>
           <span class="explore-arrow" aria-hidden="true">→</span>
         </a>
       </div>
@@ -268,12 +255,11 @@ peach start</pre>
     <div class="footer-inner">
       <div class="footer-left">
         <span class="footer-brand"><span class="brand-icon" aria-hidden="true"><svg width="16" height="10" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span> Peach</span>
-        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+        <span class="footer-tagline">Research. Outreach. Automatically.</span>
       </div>
       <nav class="footer-links">
         <a href="/install">Install</a>
         <a href="/dashboard">Research</a>
-        <a href="/paper-trades">Paper Trades</a>
         <a href="/deploy">Deploy</a>
         <a href="/config">Config</a>
         <a href="/architecture">Architecture</a>

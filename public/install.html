@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Install · Peach</title>
-  <meta name="description" content="Install and run Peach in under two minutes. Step-by-step guide for macOS and Linux." />
+  <title>Install · Peach Research</title>
+  <meta name="description" content="Install Peach and run your first research hunt in five minutes. Set up your student profile and let the agent find neuroscience professors nationwide." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" />
@@ -33,11 +33,11 @@
   <div class="page-hero">
     <div class="wrap">
       <p class="section-eyebrow">Install</p>
-      <h1 class="page-title">Up and running<br>in two minutes.</h1>
-      <p class="page-sub">One install command, one start command. No API keys, no config files, no accounts to create. Briefings land automatically every weekday at 09:00 ET.</p>
+      <h1 class="page-title">Up and running<br>in five minutes.</h1>
+      <p class="page-sub">One install command, one start command, one hunt command. No API keys, no accounts. Peach reads your student profile and starts finding professors.</p>
       <div class="page-actions">
-        <a class="btn btn-dark" href="/deploy">Deployment guide →</a>
-        <a class="btn btn-outline" href="/paper-trades">Paper Trading</a>
+        <a class="btn btn-dark" href="/dashboard">View dashboard →</a>
+        <a class="btn btn-outline" href="/deploy">Deployment guide</a>
       </div>
     </div>
   </div>
@@ -72,7 +72,7 @@ git --version</pre>
               <pre class="term-body">curl -fsSL https://raw.githubusercontent.com/SkittlesGod-cmd/Peach-Agent/main/install.sh | bash</pre>
             </div>
             <div class="callout">
-              <p>The script installs to <code>~/.local/share/peach-agent/</code>. Nothing goes in <code>/usr/local</code> or anywhere system-wide. Uninstalling is just deleting that directory.</p>
+              <p>Installs to <code>~/.local/share/peach-agent/</code>. Nothing system-wide. Uninstalling is deleting that directory.</p>
             </div>
           </div>
         </li>
@@ -80,16 +80,25 @@ git --version</pre>
         <li class="tutorial-step">
           <span class="step-num">03</span>
           <div class="step-body">
-            <h3>Start the agent</h3>
-            <p>This launches Peach as a detached background daemon. It schedules the morning briefing, starts the price-alert checker, and — if configured — starts the Discord bot.</p>
+            <h3>Set your student profile</h3>
+            <p>Edit <code>~/.local/share/peach-agent/peach_config.json</code> and fill in your profile. Peach uses this to write personalized emails that reference your exact background.</p>
             <div class="term">
               <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-              <pre class="term-body">peach start</pre>
+              <pre class="term-body">{
+  "email_to": "you@gmail.com",
+  "student_profile": {
+    "name":      "Your Name",
+    "grade":     "11th grade",
+    "gpa":       "4.0",
+    "courses":   "AP Biology, AP Chemistry, AP Computer Science",
+    "skills":    "Python, data analysis, literature review",
+    "interests": "neurosurgery, brain tumors, computational neuroscience",
+    "email":     "you@gmail.com"
+  }
+}</pre>
             </div>
-            <p>Check that it's running:</p>
-            <div class="term">
-              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-              <pre class="term-body">peach status</pre>
+            <div class="callout">
+              <p>The <code>email_to</code> field is the address where Peach confirms each sent email. Set <code>student_profile.email</code> to the address professors will reply to — usually the same.</p>
             </div>
           </div>
         </li>
@@ -97,16 +106,14 @@ git --version</pre>
         <li class="tutorial-step">
           <span class="step-num">04</span>
           <div class="step-body">
-            <h3>Read your first briefing</h3>
-            <p>Until email or Discord is configured, briefings are written to a Markdown file after each 09:00 ET run. You can also trigger one immediately:</p>
+            <h3>Start the daemon</h3>
+            <p>This launches Peach as a detached background process. It handles scheduled hunts and follow-up automation.</p>
             <div class="term">
               <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-              <pre class="term-body"><span class="dim"># Run a briefing right now instead of waiting for 09:00</span>
-peach stop
-PEACH_RUN_ON_START=true peach start
+              <pre class="term-body">peach start
 
-<span class="dim"># Read the output</span>
-cat ~/.local/share/peach-agent/briefing.md</pre>
+<span class="dim"># Confirm it's running</span>
+peach status</pre>
             </div>
           </div>
         </li>
@@ -114,33 +121,33 @@ cat ~/.local/share/peach-agent/briefing.md</pre>
         <li class="tutorial-step">
           <span class="step-num">05</span>
           <div class="step-body">
-            <h3>Try Paper Trading <span class="tag tag-new">New</span></h3>
-            <p>Log hypothetical long and short positions before committing real capital. Peach tracks live P&amp;L and records your performance when you close.</p>
-            <a class="btn btn-dark" href="/paper-trades" style="display:inline-flex;margin-top:4px;">Paper trading guide →</a>
+            <h3>Run your first research hunt</h3>
+            <p>This searches 3 universities for neuroscience and neurosurgery professors, scrapes their lab pages, and sends personalized emails to any whose address appears on their page.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
+              <pre class="term-body"><span class="dim"># Search 3 universities (expand --batch to go wider)</span>
+peach research hunt --batch 3
+
+<span class="dim"># See who was found</span>
+peach research list
+
+<span class="dim"># Sync results to your web dashboard</span>
+peach research sync</pre>
+            </div>
+            <div class="callout">
+              <p>The hunt runs in real time — you'll see tool calls logged as the agent searches, scrapes, and emails. Run with <code>--batch 5</code> to cover more universities per run.</p>
+            </div>
           </div>
         </li>
 
         <li class="tutorial-step">
           <span class="step-num">06</span>
           <div class="step-body">
-            <h3>Add email delivery <span class="tag">Optional</span></h3>
-            <p>Edit <code>~/.local/share/peach-agent/peach_config.json</code> and add your SMTP credentials. Gmail with an App Password works well.</p>
+            <h3>Check for follow-ups <span class="tag">Weekly</span></h3>
+            <p>After 14 days, professors who haven't replied are surfaced automatically. Run this weekly to keep your outreach pipeline active.</p>
             <div class="term">
               <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-              <pre class="term-body">{
-  "smtp_username": "you@gmail.com",
-  "smtp_password": "your-app-password",
-  "email_from":    "you@gmail.com",
-  "email_to":      "you@gmail.com"
-}</pre>
-            </div>
-            <p>Restart to apply:</p>
-            <div class="term">
-              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-              <pre class="term-body">peach stop && peach start</pre>
-            </div>
-            <div class="callout">
-              <p>Gmail requires an App Password, not your account password. Generate one at <strong>Google Account → Security → 2-Step Verification → App passwords</strong>.</p>
+              <pre class="term-body">peach research followup</pre>
             </div>
           </div>
         </li>
@@ -148,21 +155,45 @@ cat ~/.local/share/peach-agent/briefing.md</pre>
         <li class="tutorial-step">
           <span class="step-num">07</span>
           <div class="step-body">
-            <h3>Customise your watchlist <span class="tag">Optional</span></h3>
-            <p>The default watchlist is SPY, QQQ, DIA, IWM, AAPL, MSFT, NVDA, TSLA. Replace it with tickers you actually follow:</p>
-            <div class="term">
-              <div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span></div>
-              <pre class="term-body">{
-  "tickers": ["SPY", "QQQ", "AAPL", "MSFT", "GOOGL", "META", "AMZN"]
-}</pre>
-            </div>
+            <h3>View the dashboard <span class="tag">Optional</span></h3>
+            <p>The research dashboard shows every professor found, emailed, and replied. Requires Vercel KV — set it up in the Vercel dashboard under Storage → Create KV database → connect to your project.</p>
+            <a class="btn btn-dark" href="/dashboard" style="display:inline-flex;margin-top:4px;">Open dashboard →</a>
           </div>
         </li>
 
       </ol>
 
-      <!-- Commands reference -->
-      <h2>CLI reference</h2>
+      <!-- Research CLI reference -->
+      <h2>Research CLI reference</h2>
+      <table class="cmd-table">
+        <tr>
+          <td><code>peach research hunt</code></td>
+          <td>Search 3 universities for professors, scrape lab pages, send outreach emails.</td>
+        </tr>
+        <tr>
+          <td><code>peach research hunt --batch 5</code></td>
+          <td>Cover 5 universities per run. Maximum recommended is 8 (takes ~10 min).</td>
+        </tr>
+        <tr>
+          <td><code>peach research followup</code></td>
+          <td>Send polite follow-ups to professors who haven't replied in 14+ days.</td>
+        </tr>
+        <tr>
+          <td><code>peach research list</code></td>
+          <td>Print all professors in the database with their status.</td>
+        </tr>
+        <tr>
+          <td><code>peach research list --status emailed</code></td>
+          <td>Filter by status: found, emailed, followed_up, replied, or declined.</td>
+        </tr>
+        <tr>
+          <td><code>peach research sync</code></td>
+          <td>Push the full professor database to the Vercel dashboard.</td>
+        </tr>
+      </table>
+
+      <!-- Daemon CLI reference -->
+      <h2>Daemon CLI reference</h2>
       <table class="cmd-table">
         <tr>
           <td><code>peach start</code></td>
@@ -177,26 +208,22 @@ cat ~/.local/share/peach-agent/briefing.md</pre>
           <td>Stop the daemon gracefully. Cleans up the PID file.</td>
         </tr>
         <tr>
-          <td><code>PEACH_RUN_ON_START=true<br>peach start</code></td>
-          <td>Run a briefing immediately on startup instead of waiting for the scheduled time.</td>
-        </tr>
-        <tr>
           <td><code>peach --home /path start</code></td>
-          <td>Use a custom directory for config, PID, and log files. Useful for multiple instances.</td>
+          <td>Use a custom config/PID/log directory. Useful for multiple instances.</td>
         </tr>
       </table>
 
-      <!-- What's in the briefing -->
-      <h2>What the briefing contains</h2>
-      <p>Every morning briefing includes five sections, generated by the LLM from the market data payload:</p>
+      <!-- What the pipeline does -->
+      <h2>What happens during a hunt</h2>
+      <p>When you run <code>peach research hunt</code>, the agent executes a full agentic loop:</p>
       <ul>
-        <li><strong>Macro Tape</strong> — index levels and overnight moves across the configured watchlist</li>
-        <li><strong>Portfolio Check</strong> — open positions benchmarked against current prices (if configured)</li>
-        <li><strong>Standouts</strong> — unusual price and volume moves from the watchlist</li>
-        <li><strong>Lookout List</strong> — 2–3 tickers worth watching that session, with data-backed reasons</li>
-        <li><strong>Risk Notes</strong> — explicit uncertainty, data gaps, and what could go wrong</li>
+        <li><strong>Web search</strong> — queries DuckDuckGo for real faculty directory pages at each target university</li>
+        <li><strong>Lab page scraping</strong> — fetches each promising URL and extracts email addresses, paper titles, and research focus</li>
+        <li><strong>Database entry</strong> — saves each professor to a local SQLite database (duplicates are skipped)</li>
+        <li><strong>Outreach email</strong> — if a real email was found on the page, drafts and sends a personalized cold email under 200 words</li>
+        <li><strong>Dashboard sync</strong> — pushes the updated database to your Vercel dashboard after the hunt completes</li>
       </ul>
-      <p>If the LLM is unreachable, Peach produces a deterministic data-first fallback and marks it clearly so you know the difference.</p>
+      <p>The entire pipeline runs in one command. Each hunt covers 3 universities by default and takes 3–8 minutes depending on network speed.</p>
 
     </div>
   </div>
@@ -205,17 +232,17 @@ cat ~/.local/share/peach-agent/briefing.md</pre>
   <div class="divider-band">
     <div class="wrap">
       <p class="section-eyebrow">Next</p>
-      <h2 class="section-title" style="max-width:480px;margin-bottom:40px;">Make it useful everywhere.</h2>
+      <h2 class="section-title" style="max-width:480px;margin-bottom:40px;">Make it work everywhere.</h2>
       <div class="card-grid">
-        <a class="card" href="/paper-trades">
-          <span class="card-eyebrow">New</span>
-          <h3>Paper Trading</h3>
-          <p>Log hypothetical positions, track live P&amp;L, and review your closed-trade track record.</p>
+        <a class="card" href="/dashboard">
+          <span class="card-eyebrow">Dashboard</span>
+          <h3>Research tracker</h3>
+          <p>Live view of every professor found, emailed, followed-up, and replied — nationwide.</p>
         </a>
         <a class="card" href="/deploy">
           <span class="card-eyebrow">Deployment</span>
           <h3>Always-on hosting</h3>
-          <p>Run Peach on a VPS or home server so briefings arrive even when your laptop is off.</p>
+          <p>Run Peach on a server so hunts and follow-ups happen even when your laptop is off.</p>
         </a>
         <a class="card" href="/config">
           <span class="card-eyebrow">Reference</span>
@@ -235,7 +262,7 @@ cat ~/.local/share/peach-agent/briefing.md</pre>
     <div class="footer-inner">
       <div class="footer-left">
         <span class="footer-brand"><span class="brand-icon" aria-hidden="true"><svg width="16" height="10" viewBox="0 0 20 13" fill="none"><path d="M1 12 A9 9 0 0 1 19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/></svg></span> Peach</span>
-        <span class="footer-tagline">Pre-market intelligence, automated.</span>
+        <span class="footer-tagline">Research. Outreach. Automatically.</span>
       </div>
       <nav class="footer-links">
         <a href="/install">Install</a>
